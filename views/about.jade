@@ -2,10 +2,10 @@ doctype html
 html(lang='en')
   head
     meta(charset='UTF-8')
-    title Panko Yu Sushi Restaurant Homepage
+    title Panko Yu Sushi Restaurant About page
     link(rel='stylesheet' href='/stylesheets/style.css')
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
-    meta(name='description' content='Main page of the website of Panko Yu Sushi Restaurant.')
+    meta(name='description' content='Page containing opening hours and contact information of Panko Yu Sushi Restaurant.')
   body
     header.nav-header
       a(href='index')
@@ -15,14 +15,40 @@ html(lang='en')
         a(href='menu') Menu
         a(href='booking') Book a table
         a(href='about') Contact
-    main#main-content.content
-      article.mainpage-content
-        h1#mainpage-content__header
-          | こんにちは!
-        p
-          | Welcome to Panko Yu Sushi restaurant! こんにちは (kon-ni-chi-wa) means hello in Japanese. At Panko Yu, we are dedicated to providing you with an authentic japanese experience and a warm welcome.
-          | Eating at Panko Yu means a guaranteed great meal in a warm atmosphere.
-          | We also source all our fish and vegetables locally, to make sure that they are on par with our standards. We hope to see you soon!
+    main.content
+      article#opening_hours.about-info.about-info__opening-hours
+        h1 Opening hours
+        ul
+          li Monday: 16:00-23:00
+          li Tuesday: 16:00-23:00
+          li Wednesday: 16:00-23:00
+          li Thursday: 16:00-23:00
+          li Friday: 16:00-23:00
+          li Saturday: 18:00-22:00
+          li Sunday: closed
+      article#contact_information.about-info.about-info__contact-info
+        h1 Contact information
+        #contact-info-container
+          div
+            p.contact-info-container__info-item Location
+            p
+              | Nori Boulevard 808 
+              br
+              |  1337SH, Maki
+          div
+            p.contact-info-container__info-item Phone
+            p 06-92012930
+          div
+            p.contact-info-container__info-item Email
+            p pankoyu@sushi.com
+          div
+            p.contact-info-container__info-item Facebook
+            p
+              a(href='https://www.facebook.com/') Our Facebook page
+          div
+            p.contact-info-container__info-item Twitter
+            p
+              a(href='https://www.twitter.com/') Our Twitter page
     footer.footer
       article.footer__contact-info
         h4

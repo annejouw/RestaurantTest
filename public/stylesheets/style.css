@@ -49,7 +49,7 @@ main.content{
     display: flex;
     flex-flow: column;
     flex: 1 0 auto;
-    background-image:url(../Images/background.jpg);
+    background-image:url(/images/background.jpg);
     background-color:white;
     background-repeat: repeat;    
 }

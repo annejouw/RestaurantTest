@@ -1,0 +1,80 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    title Panko Yu Sushi Restaurant Booking page
+    link(rel='stylesheet' href='/stylesheets/style.css')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    meta(name='description' content="Panko Yu Sushi Restaurant's booking page.")
+    script.
+      function alertUser()
+      {
+      alert("Your reservation has been submitted.");
+      }
+  body
+    header.nav-header
+      a(href='index')
+        img(src='/images/panko_yu_simple_transparent_normalRes.png' alt='Panko Yu logo, link to homepage' width='320' height='240')
+      nav.nav-header__text-links
+        a(href='story') Our story
+        a(href='menu') Menu
+        a(href='booking') Book a table
+        a(href='about') Contact
+    main.content
+      article.reservation-form
+        h1.reservation-form__content Reservation form
+        p.reservation-form__content
+          | Here you can make a reservation for our restaurant. You can also make a reservation by reaching us by phone: 06-92012930.
+        form.reservation-form__content(onsubmit='alertUser()')
+          h2.reservation-form__header Reservation information
+          label(for='reservation_date') Desired reservation date:
+          input#reservation_date(type='date' name='reservation_date' required='')
+          br
+          label(for='number_of_persons') Number of persons:
+          input#number_of_persons(type='number' name='number_of_persons' min='1' max='10' required='')
+          br
+          h2.reservation-form__header Personal information
+          label(for='name') Name:
+          input#name(type='text' name='name' placeholder='Last name' required='')
+          br
+          label(for='email_address') Email address:
+          input#email_address(type='email' name='email_address' required='' size='30')
+          br
+          label(for='phone_number') Phone number: +31 (0)6
+          input#phone_number(type='tel' name='phone_number' pattern='[0-9]{8}' required='')
+          br
+          input(type='submit' value='Submit')
+          input(type='reset')
+        p.reservation-form__content
+          | To book for a group of more than 10 persons, or for special occassions such as business outings or birthdays, please contact us through our email.
+        p.reservation-form__content
+          | If you have previously made a reservation and want to change or cancel your reservation, please email us at pankoyu@sushi.com, call us at 06-92012930 or reach us through our 
+          a(href='about#contact_information') social medias
+          | .
+    footer.footer
+      article.footer__contact-info
+        h4
+          a(href='about#contact_information') Contact information
+        img.footer__contact-image(src='/images/icons8-location-96.png' alt='location icon')
+        p.footer__contact-info-item
+          | Nori Boulevard 808 
+          br
+          |  1337SH, Maki
+        img.footer__contact-image(src='/images/icons8-phone-90.png' alt='phone icon')
+        p.footer__contact-info-item Phone: 06-92012930
+        img.footer__contact-image(src='/images/icons8-email-sign-96.png' alt='email icon')
+        p.footer__contact-info-item Email: pankoyu@sushi.com
+        img.footer__contact-image(src='/images/icons8-facebook-90.png' alt='facebook logo icon')
+        p.footer__contact-info-item
+          a(href='https://facebook.com') Facebook page
+        img.footer__contact-image(src='/images/icons8-twitter-90.png' alt='twitter logo icon')
+        p.footer__contact-info-item
+          a(href='https://www.twitter.com') Twitter page
+      article.footer__about-info
+        h4 About
+        p
+          a.footer__about-info-item(href='story') Our story
+        p
+          a.footer__about-info-item(href='booking') Book a table
+        p
+          a.footer__about-info-item(href='about#opening_hours') Opening hours

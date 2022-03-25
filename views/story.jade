@@ -2,10 +2,10 @@ doctype html
 html(lang='en')
   head
     meta(charset='UTF-8')
-    title Panko Yu Sushi Restaurant Homepage
+    title Panko Yu Sushi Restaurant Our story
     link(rel='stylesheet' href='/stylesheets/style.css')
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
-    meta(name='description' content='Main page of the website of Panko Yu Sushi Restaurant.')
+    meta(name='description' content='The story of how Panko Yu Sushi Restaurant came into existence.')
   body
     header.nav-header
       a(href='index')
@@ -15,14 +15,17 @@ html(lang='en')
         a(href='menu') Menu
         a(href='booking') Book a table
         a(href='about') Contact
-    main#main-content.content
-      article.mainpage-content
-        h1#mainpage-content__header
-          | こんにちは!
-        p
-          | Welcome to Panko Yu Sushi restaurant! こんにちは (kon-ni-chi-wa) means hello in Japanese. At Panko Yu, we are dedicated to providing you with an authentic japanese experience and a warm welcome.
-          | Eating at Panko Yu means a guaranteed great meal in a warm atmosphere.
-          | We also source all our fish and vegetables locally, to make sure that they are on par with our standards. We hope to see you soon!
+    main.content
+      article.story-text
+        h1.story-text__content Our story
+        p.story-text__content
+          | Before moving to the Netherlands, our founder Yu Ma was a highly respected sushi chef in Nagasaki.
+          | He started his career helping his father and eventually owned his own stall in Nagasaki's business district.
+          | In 1984, Yu Ma emigrated to the Netherlands and founded Panko Yu, trying to recreate what he started in Japan.
+          | When he died in 2002, his son Yu Na took over.
+        p.story-text__content
+          | We are a specialty sushi restaurant and still hold firmly to our roots, because we believe that the best sushi is created when using the experience of masters.
+          | We hope to see you soon, Yu Na is waiting!
     footer.footer
       article.footer__contact-info
         h4

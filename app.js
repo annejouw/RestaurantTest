@@ -58,18 +58,38 @@ app.set('view engine', 'jade');
 //Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Router
 app.get('/', (req, res) => {
     res.render('index');
 });
 
+app.get('/index', (req, res) => {
+    res.render('index');
+});
+
+app.get('/about', (req, res) => {
+    res.render('about');
+});
+
+app.get('/booking', (req, res) => {
+    res.render('booking');
+});
+
+app.get('/menu', (req, res) => {
+    res.render('menu');
+});
+
+app.get('/story', (req, res) => {
+    res.render('story');
+});
+
 //Error handling
 // catch 404 and forward to error handler
-/*app.use(function(req, res, next) {
+app.use(function(req, res, next) {
   next(createError(404));
-});*/
+});
 
-// error handler
-/*app.use(function(err, req, res, next) {
+app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -77,7 +97,7 @@ app.get('/', (req, res) => {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
-});*/
+});
 
 
 app.listen(8018);

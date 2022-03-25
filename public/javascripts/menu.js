@@ -382,7 +382,7 @@ function itemNumberString(numberOfItems) {
 }
 
 function imageSource(image) {
-    return "../public/images/" + image;
+    return "/images/" + image;
 }
 
 function createProductImage(productObject) {
