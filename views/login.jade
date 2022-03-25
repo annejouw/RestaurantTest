@@ -27,6 +27,8 @@ html(lang='en')
           label(for='password') Password: 
           input#login-form__password(type='password' name='password' required='')
           input(type='checkbox') Show password
+          br
+          input(type='submit' value='Login')
     footer.footer
       article.footer__contact-info
         h4
@@ -54,3 +56,5 @@ html(lang='en')
           a.footer__about-info-item(href='booking') Book a table
         p
           a.footer__about-info-item(href='about#opening_hours') Opening hours
+    script(type='text/javascript' src='/javascripts/login.js')
+

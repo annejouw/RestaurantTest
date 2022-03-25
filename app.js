@@ -90,6 +90,11 @@ app.get('/login', (req, res) => {
     res.render('login');
 });
 
+//Login information handling
+app.post('/processForm', (req, res) => {
+
+});
+
 //Error handling
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
