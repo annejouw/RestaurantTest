@@ -1,11 +1,12 @@
 function showPassword(e) {
-    if (e.target.type === 'password') {
-        e.target.type = 'text';
+    var toggle = document.getElementById('login-form__password')
+    if (toggle.type === 'password') {
+        toggle.type = 'text';
     }
     else {
-        e.target.type = 'password';
+        toggle.type = 'password';
     }
 }
 
-var passwordInput = document.getElementById('login-form__password');
+var passwordInput = document.getElementById('login-form__checkbox');
 passwordInput.addEventListener("click", showPassword, false);
