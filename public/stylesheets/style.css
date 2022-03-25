@@ -1,0 +1,310 @@
+html, body {
+    height:100%;
+}
+
+body {
+    background-color: ghostwhite;
+    margin: 0;
+    padding: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+a:link, a:visited {
+    text-decoration: none;
+    color: black;
+}
+
+.nav-header{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 1.5em;
+    background-color: lightsteelblue;
+    justify-content: stretch;
+}
+
+.nav-header__text-links{
+    font-size: 1.8em;
+    display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    flex-grow: 2;
+    margin-right: 10px;
+}
+
+.nav-header__text-links a{ /*The text-links in the header*/
+    padding: 2vw;
+    border-radius: 0.2em;
+    color: #131313;
+    font-weight: bold;
+}
+
+.nav-header__text-links a:hover{
+    background-color: #82a6da;
+}
+
+main.content{
+    display: flex;
+    flex-flow: column;
+    flex: 1 0 auto;
+    background-image:url(../Images/background.jpg);
+    background-color:white;
+    background-repeat: repeat;    
+}
+
+#main-content{
+    display: flex;
+    flex-flow: column;
+}
+
+#mainpage-content__header{
+    font-size: 10vw;
+    text-align: center;
+    margin:0;
+}
+
+@media (max-width: 1300px) {
+    /*makes header vertical on small screens*/
+    body .nav-header{
+        flex-flow: column;
+    }
+    body .nav-header__text-links{
+        display: flex;
+        flex-flow: column;
+        justify-content: space-around;
+    }
+
+    body .nav-header__text-links a{ /*The text-links in the header*/
+        margin: 5px 0px 5px 0;
+    }
+}
+
+img.footer__contact-image{
+    float:left;
+    padding:5px;
+    width:10%;
+    height:10%
+}
+
+p.footer__contact-info-item{
+    padding:5px;
+}
+
+.footer{
+    background-color: lightsteelblue;
+    display:flex;
+        justify-content: space-evenly;
+        align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.footer__contact-info{
+    text-align:left;
+    color:black;
+    padding:5px;
+}
+
+p.footer__about-info-item{
+    padding:5px;
+    margin:0;
+}
+
+a.footer__about-info-item{
+    padding: 5px 0;
+    margin:0;
+    color:black;
+}
+
+.story-text, .mainpage-content {
+    padding: 2em;
+    background-color:white;
+    text-align: center;
+}
+
+.reservation-form, .about-info, .menu {
+    padding: 2em;
+    background-color:white;
+}
+
+.menu__header {
+    font-size:2.5em;
+    text-align: center;
+}
+
+.menu__cart {
+    text-align: center;
+    border: 1px solid lightgrey;
+    border-radius: 1em;
+}
+
+.menu__submit {
+    margin:10px auto;
+    display:block;
+    padding: 10px;
+    background-color: white;
+    border-radius: 1em;
+    transition-duration: 0.4s;
+    font-size:1em;
+}
+
+.menu__submit:hover {
+    background-color: lightsteelblue;
+}
+
+.reservation-form__header {
+    font-size: 18px;
+}
+
+.menu__category-header {
+    text-align:center;
+    font-size:1.5em;
+}
+
+.menu__menu-links {
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+#contact-info-container{
+    display: flex;
+        justify-content: space-evenly;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    text-align: center;
+}
+
+.contact-info-container__info-item{
+    font-weight: bold;
+}
+
+a.menu__link {
+    padding: 1em;
+    font-size: 1.1em;
+    text-decoration:underline;
+}
+
+section.about-info__contact-info td{
+    text-align: center;
+}
+
+section.about-info__opening-hours li{
+    list-style-type: none;
+}
+
+.category-container {
+    display: flex;
+        justify-content: space-evenly;
+        align-items: flex-start;
+        flex-wrap: wrap;
+}
+
+.category-container__category-grid {
+    flex: 1;
+    display: grid;
+    grid-auto-rows: minmax(min-content, max-content); /* deze regel is van een website: https://www.mrbento.nl/c/deals overgenomen, nog even geen idee hoe het werkt */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* deze regel is van een website: https://www.mrbento.nl/c/deals overgenomen, nog even geen idee hoe het werkt */
+    grid-gap: 20px;
+}
+
+.category-grid__product {
+    display: flex;
+    justify-content: space-between;
+    flex-flow: column nowrap;
+    border: 2px solid lightgray;
+    border-radius: 1em;
+    padding: 20px;
+    transition-duration:0.4s;
+}
+
+.category-grid__product:hover {
+    border: 2px solid lightsteelblue;
+}
+
+.category-grid__product--selected {
+    display: flex;
+    justify-content: space-between;
+    flex-flow: column nowrap;
+    border: 2px solid red;
+    border-radius: 1em;
+    padding: 20px;
+    transition-duration:0.4s;
+}
+
+.category-grid__product--selected:hover {
+    border: 2px solid red;
+}
+
+h1.product__header {
+    text-align:center;
+    margin-top:0;
+}
+
+img.product__image {
+    border-radius:5%;
+    max-width: 100%;
+    margin-right: 5px;
+}
+
+.product__description {
+    margin: 5px 0px;
+    display:flex;
+    flex-direction:row;
+    justify-content:flex-start;
+}
+
+.product__incrementer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+
+.product__quantity {
+    text-align:center;
+    margin:5px;
+    height:40px;
+    width:100px;
+    border: 1px solid lightsteelblue;
+    border-radius:1em;
+    font-size:150%;
+}
+
+.product__incrementer--minus, .product__incrementer--plus {
+    border-radius: 50%;
+    background-color: white;
+    border: 1px solid lightsteelblue;
+    margin: 5px;
+    transition-duration:0.4s;
+    font-size: 150%;
+    width:40px;
+    height:40px;
+}
+
+.product__incrementer--minus:hover, .product__incrementer--plus:hover {
+    background-color: lightsteelblue;
+}
+
+@media (max-width:1200px){
+
+}
+
+@media (max-width: 399px) {
+    .product__description {
+        flex-direction: column;
+    }
+
+}
+
+@media (min-width: 700px){
+    .reservation-form, .story-text, .about-info, .mainpage-content, .menu{
+        width:75%;
+        margin:auto;
+        margin-top:1.5%;
+        margin-bottom:1.5%;
+        border-radius:1em;
+    }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "panko_yu_restaurant",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/annejouw/RestaurantTest.git"
+  },
+  "keywords": [
+    "PankoYu",
+    "Sushi"
+  ],
+  "author": "Annemijn van Koten, Martijn Hannosset, Bas Reterink",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/annejouw/RestaurantTest/issues"
+  },
+  "homepage": "https://github.com/annejouw/RestaurantTest#readme",
+  "dependencies": {
+    "express": "^4.17.3",
+    "express-session": "^1.17.2",
+    "jade": "^1.11.0",
+    "morgan": "^1.10.0",
+    "sqlite3": "^5.0.2"
+  }
+}
