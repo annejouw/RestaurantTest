@@ -123,9 +123,15 @@ a.footer__about-info-item{
     text-align: center;
 }
 
-.reservation-form, .about-info, .menu {
+.reservation-form, .about-info, .menu, .login-form {
     padding: 2em;
     background-color:white;
+}
+
+.error-page {
+    padding: 2em;
+    background-color:white;
+    text-align:center;
 }
 
 .menu__header {
@@ -155,6 +161,10 @@ a.footer__about-info-item{
 
 .reservation-form__header {
     font-size: 18px;
+}
+
+.login-form__header {
+    text-align:center;
 }
 
 .menu__category-header {
@@ -300,7 +310,7 @@ img.product__image {
 }
 
 @media (min-width: 700px){
-    .reservation-form, .story-text, .about-info, .mainpage-content, .menu{
+    .reservation-form, .story-text, .about-info, .mainpage-content, .menu, .login-form, .error-page{
         width:75%;
         margin:auto;
         margin-top:1.5%;

@@ -8,6 +8,7 @@ var options = {
 var path = require('path');
 var morgan = require('morgan');
 var sqlite3 = require('sqlite3').verbose();
+var bodyParser = require('body-parser');
 var app = express();
 
 //The database
@@ -56,6 +57,8 @@ app.set('views', path.resolve(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 //Serving static files
+// app.use(express.json()); Not sure when this is needed yet
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 //Router
@@ -81,6 +84,10 @@ app.get('/menu', (req, res) => {
 
 app.get('/story', (req, res) => {
     res.render('story');
+});
+
+app.get('/login', (req, res) => {
+    res.render('login');
 });
 
 //Error handling
