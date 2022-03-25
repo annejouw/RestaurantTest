@@ -16,19 +16,53 @@ html(lang='en')
         a(href='booking') Book a table
         a(href='login') Contact
     main.content
-      article.login-form 
-        h1.login-form__header Login
+      .tab
+        button.tab__link(name='register')
+          | Register 
+        button#tab__link--default.tab__link(name='login')
+          | Login
+      article#register-form
+        p.register-form__content 
+          | If you want to register as a new user, please fill out the following information. If you already have an account, you can log in without registering.
+        form.login-form__content(action="/register" method="POST")
+          label(for='firstName') First name: 
+          input(type='text' name='firstName' required='')
+          br
+          br
+          label(for='lastName') Last name: 
+          input(type='text' name='lastName' required='')
+          br
+          br    
+          label(for='email') Email address: 
+          input(type='email' name='email' required='')
+          br
+          br
+          label(for='phone') Phone number: 
+          input(type='text' name='phone' required='')
+          br
+          br
+          label(for='password') Please choose a password: 
+          input.register-form__password(type='password' name='password' required='')
+          br
+          br
+          label.register-form__password(for='password2') Please re-enter password: 
+          input(type='password' name='password2' required='')
+          br
+          br
+          input(type='submit' value='Register')
+      article#login-form
         p.login-form__content
-          | Please fill our your login information.
-        form.login-form__content(action="http://localhost:8018/processForm" method="POST")
-          label(for='username') Username:
-          input(type='text' name='username' required='')
+          | Please fill our your login information. If you do not have an account yet, please register first.
+        form.login-form__content(action="/authenticate" method="POST")
+          label(for='email') Email address: 
+          input(type='email' name='email' required='')
           br
           br
-          label(for='password') Password:
+          label(for='password') Password: 
           input#login-form__password(type='password' name='password' required='')
           input#login-form__checkbox(type='checkbox')
           | Show password
+          br
           br
           input(type='submit' value='Login')
     footer.footer

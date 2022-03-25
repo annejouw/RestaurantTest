@@ -26,7 +26,7 @@ var db = new sqlite3.Database(file, (err) => {
 
 db.serialize(function() {
     if (!exists) {
-        db.run("CREATE TABLE IF NOT EXISTS users (userId INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE)");
+        db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE, password TEXT NOT NULL)");
     }
 })
 
@@ -91,8 +91,29 @@ app.get('/login', (req, res) => {
 });
 
 //Login information handling
-app.post('/processForm', (req, res) => {
-
+app.post('/authenticate', (req, res) => {
+    let username = req.body.email;
+    let password = req.body.password;
+    const prepareQuery = "SELECT * FROM users WHERE email = ? AND password = ?"
+    if (email && password) {
+        db.run(prepareQuery, [email, password], (err, results) => {
+            if (err) throw error;
+            if (results.length > 0) {
+                req.session.loggedin = true;
+                req.session.username = username;
+                res.redirect('/index');
+            }
+            else {
+                res.send('Incorrect email address and/or password.');
+            }
+            res.end();
+        });
+        db.close();
+    }
+    else {
+        res.send('Please enter email address and password.');
+        res.end();
+    }
 });
 
 //Error handling
