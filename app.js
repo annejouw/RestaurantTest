@@ -38,6 +38,12 @@ var db = new sqlite3.Database(file, (err) => {
 db.serialize(function() {
     if (!exists) {
         db.run("CREATE TABLE IF NOT EXISTS users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE, password TEXT NOT NULL)");
+        //session info table, relates session ID's with ueser ID's when logging im, marks user as anonymous by default
+        db.run("CREATE TABLE IF NOT EXISTS sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
+        //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
+        db.run("CREATE TABLE IF NOT EXISTS orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        //last table which relates orders to users and logs the date
+        db.run("CREATE TABLE IF NOT EXISTS orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
         //db.run("INSERT INTO users (firstName, lastName, email, phone, password) VALUES ('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'test')")
     }
 });
