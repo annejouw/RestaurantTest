@@ -24,6 +24,13 @@ function openTab(e) {
     }
 }
 
+function checkPassword(e) {
+    let passwords = document.getElementsByClassName('register-form__password');
+    let password1 = passwords[0];
+    let password2 = passwords[1];
+    let check = document.getElementById('register-form__password-check');
+}
+
 let tabLinks = document.getElementsByClassName('tab__link');
 for (let i = 0; i < tabLinks.length; i++) {
     tabLinks[i].addEventListener("click", openTab, false);
@@ -32,5 +39,10 @@ for (let i = 0; i < tabLinks.length; i++) {
 let defaultOpenTab = document.getElementById('tab__link--default')
 defaultOpenTab.click();
 
-var passwordInput = document.getElementById('login-form__checkbox');
+let passwordInput = document.getElementById('login-form__checkbox');
 passwordInput.addEventListener("click", showPassword, false);
+
+let passwordCheck = document.getElementsByClassName('register-form__password')[1];
+passwordCheck.addEventListener("change", checkPassword, false);
+
+

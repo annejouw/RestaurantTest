@@ -1,5 +1,6 @@
 var express = require('express');
 var session = require('express-session');
+var createError = require('http-errors');
 var options = {
     secret: "Session has not been compromised.",
     resave: false,
@@ -10,6 +11,14 @@ var morgan = require('morgan');
 var sqlite3 = require('sqlite3').verbose();
 var bodyParser = require('body-parser');
 var app = express();
+var passwordRegexp = require('password-regexp');
+var customRegexp = passwordRegexp({
+    min: 8,
+    max: 32,
+    numeric: true,
+    uppercase: true,
+    symbols: true
+});
 
 //The database
 var fs = require('fs');
@@ -58,8 +67,10 @@ app.set('view engine', 'jade');
 
 //Serving static files
 // app.use(express.json()); Not sure when this is needed yet
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+//Parsing post body
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //Router
 app.get('/', (req, res) => {
@@ -91,12 +102,14 @@ app.get('/login', (req, res) => {
 });
 
 //Login information handling
-app.post('/authenticate', (req, res) => {
-    let username = req.body.email;
+app.post('/authenticate', (req, res) => { //still need to sanitize and validate data
+    let email = req.body.email;
     let password = req.body.password;
     const prepareQuery = "SELECT * FROM users WHERE email = ? AND password = ?"
+    console.log("prepared query");
     if (email && password) {
         db.run(prepareQuery, [email, password], (err, results) => {
+            console.log("looked up query");
             if (err) throw error;
             if (results.length > 0) {
                 req.session.loggedin = true;
@@ -113,6 +126,26 @@ app.post('/authenticate', (req, res) => {
     else {
         res.send('Please enter email address and password.');
         res.end();
+    }
+    res.redirect('/index');
+    res.end();
+});
+
+//Registering a new user
+app.post('/register', (req, res) => { //still need to sanitize and validate data
+    console.log("trying to register new user");
+    let firstName = req.body.firstName;
+    let lastName = req.body.lastName;
+    let email = req.body.email;
+    let phone = req.body.phone;
+    let password = req.body.password;
+    if (customRegexp.test(password)) {
+        let insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, password) VALUES(?)';
+        db.run(insertStatement, [firstName, lastName, email, phone, password], (err) => {
+            if (err) throw error;
+            console.log("A row has been inserted with userID " + this.lastID);
+        })
+        db.close();
     }
 });
 

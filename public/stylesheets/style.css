@@ -128,6 +128,10 @@ a.footer__about-info-item{
     background-color:white;
 }
 
+#register-form__password-check {
+    font-size: 0.75em;
+}
+
 .error-page {
     padding: 2em;
     background-color:white;

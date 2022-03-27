@@ -46,8 +46,10 @@ html(lang='en')
           input.register-form__password(type='password' name='password' required='')
           br
           br
-          label.register-form__password(for='password2') Please re-enter password: 
-          input(type='password' name='password2' required='')
+          label(for='password2') Please re-enter password: 
+          input.register-form__password(type='password' name='password2' required='')
+          p#register-form__password-check
+            | A password should contain a lowercase letter, an uppercase letter, a numeric character and a symbol.
           br
           br
           input(type='submit' value='Register')
