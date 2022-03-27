@@ -25,7 +25,7 @@ html(lang='en')
       article#register-form
         p.register-form__content 
           | If you want to register as a new user, please fill out the following information. If you already have an account, you can log in without registering.
-        form.login-form__content(action="/register" method="POST")
+        form.register-form__content(action="/register" method="POST")
           label(for='firstName') First name: 
           input(type='text' name='firstName' required='')
           br
@@ -58,11 +58,11 @@ html(lang='en')
           | Please fill our your login information. If you do not have an account yet, please register first.
         form.login-form__content(action="/authenticate" method="POST")
           label(for='email') Email address: 
-          input(type='email' name='email' required='')
+          input(type='email' name='email')
           br
           br
           label(for='password') Password: 
-          input#login-form__password(type='password' name='password' required='')
+          input#login-form__password(type='password' name='password')
           input#login-form__checkbox(type='checkbox')
           | Show password
           br

@@ -1,10 +1,12 @@
 var express = require('express');
 var session = require('express-session');
+var cookieParser = require('cookie-parser');
 var createError = require('http-errors');
 var options = {
     secret: "Session has not been compromised.",
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {maxAge: 1000 * 60 * 60 * 24}
                };
 var path = require('path');
 var morgan = require('morgan');
@@ -35,16 +37,17 @@ var db = new sqlite3.Database(file, (err) => {
 
 db.serialize(function() {
     if (!exists) {
-        db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE, password TEXT NOT NULL)");
+        db.run("CREATE TABLE IF NOT EXISTS users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE, password TEXT NOT NULL)");
+        //db.run("INSERT INTO users (firstName, lastName, email, phone, password) VALUES ('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'test')")
     }
-})
+});
 
-db.close((err) => {
+/*db.close((err) => {
     if (err) {
       console.error(err.message);
     }
     console.log('Close the database connection.');
-  });
+});*/
 
 /* 
 Middleware
@@ -58,77 +61,86 @@ Middleware
 //Morgan logger
 app.use(morgan('tiny'));
 
-//Session
+//Session middleware
 app.use(session(options));
+
+//Cookie parser middleware
+app.use(cookieParser());
 
 //View engine setup
 app.set('views', path.resolve(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 //Serving static files
-// app.use(express.json()); Not sure when this is needed yet
 app.use(express.static(path.join(__dirname, 'public')));
 
-//Parsing post body
+//Parsing incoming data
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 //Router
 app.get('/', (req, res) => {
-    res.render('index');
+    res.render('index', { logStatus: req.session.loggedIn });
 });
 
 app.get('/index', (req, res) => {
-    res.render('index');
+    res.render('index', { logStatus: req.session.loggedIn });
 });
 
 app.get('/about', (req, res) => {
-    res.render('about');
+    res.render('about', { logStatus: req.session.loggedIn });
 });
 
 app.get('/booking', (req, res) => {
-    res.render('booking');
+    res.render('booking', { logStatus: req.session.loggedIn });
 });
 
 app.get('/menu', (req, res) => {
-    res.render('menu');
+    res.render('menu', { logStatus: req.session.loggedIn });
 });
 
 app.get('/story', (req, res) => {
-    res.render('story');
+    res.render('story', { logStatus: req.session.loggedIn });
 });
 
-app.get('/login', (req, res) => {
-    res.render('login');
+app.get('/login', (req, res) => { //Werkt nog niet zoals bedoeld
+    if (req.session.loggedin) {
+        res.redirect('/');
+    }
+    else res.render('login');
 });
 
 //Login information handling
 app.post('/authenticate', (req, res) => { //still need to sanitize and validate data
     let email = req.body.email;
     let password = req.body.password;
-    const prepareQuery = "SELECT * FROM users WHERE email = ? AND password = ?"
+    const prepareQuery = "SELECT userID FROM users WHERE email=? AND password=?";
     console.log("prepared query");
     if (email && password) {
-        db.run(prepareQuery, [email, password], (err, results) => {
-            console.log("looked up query");
-            if (err) throw error;
-            if (results.length > 0) {
-                req.session.loggedin = true;
-                req.session.username = username;
-                res.redirect('/index');
-            }
-            else {
-                res.send('Incorrect email address and/or password.');
-            }
-            res.end();
+        db.serialize(function() {
+            db.each(prepareQuery, [email, password], (err, result) => {
+                console.log("looked up query");
+                if (err) {
+                    console.log(err.message);
+                    throw error;
+                }
+                if (result) {
+                    req.session.loggedIn = true;
+                    req.session.username = result;
+                    console.log(req.session);
+                    res.redirect('/');
+                }
+                else {
+                    res.send('Incorrect email address and/or password.');
+                }
+            });
+            db.close();
         });
-        db.close();
     }
     else {
         res.send('Please enter email address and password.');
         res.end();
     }
-    res.redirect('/index');
-    res.end();
 });
 
 //Registering a new user
@@ -141,12 +153,20 @@ app.post('/register', (req, res) => { //still need to sanitize and validate data
     let password = req.body.password;
     if (customRegexp.test(password)) {
         let insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, password) VALUES(?)';
-        db.run(insertStatement, [firstName, lastName, email, phone, password], (err) => {
-            if (err) throw error;
-            console.log("A row has been inserted with userID " + this.lastID);
-        })
-        db.close();
+        db.serialize(function () {
+            db.run(insertStatement, [firstName, lastName, email, phone, password], (err) => {
+                if (err) throw error;
+                console.log("A row has been inserted with userID " + this.lastID);
+            })
+            db.close();
+        });
     }
+});
+
+//Log out
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
 });
 
 //Error handling

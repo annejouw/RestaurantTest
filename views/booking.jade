@@ -20,7 +20,10 @@ html(lang='en')
         a(href='menu') Menu
         a(href='booking') Book a table
         a(href='about') Contact
-        a(href='login') Login
+        if logStatus
+          a(href='logout') Logout 
+        else
+          a(href='login') Login
     main.content
       article.reservation-form
         h1.reservation-form__content Reservation form

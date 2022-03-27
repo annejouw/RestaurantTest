@@ -15,7 +15,10 @@ html(lang='en')
         a(href='menu') Menu
         a(href='booking') Book a table
         a(href='about') Contact
-        a(href='login') Login
+        if logStatus
+          a(href='logout') Logout 
+        else
+          a(href='login') Login
     main#menu-content.content
     footer.footer
       article.footer__contact-info
