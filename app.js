@@ -103,6 +103,7 @@ app.get('/booking', (req, res) => {
 
 app.get('/menu', (req, res) => {
     res.render('menu', { logStatus: req.session.loggedIn });
+    res.json
 });
 
 app.get('/story', (req, res) => {
@@ -199,7 +200,11 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-
 app.listen(8018);
 
 module.exports = app;
+
+//handles dynamic menu creation
+app.post('/menu', (req, res) => {
+
+});

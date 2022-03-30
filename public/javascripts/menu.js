@@ -145,7 +145,7 @@ function createLinkBoxLink(name, link) {
     let linkText = document.createTextNode(name);
     linkAnchor.setAttribute('href', link);
     linkAnchor.appendChild(linkText);
-    linkAnchor.classList.add("menu__link")
+    linkAnchor.classList.add("menu__link");
 
     menuLinkBox.appendChild(linkAnchor);
 }
@@ -153,7 +153,7 @@ function createLinkBoxLink(name, link) {
 function createCategory(name, id) {
     let categoryHeading = document.createElement('h2');
     let categoryText = document.createTextNode(name);
-    categoryHeading.classList.add("menu__category-header")
+    categoryHeading.classList.add("menu__category-header");
     categoryHeading.appendChild(categoryText);
     categoryHeading.id = id;
     
@@ -200,7 +200,7 @@ function createSashimiGrid(gridDiv) {
         productIngr.appendChild(productIngrText);
         productDesc.appendChild(productIngr);
 
-        let productPrice = createProductPrice(sashimiObject)
+        let productPrice = createProductPrice(sashimiObject);
         productDesc.appendChild(productPrice);
 
         productDiv.appendChild(productDesc);
@@ -476,7 +476,7 @@ menuPageMain.classList.add("menu");
 
 let menuHeading = document.createElement('h1');
 let menuHeadingText = document.createTextNode('Our menu');
-menuHeading.classList.add("menu__header")
+menuHeading.classList.add("menu__header");
 menuHeading.appendChild(menuHeadingText);
 menuPageMain.appendChild(menuHeading);
 
