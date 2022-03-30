@@ -132,6 +132,14 @@ a.footer__about-info-item{
     font-size: 0.75em;
 }
 
+#login-form__input-check--invalid, #login-form__input-check--empty {
+    border-radius:1em;
+    color: red;
+    background-color: lightcoral;
+    font-weight: bold;
+    display:none;
+}
+
 .error-page {
     padding: 2em;
     background-color:white;

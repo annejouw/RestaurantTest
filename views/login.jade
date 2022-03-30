@@ -6,6 +6,7 @@ html(lang='en')
     link(rel='stylesheet' href='/stylesheets/style.css')
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
     meta(name='description' content='The story of how Panko Yu Sushi Restaurant came into existence.')
+    //script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js')
   body
     header.nav-header
       a(href='index')
@@ -49,14 +50,18 @@ html(lang='en')
           label(for='password2') Please re-enter password: 
           input.register-form__password(type='password' name='password2' required='')
           p#register-form__password-check
-            | A password should contain a lowercase letter, an uppercase letter, a numeric character and a symbol.
+            | A password should be 8 to 32 characters long and contain a lowercase letter, an uppercase letter and a numeric character.
           br
           br
           input(type='submit' value='Register')
       article#login-form
-        p.login-form__content
+        p#login-form__text
           | Please fill our your login information. If you do not have an account yet, please register first.
-        form.login-form__content(action="/authenticate" method="POST")
+        form#login-form__content
+          #login-form__input-check--invalid 
+            | Invalid username and/or password 
+          #login-form__input-check--empty 
+            | Please enter username and password
           label(for='email') Email address: 
           input(type='email' name='email')
           br
