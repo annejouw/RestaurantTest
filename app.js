@@ -104,11 +104,19 @@ app.get('/story', (req, res) => {
 });
 
 app.get('/login', (req, res) => { //Werkt nog niet zoals bedoeld
-    if (req.session.loggedin) {
+    if (req.session.loggedIn) {
         res.redirect('/');
     }
     else res.render('login');
 });
+
+app.get('/myprofile', (req, res) => { //Werkt nog niet zoals bedoeld
+    if (req.session.loggedIn) {
+        res.render('myprofile');
+    }
+    else res.redirect('/login');
+});
+
 
 //Login information handling
 app.post('/authenticate', (req, res) => { //still need to sanitize and validate data
