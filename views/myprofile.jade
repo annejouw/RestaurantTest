@@ -17,7 +17,17 @@ html(lang='en')
         a(href='about') Contact
         a(href='logout') Logout
     main.content
-      
+      .tab
+        button#tab__link--default.tab__link(name='personal-info')
+          | Personal information 
+        button.tab__link(name='order-history')
+          | Order history
+      article#personal-info 
+        h1 Your personal information
+        p 
+          | Here you can check and edit your personal information.
+      article#order-history
+        h1 Your order history 
     footer.footer
       article.footer__contact-info
         h4
@@ -45,3 +55,4 @@ html(lang='en')
           a.footer__about-info-item(href='booking') Book a table
         p
           a.footer__about-info-item(href='about#opening_hours') Opening hours
+    script(type='text/javascript' src='/javascripts/myprofile.js')
