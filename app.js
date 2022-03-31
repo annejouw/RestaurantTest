@@ -127,7 +127,6 @@ app.get('/myprofile', (req, res) => {
 
 //Login information handling
 app.post('/authenticate', (req, res) => { //still need to sanitize and validate data
-    console.log("information received");
     let email = req.body.email;
     let password = hash(req.body.password);
     const prepareQuery = "SELECT userID FROM users WHERE email=? AND password=?";
@@ -143,10 +142,11 @@ app.post('/authenticate', (req, res) => { //still need to sanitize and validate 
                     req.session.loggedIn = true;
                     req.session.username = result;
                     console.log(req.session);
-                    res.redirect('/');
+                    res.send({ 'msg': 'success', 'url': '/' })
                 }
                 if (typeof result === 'undefined') {
-                    res.send("invalid");
+                    console.log("wrong credentials");
+                    res.send({ 'msg': 'invalid' });
                     res.end();
                 }
             });          
@@ -154,7 +154,8 @@ app.post('/authenticate', (req, res) => { //still need to sanitize and validate 
         });
     }
     else {
-        res.send("empty");
+        console.log("empty credentials");
+        res.send({ 'msg': 'empty' });
         res.end();
     }
 });

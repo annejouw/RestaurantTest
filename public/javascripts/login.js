@@ -4,7 +4,7 @@ for (let i = 0; i < tabLinks.length; i++) {
     tabLinks[i].addEventListener("click", openTab, false);
 }
 
-let defaultOpenTab = document.getElementById('tab__link--default')
+let defaultOpenTab = document.getElementById('tab__link--default');
 defaultOpenTab.click();
 
 let passwordInput = document.getElementById('login-form__checkbox');
@@ -19,60 +19,66 @@ loginForm.addEventListener("submit", searchDatabase, false);
 //Event handlers
 function searchDatabase(e) { //Werkt voor geen meter helaas
     console.log("prevented default action v2");
-    let email = document.getElementById('login-form__email');
-    let password = document.getElementById('login-form__password');
+    let email = document.getElementById('login-form__email').value;
+    let password = document.getElementById('login-form__password').value;
     var req = new XMLHttpRequest();
-    req.open("POST", "/authenticate", true);
+    var data = { 'email':email,
+                 'password':password }
+    /*req.open("POST", "/authenticate", true);
     req.onreadystatechange = function() {
         if (req.readyState == 4 && req.status == 200) {
             var res = req.responseText;
-            if (res == 'invalid') {
+            if (res.msg == 'invalid') {
                 showInvalidResponse();
                 console.log('invalid response');
             }
-            if (res == 'empty') {
+            if (res.msg == 'empty') {
                 showEmptyResponse();
                 console.log('empty response');
             }
         }
     }
-    req.send("{ 'email': " + email + ", 'password': " + password + "}");
-    /*
+    req.send(JSON.stringify(data));*/
+    
     $.ajax({  
         url:'/authenticate',  
-        type:"POST",  
-        dataType:'json',  
-        data:{'email':email,
-              'password':password},  
+        type:'post',  
+        dataType:'json',
+        contentType:'application/json',  
+        data: JSON.stringify(data),  
         success:function(response){  
-            if(response.msg=='invalid') {  
+            if(response.msg == 'invalid') {  
                 showInvalidResponse();
             }
 
-            if(response.msg=='empty') {  
+            if(response.msg == 'empty') {  
                 showEmptyResponse();
-            }  
+            }
+            
+            if(response.msg == 'success') {
+                window.location.replace(response.url);
+            }
         },  
         error:function(response){  
             console.log("A server error has occurred"); 
         }  
-    });*/
+    });
 
     e.preventDefault();
 }
 
 function showInvalidResponse() {
     let invalidResponse = document.getElementById('login-form__input-check--invalid');
-    invalidResponse.style.display = block;
+    invalidResponse.style.display = "block";
     let emptyResponse = document.getElementById('login-form__input-check--empty');
-    emptyResponse.style.display = none;
+    emptyResponse.style.display = "none";
 }
 
 function showEmptyResponse() {
     let invalidResponse = document.getElementById('login-form__input-check--invalid');
-    invalidResponse.style.display = none;
+    invalidResponse.style.display = "none";
     let emptyResponse = document.getElementById('login-form__input-check--empty');
-    emptyResponse.style.display = block;
+    emptyResponse.style.display = "block";
 }
 
 

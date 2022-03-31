@@ -123,7 +123,7 @@ a.footer__about-info-item{
     text-align: center;
 }
 
-.reservation-form, .about-info, .menu, #login-form, #register-form {
+.reservation-form, .about-info, .menu, #login-form, #register-form, #personal-info, #order-history {
     padding: 2em;
     background-color:white;
 }
@@ -134,10 +134,12 @@ a.footer__about-info-item{
 
 #login-form__input-check--invalid, #login-form__input-check--empty {
     border-radius:1em;
-    color: red;
+    color: black;
     background-color: lightcoral;
     font-weight: bold;
     display:none;
+    padding: 1em;
+    margin: 10px 0px;
 }
 
 .error-page {
@@ -340,7 +342,7 @@ img.product__image {
 }
 
 @media (min-width: 700px){
-    .reservation-form, .story-text, .about-info, .mainpage-content, .menu, #login-form, .error-page, #register-form, .tab{
+    .reservation-form, .story-text, .about-info, .mainpage-content, .menu, #login-form, .error-page, #register-form, .tab, #order-history, #personal-info{
         width:75%;
         margin:auto;
         margin-top:1.5%;
