@@ -24,11 +24,18 @@ menuItemshttpRequest.send("new page nigiri")
 //test
 imagehttpRequest = new XMLHttpRequest();
 imagehttpRequest.onreadystatechange = function (){
-    if (menuItemshttpRequest.readyState === 4 && menuItemshttpRequest.status === 200){
+    if (imagehttpRequest.readyState === 4 && imagehttpRequest.status === 200){
         //image received
         menuContent.appendChild(fruitPic);
+        console.log(imagehttpRequest.responseType);
     }
 }
 
 imagehttpRequest.open('GET', "/images/fruits.jpg", true)
 imagehttpRequest.send();
+
+//test 2
+
+{
+
+})
