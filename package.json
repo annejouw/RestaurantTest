@@ -27,6 +27,7 @@
     "express-session": "^1.17.2",
     "jade": "^1.11.0",
     "morgan": "^1.10.0",
+    "object-hash": "^3.0.0",
     "password-regexp": "^1.0.5",
     "sqlite3": "^5.0.2"
   }

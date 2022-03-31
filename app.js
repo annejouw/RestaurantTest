@@ -1,6 +1,7 @@
 var express = require('express');
 var session = require('express-session');
 var cookieParser = require('cookie-parser');
+var hash = require('object-hash');
 var createError = require('http-errors');
 var options = {
     secret: "Session has not been compromised.",
@@ -13,47 +14,47 @@ var morgan = require('morgan');
 var sqlite3 = require('sqlite3').verbose();
 var bodyParser = require('body-parser');
 var app = express();
-var passwordRegexp = require('password-regexp');
-var customRegexp = passwordRegexp({
-    min: 8,
-    max: 32,
-    numeric: true,
-    uppercase: true,
-    symbols: true
-});
+var passwordRegexp = require('password-regexp')();
 
 //The database
 var fs = require('fs');
 var file = "database.db";
 var exists = fs.existsSync(file);
+var db;
 
-var db = new sqlite3.Database(file, (err) => {
-    if (err) {
-        return console.error(err.message);
-    }
+function openDatabase() {
+    db = new sqlite3.Database(file, (err) => {
+        if (err) {
+            return console.error(err.message);
+        }
+    
+        console.log("Connected to the in-memory SQLite database");
+    });
+}
 
-    console.log("Connected to the in-memory SQLite database");
-});
+function closeDatabase() {
+    db.close((err) => {
+        if (err) {
+          console.error(err.message);
+        }
+        console.log('Close the database connection.');
+    });
+}
 
+openDatabase();
 db.serialize(function() {
     if (!exists) {
-        db.run("CREATE TABLE IF NOT EXISTS users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE, password TEXT NOT NULL)");
+        db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE, password TEXT NOT NULL)");
         //session info table, relates session ID's with ueser ID's when logging im, marks user as anonymous by default
-        db.run("CREATE TABLE IF NOT EXISTS sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
+        db.run("CREATE TABLE sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
         //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
-        db.run("CREATE TABLE IF NOT EXISTS orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
         //last table which relates orders to users and logs the date
-        db.run("CREATE TABLE IF NOT EXISTS orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
+        db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
         //db.run("INSERT INTO users (firstName, lastName, email, phone, password) VALUES ('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'test')")
     }
 });
-
-/*db.close((err) => {
-    if (err) {
-      console.error(err.message);
-    }
-    console.log('Close the database connection.');
-});*/
+closeDatabase();
 
 /* 
 Middleware
@@ -109,14 +110,14 @@ app.get('/story', (req, res) => {
     res.render('story', { logStatus: req.session.loggedIn });
 });
 
-app.get('/login', (req, res) => { //Werkt nog niet zoals bedoeld
+app.get('/login', (req, res) => {
     if (req.session.loggedIn) {
         res.redirect('/');
     }
     else res.render('login');
 });
 
-app.get('/myprofile', (req, res) => { //Werkt nog niet zoals bedoeld
+app.get('/myprofile', (req, res) => {
     if (req.session.loggedIn) {
         res.render('myprofile');
     }
@@ -127,55 +128,88 @@ app.get('/myprofile', (req, res) => { //Werkt nog niet zoals bedoeld
 //Login information handling
 app.post('/authenticate', (req, res) => { //still need to sanitize and validate data
     let email = req.body.email;
-    let password = req.body.password;
+    let password = hash(req.body.password);
     const prepareQuery = "SELECT userID FROM users WHERE email=? AND password=?";
-    console.log("prepared query");
     if (email && password) {
         db.serialize(function() {
-            db.each(prepareQuery, [email, password], (err, result) => {
+            openDatabase();          
+            db.get(prepareQuery, [email, password], (err, result) => {
                 console.log("looked up query");
                 if (err) {
                     console.log(err.message);
-                    throw error;
                 }
                 if (result) {
                     req.session.loggedIn = true;
                     req.session.username = result;
                     console.log(req.session);
-                    res.redirect('/');
+                    res.send({ 'msg': 'success', 'url': '/' })
                 }
-                else {
-                    res.send('Incorrect email address and/or password.');
+                if (typeof result === 'undefined') {
+                    console.log("wrong credentials");
+                    res.send({ 'msg': 'invalid' });
+                    res.end();
                 }
-            });
-            db.close();
+            });          
+            closeDatabase();
         });
     }
     else {
-        res.send('Please enter email address and password.');
+        console.log("empty credentials");
+        res.send({ 'msg': 'empty' });
         res.end();
     }
 });
 
 //Registering a new user
-app.post('/register', (req, res) => { //still need to sanitize and validate data
-    console.log("trying to register new user");
+app.post('/register', (req, res) => {
     let firstName = req.body.firstName;
     let lastName = req.body.lastName;
     let email = req.body.email;
     let phone = req.body.phone;
     let password = req.body.password;
-    if (customRegexp.test(password)) {
-        let insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, password) VALUES(?)';
-        db.serialize(function () {
-            db.run(insertStatement, [firstName, lastName, email, phone, password], (err) => {
-                if (err) throw error;
-                console.log("A row has been inserted with userID " + this.lastID);
-            })
-            db.close();
+    const checkEmail = "SELECT userID FROM users WHERE email=?";
+    db.serialize(function() {
+        openDatabase();
+        db.get(checkEmail, [email], (err, result) => {
+            if (err) {
+                console.log(err.message);
+            }
+            
+            if (result) {
+                res.send({ msg: "exists" });
+                res.end;
+                console.log("user already exists");
+            }
+
+            else {
+                if (!(passwordRegexp.test(password))) {
+                    res.send({ msg: "regexp" });
+                    res.end();
+                    console.log("password not secure");
+                }
+                
+                else {
+                    addToDatabase(firstName, lastName, email, phone, password);
+                    req.session.loggedIn = true;
+                    req.session.username = result;
+                    console.log(req.session);
+                    res.redirect('/');
+                }
+            }
         });
-    }
+        closeDatabase();
+    });
 });
+
+function addToDatabase(firstName, lastName, email, phone, password) {
+    let insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, password) VALUES(?, ?, ?, ?, ?)';
+    db.run(insertStatement, [firstName, lastName, email, phone, hash(password)], (err) => {
+        if (err) {
+            console.log(err.message);
+        }
+        console.log("A row has been inserted with userID ${this.lastID}");
+    })
+}
 
 //Log out
 app.get('/logout', (req, res) => {
