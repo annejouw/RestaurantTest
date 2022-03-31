@@ -10,6 +10,7 @@ function addElementToPage(){
 let menuContent = document.getElementById("menu-content")
 let fruitPic = document.createElement("img");
 fruitPic.setAttribute("src", '/images/fruits.jpg');
+fruitPic.setAttribute("id", "fruitpic")
 
 //sends request for new menu items json
 menuItemshttpRequest = new XMLHttpRequest();
@@ -35,7 +36,6 @@ imagehttpRequest.open('GET', "/images/fruits.jpg", true)
 imagehttpRequest.send();
 
 //test 2
-
-{
-
+$(document).ready(function(){
+    $('#menu-content').hide(1300);
 })
