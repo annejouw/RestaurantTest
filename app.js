@@ -50,7 +50,7 @@ db.serialize(function() {
         //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
         db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
         //last table which relates orders to users and logs the date
-        db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
+        //db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
         //db.run("INSERT INTO users (firstName, lastName, email, phone, password) VALUES ('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'test')")
     }
 });
@@ -125,11 +125,25 @@ app.get('/myprofile', (req, res) => {
 });
 
 //cart handling
-app.route('/cart')
-.post( (req, res) => {
+//app.route('/cart')
+app.post( '/cart', (req, res) => {
+    //JSON.parse(req.body);
     let product = req.body.name;
     let amount = req.body.value;
-    console.log(product + amount);
+    console.log("----")
+    console.log(req.body);
+    console.log("----")
+
+    var sessiondId = req.session.id;
+    console.log(product, amount);
+    const prepQuery = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
+    openDatabase();
+    db.run(prepQuery, [sessiondId, product, amount], (err) => {
+        if (err) {
+            console.log(err.message);
+        }
+    });
+    closeDatabase();
 });
 
 

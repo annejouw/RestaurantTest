@@ -1,4 +1,4 @@
-const { post, response } = require("../../app");
+//const { post, response } = require("../../app");
 
 //Menu item classes
 class Menu {
@@ -442,7 +442,8 @@ function decrease(e) {
     let inputField = e.target.parentElement.children[1];
     if (parseInt(inputField.value) != 0) {
         inputField.value = parseInt(inputField.value) - 1;
-        changeProductQuantity(inputField.name, inputField.value);
+        updateServerCart(inputField.name, inputField.value);
+        //changeProductQuantity(inputField.name, inputField.value);
     }  
 }
 
@@ -450,7 +451,8 @@ function increase(e) {
     let inputField = e.target.parentElement.children[1];
     inputField.value = parseInt(inputField.value) + 1;
 
-    changeProductQuantity(inputField.name, inputField.value);
+    updateServerCart(inputField.name, inputField.value);
+    //changeProductQuantity(inputField.name, inputField.value);
 }
 
 function inputFieldChange(e) {
@@ -459,8 +461,8 @@ function inputFieldChange(e) {
     if (!(value >= 0) || isNaN(value) || value == -0) {
         e.target.value = 0;
     }
-
-    changeProductQuantity(name, e.target.value);
+    updateServerCart(name, e.target.value);
+    //changeProductQuantity(name, e.target.value);
 }
 
 function changeProductQuantity(name, value) {
@@ -473,12 +475,14 @@ function changeProductQuantity(name, value) {
 }
 
 function updateServerCart (name, value) {
-    var req = new XMLHttpRequest();
+    //var req = new XMLHttpRequest();
     var data = { 'name' : name,
                  'quantity' : value}
+    console.log(value);
     $.ajax({
         url:'/cart',
         type: 'post',
+        dataType: 'json',
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function(response){
@@ -488,7 +492,7 @@ function updateServerCart (name, value) {
             console.log("Could not update cart with server");
         }
     });
-            
+    //event.preventDefault();
 }
 
 //Creating the actual webpage
