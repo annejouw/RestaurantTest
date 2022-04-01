@@ -1,3 +1,5 @@
+//mockup code for actual project
+
 let currentPage = 1;
 
 function addElementToPage(){
@@ -21,21 +23,44 @@ menuItemshttpRequest.onreadystatechange = function (){
 menuItemshttpRequest.open('POST', 'Router url', true)
 menuItemshttpRequest.send("new page nigiri")
 
+
+
 //test
-imagehttpRequest = new XMLHttpRequest();
-imagehttpRequest.onreadystatechange = function (){
-    if (imagehttpRequest.readyState === 4 && imagehttpRequest.status === 200){
-        //image received
-        menuContent.appendChild(fruitPic);
-        console.log(imagehttpRequest.responseType);
+// imagehttpRequest = new XMLHttpRequest();
+// imagehttpRequest.onreadystatechange = function (){
+//     if (imagehttpRequest.readyState === 4 && imagehttpRequest.status === 200){
+//         //image received
+//         menuContent.appendChild(fruitPic);
+//         console.log(imagehttpRequest.responseType);
+//     }
+// }
+//
+// imagehttpRequest.open('GET', "/images/fruits.jpg", true)
+// imagehttpRequest.send();
+let sakeSashimiHTTPRequest = new XMLHttpRequest();
+sakeSashimiHTTPRequest.onreadystatechange = function (){
+    if (sakeSashimiHTTPRequest.readyState === 4 && sakeSashimiHTTPRequest.status === 200){
+        //JSON received
+        let sakeSashimiJSON = JSON.parse(sakeSashimiHTTPRequest.responseText);
+        addMenuItemToPage(sakeSashimiJSON);
     }
 }
 
-imagehttpRequest.open('GET', "/images/fruits.jpg", true)
-imagehttpRequest.send();
+function addMenuItemToPage(menuItemJSON){
+    console.log("tried to add item")
+    let newMenuItem = document.createElement("div")
+    let  newMenuItemImageUrl = menuItemJSON.imageurl;
 
-//test 2
+    let newMenuItemHeading = document.createElement("h1")
+    newMenuItemHeading.innerHTML = menuItemJSON.name;
 
-{
+    newMenuItem.appendChild(newMenuItemHeading);
 
-})
+    menuContent.appendChild(newMenuItem);
+}
+
+
+sakeSashimiHTTPRequest.open('GET', '/routers/menuitems.js', true);
+sakeSashimiHTTPRequest.send("sakesurimi");
+
+
