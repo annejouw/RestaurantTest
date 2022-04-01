@@ -124,6 +124,14 @@ app.get('/myprofile', (req, res) => {
     else res.redirect('/login');
 });
 
+//cart handling
+app.route('/cart')
+.post( (req, res) => {
+    let product = req.body.name;
+    let amount = req.body.value;
+    console.log(product + amount);
+});
+
 
 //Login information handling
 app.post('/authenticate', (req, res) => { //still need to sanitize and validate data

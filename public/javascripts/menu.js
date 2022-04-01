@@ -1,3 +1,5 @@
+const { post, response } = require("../../app");
+
 //Menu item classes
 class Menu {
     constructor (categories) {
@@ -468,6 +470,25 @@ function changeProductQuantity(name, value) {
     drawCart();
 
     console.log(productObject.name + " : " + productObject.quantity);
+}
+
+function updateServerCart (name, value) {
+    var req = new XMLHttpRequest();
+    var data = { 'name' : name,
+                 'quantity' : value}
+    $.ajax({
+        url:'/cart',
+        type: 'post',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response){
+            changeProductQuantity(name, value);
+        },
+        error:function(response){
+            console.log("Could not update cart with server");
+        }
+    });
+            
 }
 
 //Creating the actual webpage
