@@ -60,7 +60,7 @@ function addMenuItemToPage(menuItemJSON){
 }
 
 
-sakeSashimiHTTPRequest.open('GET', '/routers/menuitems.js', true);
+sakeSashimiHTTPRequest.open('GET', '/routers/menurouter.js', true);
 sakeSashimiHTTPRequest.send("sakesurimi");
 
 

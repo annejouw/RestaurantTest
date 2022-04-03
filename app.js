@@ -16,6 +16,9 @@ var bodyParser = require('body-parser');
 var app = express();
 var passwordRegexp = require('password-regexp')();
 
+//for the menu router
+var menuRouter = require('./routers/menurouter.js')
+
 //The database
 var fs = require('fs');
 const {response} = require("express");
@@ -103,11 +106,6 @@ app.get('/booking', (req, res) => {
     res.render('booking', { logStatus: req.session.loggedIn });
 });
 
-app.get('/menu', (req, res) => {
-    res.render('menu', { logStatus: req.session.loggedIn });
-    res.json
-});
-
 app.get('/story', (req, res) => {
     res.render('story', { logStatus: req.session.loggedIn });
 });
@@ -126,6 +124,8 @@ app.get('/myprofile', (req, res) => {
     else res.redirect('/login');
 });
 
+//this router handles all menu routing, since special routing is required for the page traversal
+app.use('/menu', menuRouter);
 
 //Login information handling
 app.post('/authenticate', (req, res) => { //still need to sanitize and validate data
@@ -235,12 +235,8 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+
+
 app.listen(8018);
 
 module.exports = app;
-
-//handles dynamic menu creation
-app.use('/menu', (req, res, next) => {
-    console.log("menu accessed")
-    next()
-})
