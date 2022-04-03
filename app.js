@@ -18,6 +18,7 @@ var passwordRegexp = require('password-regexp')();
 
 //The database
 var fs = require('fs');
+const {response} = require("express");
 var file = "database.db";
 var exists = fs.existsSync(file);
 var db;
@@ -239,6 +240,7 @@ app.listen(8018);
 module.exports = app;
 
 //handles dynamic menu creation
-app.post('/menu', (req, res) => {
-
-});
+app.use('/menu', (req, res, next) => {
+    console.log("menu accessed")
+    next()
+})
