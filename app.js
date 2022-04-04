@@ -18,6 +18,7 @@ var passwordRegexp = require('password-regexp')();
 
 //The database
 var fs = require('fs');
+const { parse } = require('path');
 var file = "database.db";
 var exists = fs.existsSync(file);
 var db;
@@ -51,8 +52,29 @@ db.serialize(function() {
         db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
         //last table which relates orders to users and logs the date
         //db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
-        //db.run("INSERT INTO users (firstName, lastName, email, phone, password) VALUES ('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'test')")
     }
+});
+closeDatabase();
+
+//function to add default users
+function createDefaultUser(firstName, lastName, email, phone, password) {
+    let insertStatement = "INSERT INTO users (firstName, lastName, email, phone, password) VALUES (?, ?, ?, ?, ?)";
+    db.run(insertStatement, [firstName, lastName, email, phone, password], (err) => {
+        if (err) {
+            console.log(err.message);
+        }
+        console.log("A row has been inserted with userID ${this.lastID}");
+    });
+}
+
+//inserting default users in DB
+openDatabase();
+db.serialize(function() {
+    createDefaultUser('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', '123456');
+    createDefaultUser('Martijn', 'Hannosset', 'martijnhannosset@gmail.com', '0640889850', '123456');
+    createDefaultUser('Jeff', 'Tatum', 'jefftatum@gmail.com', '0694201337', '123456');
+    createDefaultUser('Bas', 'Ret', 'basret@gmail.com', '0622394616', '123456');
+    createDefaultUser('Fleur', 'van Koten', 'fleurvankoten@gmail.com', '0639546506', '123456');
 });
 closeDatabase();
 
@@ -127,13 +149,11 @@ app.get('/myprofile', (req, res) => {
 //cart handling
 //app.route('/cart')
 app.post( '/cart', (req, res) => {
-    //JSON.parse(req.body);
+    //processing post req
     let product = req.body.name;
-    let amount = req.body.value;
-    console.log("----")
-    console.log(req.body);
-    console.log("----")
-
+    let amount = parseInt(req.body.quantity);
+    
+    //using sessionID to group items of the same order
     var sessiondId = req.session.id;
     console.log(product, amount);
     const prepQuery = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
