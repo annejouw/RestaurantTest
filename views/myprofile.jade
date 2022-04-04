@@ -28,12 +28,12 @@ html(lang='en')
         p 
           | Here you can check and edit your personal information.
         form#personal-info__form         
-          label(for='firstName') First name: 
-          input#personal-info__first-name(type='text' name='firstName' required='')
+          label(for='first name') First name: 
+          input#personal-info__first-name(type='text' name='first name' required='')
           br
           br
-          label(for='lastName') Last name: 
-          input#personal-info__last-name(type='text' name='lastName' required='')
+          label(for='last name') Last name: 
+          input#personal-info__last-name(type='text' name='last name' required='')
           br
           br    
           label(for='email') Email address: 
@@ -44,22 +44,32 @@ html(lang='en')
           input#personal-info__phone(type='text' name='phone' pattern='/d{8}' required='')
           br
           br
-          label(for='streetAddress') Street address and house number: 
-          input#personal-info__street-address(type='text' name='streetAddress' required='')
+          label(for='street address') Street address and house number: 
+          input#personal-info__street-address(type='text' name='street address' required='')
           br
           br
-          label(for='zipCode') Zip code: 
-          input#personal-info__zip-code(type='text' name='zipCode' pattern='/d{4}[A-Z]{2}' required='')
+          label(for='zip code') Zip code: 
+          input#personal-info__zip-code(type='text' name='zip code' pattern='/d{4}[A-Z]{2}' required='')
           br
           br
           label(for='city') City:  
           input#personal-info__city-name(type='text' name='city' required='')
           br
           br
-          label(for='password') Please choose a new password: 
-          input.personal-info__password(type='password' name='password' required='')
+          h2 Changing your password
+          label(for='old password') Please enter your old password: 
+          input#personal-info__password--old(type='password' name='old password' required='')
           br
           br
+          label(for='new password') Please choose a new password: 
+          input#personal-info__password--new(type='password' name='new password' required='')
+          br
+          br
+          label(for='new password2') Please repeat your new password: 
+          input#personal-info__password--second-new(type='password' name='new password2' required='')
+          br
+          br
+          input.personal-info__submit(type='submit' value='Save changes')
       article#order-history
         h1 Your order history 
     footer.footer

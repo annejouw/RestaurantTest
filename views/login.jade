@@ -30,12 +30,12 @@ html(lang='en')
         form#register-form__content
           p#register-form__input-check--exists
             | This user already exists. Please proceed to login page to log in.          
-          label(for='firstName') First name: 
-          input#register-form__first-name(type='text' name='firstName' required='')
+          label(for='first name') First name: 
+          input#register-form__first-name(type='text' name='first name' required='')
           br
           br
-          label(for='lastName') Last name: 
-          input#register-form__last-name(type='text' name='lastName' required='')
+          label(for='last name') Last name: 
+          input#register-form__last-name(type='text' name='last name' required='')
           br
           br    
           label(for='email') Email address: 
@@ -46,12 +46,12 @@ html(lang='en')
           input#register-form__phone(type='text' name='phone' pattern='/d{8}' required='')
           br
           br
-          label(for='streetAddress') Street address and house number: 
-          input#register-form__street-address(type='text' name='streetAddress' required='')
+          label(for='street address') Street address and house number: 
+          input#register-form__street-address(type='text' name='street address' required='')
           br
           br
-          label(for='zipCode') Zip code: 
-          input#register-form__zip-code(type='text' name='zipCode' pattern='/d{4}[A-Z]{2}' required='')
+          label(for='zip code') Zip code: 
+          input#register-form__zip-code(type='text' name='zip code' pattern='/d{4}[A-Z]{2}' required='')
           br
           br
           label(for='city') City:  

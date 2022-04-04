@@ -195,7 +195,7 @@ a.footer__about-info-item{
     font-size:1em;
 }
 
-.register-form__submit, .login-form__submit {
+.register-form__submit, .login-form__submit, .personal-info__submit {
     padding:10px;
     background-color: white;
     border-radius: 1em;
@@ -204,8 +204,12 @@ a.footer__about-info-item{
 }
 
 
-.menu__submit:hover, .register-form__submit:hover, .login-form__submit:hover {
+.menu__submit:hover, .register-form__submit:hover, .login-form__submit:hover, .personal-info__submit:hover {
     background-color: lightsteelblue;
+}
+
+#register-form__email, #login-form__email, #personal-info__email {
+    width:250px;
 }
 
 .reservation-form__header {

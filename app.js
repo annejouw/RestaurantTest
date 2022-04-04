@@ -41,9 +41,8 @@ function closeDatabase() {
     });
 }
 
-
+openDatabase();
 db.serialize(function() {
-    openDatabase();
     if (!exists) {
         db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, streetAddress TEXT NOT NULL, zipCode TEXT NOT NULL, city TEXT NOT NULL, password TEXT NOT NULL)");
         insertDefaultUsers();
@@ -59,29 +58,15 @@ db.serialize(function() {
     closeDatabase();
 });
 
-
-//function to add default users
-function createDefaultUser(firstName, lastName, email, phone, streetAddress, zipCode, city, password) {
-    let insertStatement = "INSERT INTO users (firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], (err) => {
-        if (err) {
-            console.log(err.message);
-        }
-        console.log("A row has been inserted with userID ${this.lastID}");
-    });
-}
-
-//inserting default users in DB
+//Inserting default users in DB
 function insertDefaultUsers(){
-    openDatabase();
     db.serialize(function() {
-        createDefaultUser('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'Heemstedelaan 18', '3523KE', 'Utrecht', 'Annemijn1234');
-        createDefaultUser('Martijn', 'Hannosset', 'martijnhannosset@gmail.com', '0640889850', 'Van der Haveweg 128', '4411RB', 'Rilland', 'Martijn1234');
-        createDefaultUser('Jeff', 'Tatum', 'jefftatum@gmail.com', '0694201337', 'Steenhouwer 8', '9502ET', 'Stadskanaal', 'Jeff1234');
-        createDefaultUser('Bas', 'Ret', 'basret@gmail.com', '0622394616', 'Zuidzijde 69', '2411RS', 'Bodegraven', 'BasRet123');
-        createDefaultUser('Fleur', 'van Koten', 'fleurvankoten@gmail.com', '0639546506', 'Paxlaan 15', '2613GC', 'Delft', 'Fleur1234');
+        addUserToDatabase('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'Heemstedelaan 18', '3523KE', 'Utrecht', 'Annemijn1234');
+        addUserToDatabase('Martijn', 'Hannosset', 'martijnhannosset@gmail.com', '0640889850', 'Van der Haveweg 128', '4411RB', 'Rilland', 'Martijn1234');
+        addUserToDatabase('Jeff', 'Tatum', 'jefftatum@gmail.com', '0694201337', 'Steenhouwer 8', '9502ET', 'Stadskanaal', 'Jeff1234');
+        addUserToDatabase('Bas', 'Ret', 'basret@gmail.com', '0622394616', 'Zuidzijde 69', '2411RS', 'Bodegraven', 'BasRet123');
+        addUserToDatabase('Fleur', 'van Koten', 'fleurvankoten@gmail.com', '0639546506', 'Paxlaan 15', '2613GC', 'Delft', 'Fleur1234');
     });
-    closeDatabase();
 }
 
 /* 
@@ -168,7 +153,7 @@ app.post('/login/authenticate', (req, res) => { //still need to sanitize and val
                 }
                 if (result) {
                     req.session.loggedIn = true;
-                    req.session.username = result;
+                    req.session.userID = result.userID;
                     console.log(req.session);
                     res.send({ 'msg': 'success', 'url': '/' })
                     res.end();
@@ -221,9 +206,9 @@ app.post('/login/register', (req, res) => {
                 }
                 
                 else {
-                    addToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password);
+                    addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password);
                     req.session.loggedIn = true;
-                    req.session.username = result;
+                    req.session.userID = result.userID;
                     console.log(req.session);
                     res.send({ 'msg' : 'success', 'url' : '/' });
                     res.end();
@@ -234,8 +219,8 @@ app.post('/login/register', (req, res) => {
     });
 });
 
-function addToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password) {
-    let insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+function addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password) {
+    const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
     db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], (err) => {
         if (err) {
             console.log(err.message);
@@ -245,7 +230,34 @@ function addToDatabase(firstName, lastName, email, phone, streetAddress, zipCode
 }
 
 //Retrieve info for profile page
-app.
+app.post('/profile/retrieve', (req, res) => {
+    let userID = req.session.userID;
+    const infoQuery = "SELECT firstName, lastName, email, phone, streetAddress, zipCode, city FROM users WHERE userID=?";
+    db.serialize(function() {
+        openDatabase();
+        db.get(infoQuery, [userID], (err, row) => {
+            if (err) {
+                console.log(err.message);
+            }
+
+            if (row) {
+                let data = {
+                    'msg':'success',
+                    'firstName':row.firstName,
+                    'lastName':row.lastName,
+                    'email':row.email,
+                    'phone':row.phone,
+                    'streetAddress':row.streetAddress,
+                    'zipCode':row.zipCode,
+                    'city':row.city
+                };
+                res.send(data);
+            }
+        });
+        closeDatabase();
+    });
+
+});
 
 //Log out
 app.get('/logout', (req, res) => {

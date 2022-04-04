@@ -26,12 +26,12 @@ function openTab(e) { //Tab functionality
 }
 
 function retrieveInfo(e) {
+    console.log('Attempting to retrieve info');
     $.ajax({  
         url:'/profile/retrieve',  
         type:'post',  
         dataType:'json',
         contentType:'application/json',  
-        data: JSON.stringify(data),  
         success:function(response){  
             if(response.msg == 'success') {
                 displayInfo(response);
@@ -43,15 +43,21 @@ function retrieveInfo(e) {
     });  
 }
 
-function displayInfo(response) {
-    let email = document.getElementById('personal-info__email');
-    let password = document.getElementsByClassName('personal-info__password')[0];
+function displayInfo(res) {
+    console.log('adding info');
     let firstName = document.getElementById('personal-info__first-name');
     let lastName = document.getElementById('personal-info__last-name');
-    let phone = document.getElementById('personal-infom__phone');
+    let email = document.getElementById('personal-info__email');
+    let phone = document.getElementById('personal-info__phone');
     let streetAddress = document.getElementById('personal-info__street-address');
     let zipCode = document.getElementById('personal-info__zip-code');
     let city = document.getElementById('personal-info__city-name');
 
-
+    firstName.value = res.firstName;
+    lastName.value = res.lastName;
+    email.value = res.email;
+    phone.value = res.phone;
+    streetAddress.value = res.streetAddress;
+    zipCode.value = res.zipCode;
+    city.value = res.city;
 }
