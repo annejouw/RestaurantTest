@@ -30,7 +30,7 @@ function addToDatabase(e) {
                  'password':password }
     
     $.ajax({  
-        url:'/authenticate',  
+        url:'/login/authenticate',  
         type:'post',  
         dataType:'json',
         contentType:'application/json',  
@@ -130,15 +130,21 @@ function searchDatabase(e) {
     let firstName = document.getElementById('register-form__first-name').value;
     let lastName = document.getElementById('register-form__last-name').value;
     let phone = document.getElementById('register-form__phone').value;
+    let streetAddress = document.getElementById('register-form__street-address').value;
+    let zipCode = document.getElementById('register-form__zip-code').value;
+    let city = document.getElementById('register-form__city-name').value;
     var data = { 'email':email,
                  'password':password,
                  'firstName':firstName,
                  'lastName':lastName,
-                 'phone':phone };
+                 'phone':phone,
+                 'streetAddress':streetAddress,
+                 'zipCode':zipCode,
+                 'city':city };
     if (comparePasswords()) {
         console.log("passwords are the same");
         $.ajax({  
-            url:'/register',  
+            url:'/login/register',  
             type:'post',  
             dataType:'json',
             contentType:'application/json',  

@@ -26,5 +26,32 @@ function openTab(e) { //Tab functionality
 }
 
 function retrieveInfo(e) {
-    
+    $.ajax({  
+        url:'/profile/retrieve',  
+        type:'post',  
+        dataType:'json',
+        contentType:'application/json',  
+        data: JSON.stringify(data),  
+        success:function(response){  
+            if(response.msg == 'success') {
+                displayInfo(response);
+            }
+        },  
+        error:function(response){  
+            console.log("A server error has occurred"); 
+        }  
+    });  
+}
+
+function displayInfo(response) {
+    let email = document.getElementById('personal-info__email');
+    let password = document.getElementsByClassName('personal-info__password')[0];
+    let firstName = document.getElementById('personal-info__first-name');
+    let lastName = document.getElementById('personal-info__last-name');
+    let phone = document.getElementById('personal-infom__phone');
+    let streetAddress = document.getElementById('personal-info__street-address');
+    let zipCode = document.getElementById('personal-info__zip-code');
+    let city = document.getElementById('personal-info__city-name');
+
+
 }

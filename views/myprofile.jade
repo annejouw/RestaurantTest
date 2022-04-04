@@ -40,32 +40,26 @@ html(lang='en')
           input#personal-info__email(type='email' name='email' required='')
           br
           br
-          label(for='phone') Phone number: 
-          input#register-form__phone(type='text' name='phone' required='')
+          label(for='phone') Mobile phone number: 06 
+          input#personal-info__phone(type='text' name='phone' pattern='/d{8}' required='')
           br
           br
-          label(for='password') Please choose a password: 
+          label(for='streetAddress') Street address and house number: 
+          input#personal-info__street-address(type='text' name='streetAddress' required='')
+          br
+          br
+          label(for='zipCode') Zip code: 
+          input#personal-info__zip-code(type='text' name='zipCode' pattern='/d{4}[A-Z]{2}' required='')
+          br
+          br
+          label(for='city') City:  
+          input#personal-info__city-name(type='text' name='city' required='')
+          br
+          br
+          label(for='password') Please choose a new password: 
           input.personal-info__password(type='password' name='password' required='')
           br
           br
-          label(for='password2') Please re-enter password: 
-          input.personal-info__password(type='password' name='password2' required='')
-          p#register-form__password-check
-            | A password should contain:
-            br
-            | - A minimum of 8 and a maximum of 32 characters
-            br
-            | - A lowercase letter 
-            br
-            | - An uppercase letter
-            br
-            | - A numeric character
-          p#register-form__warning
-            | The passwords do not match!
-          p#register-form__input-check--insecure 
-            | The password is not secure. Please use the rules stated above.
-          br
-          input.register-form__submit(type='submit' value='Register')
       article#order-history
         h1 Your order history 
     footer.footer

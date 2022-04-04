@@ -42,8 +42,20 @@ html(lang='en')
           input#register-form__email(type='email' name='email' required='')
           br
           br
-          label(for='phone') Phone number: 
-          input#register-form__phone(type='text' name='phone' required='')
+          label(for='phone') Mobile phone number: 06 
+          input#register-form__phone(type='text' name='phone' pattern='/d{8}' required='')
+          br
+          br
+          label(for='streetAddress') Street address and house number: 
+          input#register-form__street-address(type='text' name='streetAddress' required='')
+          br
+          br
+          label(for='zipCode') Zip code: 
+          input#register-form__zip-code(type='text' name='zipCode' pattern='/d{4}[A-Z]{2}' required='')
+          br
+          br
+          label(for='city') City:  
+          input#register-form__city-name(type='text' name='city' required='')
           br
           br
           label(for='password') Please choose a password: 
