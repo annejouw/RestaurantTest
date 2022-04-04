@@ -45,8 +45,8 @@ function closeDatabase() {
     });
 }
 
+openDatabase();
 db.serialize(function() {
-    openDatabase();
     if (!exists) {
         db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, streetAddress TEXT NOT NULL, zipCode TEXT NOT NULL, city TEXT NOT NULL, password TEXT NOT NULL)");
         insertDefaultUsers();
