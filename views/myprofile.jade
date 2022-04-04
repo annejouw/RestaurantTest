@@ -5,7 +5,8 @@ html(lang='en')
     title Panko Yu Sushi Restaurant Homepage
     link(rel='stylesheet' href='/stylesheets/style.css')
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
-    meta(name='description' content='Main page of the website of Panko Yu Sushi Restaurant.')
+    meta(name='description' content='User profile page for the Panko Yu Restaurant.')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js')
   body
     header.nav-header
       a(href='index')
@@ -26,6 +27,45 @@ html(lang='en')
         h1 Your personal information
         p 
           | Here you can check and edit your personal information.
+        form#personal-info__form         
+          label(for='firstName') First name: 
+          input#personal-info__first-name(type='text' name='firstName' required='')
+          br
+          br
+          label(for='lastName') Last name: 
+          input#personal-info__last-name(type='text' name='lastName' required='')
+          br
+          br    
+          label(for='email') Email address: 
+          input#personal-info__email(type='email' name='email' required='')
+          br
+          br
+          label(for='phone') Phone number: 
+          input#register-form__phone(type='text' name='phone' required='')
+          br
+          br
+          label(for='password') Please choose a password: 
+          input.personal-info__password(type='password' name='password' required='')
+          br
+          br
+          label(for='password2') Please re-enter password: 
+          input.personal-info__password(type='password' name='password2' required='')
+          p#register-form__password-check
+            | A password should contain:
+            br
+            | - A minimum of 8 and a maximum of 32 characters
+            br
+            | - A lowercase letter 
+            br
+            | - An uppercase letter
+            br
+            | - A numeric character
+          p#register-form__warning
+            | The passwords do not match!
+          p#register-form__input-check--insecure 
+            | The password is not secure. Please use the rules stated above.
+          br
+          input.register-form__submit(type='submit' value='Register')
       article#order-history
         h1 Your order history 
     footer.footer

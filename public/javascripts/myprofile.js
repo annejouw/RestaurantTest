@@ -7,6 +7,8 @@ for (let i = 0; i < tabLinks.length; i++) {
 let defaultOpenTab = document.getElementById('tab__link--default');
 defaultOpenTab.click();
 
+window.addEventListener("load", retrieveInfo, false);
+
 function openTab(e) { //Tab functionality
     let infoTab, orderTab;
     infoTab = document.getElementById('personal-info');
@@ -21,4 +23,8 @@ function openTab(e) { //Tab functionality
         infoTab.style.display = "none";
         orderTab.style.display = "block";
     }
+}
+
+function retrieveInfo(e) {
+    
 }

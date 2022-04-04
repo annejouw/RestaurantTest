@@ -5,7 +5,7 @@ html(lang='en')
     title Panko Yu Sushi Restaurant Our story
     link(rel='stylesheet' href='/stylesheets/style.css')
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
-    meta(name='description' content='The story of how Panko Yu Sushi Restaurant came into existence.')
+    meta(name='description' content='Login and register page for Panko Yu Restaurant.')
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js')
   body
     header.nav-header
@@ -27,21 +27,23 @@ html(lang='en')
         h1 Register form
         p
           | If you want to register as a new user, please fill out the following information. If you already have an account, you can log in without registering.
-        form.register-form__content(action="/register" method="POST")
+        form#register-form__content
+          p#register-form__input-check--exists
+            | This user already exists. Please proceed to login page to log in.          
           label(for='firstName') First name: 
-          input(type='text' name='firstName' required='')
+          input#register-form__first-name(type='text' name='firstName' required='')
           br
           br
           label(for='lastName') Last name: 
-          input(type='text' name='lastName' required='')
+          input#register-form__last-name(type='text' name='lastName' required='')
           br
           br    
           label(for='email') Email address: 
-          input(type='email' name='email' required='')
+          input#register-form__email(type='email' name='email' required='')
           br
           br
           label(for='phone') Phone number: 
-          input(type='text' name='phone' required='')
+          input#register-form__phone(type='text' name='phone' required='')
           br
           br
           label(for='password') Please choose a password: 
@@ -51,18 +53,29 @@ html(lang='en')
           label(for='password2') Please re-enter password: 
           input.register-form__password(type='password' name='password2' required='')
           p#register-form__password-check
-            | A password should be 8 to 32 characters long and contain a lowercase letter, an uppercase letter and a numeric character.
+            | A password should contain:
+            br
+            | - A minimum of 8 and a maximum of 32 characters
+            br
+            | - A lowercase letter 
+            br
+            | - An uppercase letter
+            br
+            | - A numeric character
+          p#register-form__warning
+            | The passwords do not match!
+          p#register-form__input-check--insecure 
+            | The password is not secure. Please use the rules stated above.
           br
-          br
-          input(type='submit' value='Register')
+          input.register-form__submit(type='submit' value='Register')
       article#login-form
         h1 Login form
         p
           | Please fill our your login information. If you do not have an account yet, please register first.
         form#login-form__content
-          #login-form__input-check--invalid 
+          p#login-form__input-check--invalid 
             | Invalid username and/or password. Please try again.
-          #login-form__input-check--empty 
+          p#login-form__input-check--empty 
             | Please enter username and password.
           label(for='email') Email address: 
           input#login-form__email(type='email' name='email')
@@ -74,7 +87,7 @@ html(lang='en')
           | Show password
           br
           br
-          input(type='submit' value='Login')
+          input.login-form__submit(type='submit' value='Login')
     footer.footer
       article.footer__contact-info
         h4

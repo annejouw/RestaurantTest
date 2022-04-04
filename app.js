@@ -45,7 +45,7 @@ openDatabase();
 db.serialize(function() {
     if (!exists) {
         db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE, password TEXT NOT NULL)");
-        //session info table, relates session ID's with ueser ID's when logging im, marks user as anonymous by default
+        //session info table, relates session ID's with user ID's when logging in, marks user as anonymous by default
         db.run("CREATE TABLE sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
         //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
         db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
@@ -128,12 +128,12 @@ app.get('/myprofile', (req, res) => {
 //Login information handling
 app.post('/authenticate', (req, res) => { //still need to sanitize and validate data
     let email = req.body.email;
-    let password = hash(req.body.password);
+    let password = req.body.password;
     const prepareQuery = "SELECT userID FROM users WHERE email=? AND password=?";
     if (email && password) {
         db.serialize(function() {
             openDatabase();          
-            db.get(prepareQuery, [email, password], (err, result) => {
+            db.get(prepareQuery, [email, hash(password)], (err, result) => {
                 console.log("looked up query");
                 if (err) {
                     console.log(err.message);
@@ -143,6 +143,7 @@ app.post('/authenticate', (req, res) => { //still need to sanitize and validate 
                     req.session.username = result;
                     console.log(req.session);
                     res.send({ 'msg': 'success', 'url': '/' })
+                    res.end();
                 }
                 if (typeof result === 'undefined') {
                     console.log("wrong credentials");
@@ -176,14 +177,14 @@ app.post('/register', (req, res) => {
             }
             
             if (result) {
-                res.send({ msg: "exists" });
-                res.end;
+                res.send({ 'msg': 'exists' });
+                res.end();
                 console.log("user already exists");
             }
 
             else {
                 if (!(passwordRegexp.test(password))) {
-                    res.send({ msg: "regexp" });
+                    res.send({ 'msg': 'regexp' });
                     res.end();
                     console.log("password not secure");
                 }
@@ -193,7 +194,8 @@ app.post('/register', (req, res) => {
                     req.session.loggedIn = true;
                     req.session.username = result;
                     console.log(req.session);
-                    res.redirect('/');
+                    res.send({ 'msg' : 'success', 'url' : '/' });
+                    res.end();
                 }
             }
         });
@@ -207,7 +209,7 @@ function addToDatabase(firstName, lastName, email, phone, password) {
         if (err) {
             console.log(err.message);
         }
-        console.log("A row has been inserted with userID ${this.lastID}");
+        console.log("A row has been inserted");
     })
 }
 

@@ -129,17 +129,21 @@ a.footer__about-info-item{
 }
 
 #register-form__password-check {
-    font-size: 0.75em;
+    font-size: 0.8em;
+    border-radius:1em;
+    background-color:rgb(212, 253, 199);
+    color:rgba(21, 155, 3, 0.712);
+    padding:1em;
+    margin:10px 0px;
 }
 
-#login-form__input-check--invalid, #login-form__input-check--empty {
+#login-form__input-check--invalid, #login-form__input-check--empty, #register-form__warning, #register-form__input-check--exists, #register-form__input-check--insecure {
     border-radius:1em;
-    color: black;
-    background-color: lightcoral;
-    font-weight: bold;
+    color: rgb(177, 1, 1);
+    background-color: rgb(247, 191, 191);
     display:none;
     padding: 1em;
-    margin: 10px 0px;
+
 }
 
 .error-page {
@@ -181,7 +185,7 @@ a.footer__about-info-item{
     border-radius: 1em;
 }
 
-.menu__submit {
+.menu__submit{
     margin:10px auto;
     display:block;
     padding:10px;
@@ -191,7 +195,16 @@ a.footer__about-info-item{
     font-size:1em;
 }
 
-.menu__submit:hover {
+.register-form__submit, .login-form__submit {
+    padding:10px;
+    background-color: white;
+    border-radius: 1em;
+    transition-duration: 0.4s;
+    font-size:1em;
+}
+
+
+.menu__submit:hover, .register-form__submit:hover, .login-form__submit:hover {
     background-color: lightsteelblue;
 }
 
