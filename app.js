@@ -45,11 +45,15 @@ function closeDatabase() {
 openDatabase();
 db.serialize(function() {
     if (!exists) {
+        //table for storing users
         db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE, password TEXT NOT NULL)");
+
+        //table for storing orders
+        db.run("CREATE TABLE orders (orderId INTEGER, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL, PRIMARY KEY(orderId, sessionId))");
+
         //session info table, relates session ID's with ueser ID's when logging im, marks user as anonymous by default
-        db.run("CREATE TABLE sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
-        //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
-        db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        //db.run("CREATE TABLE sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
+        
         //last table which relates orders to users and logs the date
         //db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
     }
@@ -57,13 +61,15 @@ db.serialize(function() {
 closeDatabase();
 
 //function to add default users
+let i = 1;
 function createDefaultUser(firstName, lastName, email, phone, password) {
     let insertStatement = "INSERT INTO users (firstName, lastName, email, phone, password) VALUES (?, ?, ?, ?, ?)";
     db.run(insertStatement, [firstName, lastName, email, phone, password], (err) => {
         if (err) {
             console.log(err.message);
         }
-        console.log("A row has been inserted with userID ${this.lastID}");
+        console.log("A row has been inserted with userID: " + i);
+        i++;
     });
 }
 
@@ -148,20 +154,60 @@ app.get('/myprofile', (req, res) => {
 
 //cart handling
 //app.route('/cart')
+let orderId = 1;
 app.post( '/cart', (req, res) => {
     //processing post req
     let product = req.body.name;
     let amount = parseInt(req.body.quantity);
+    // console.log("=========");
+    // console.log(amount);
+    // console.log("=========");
     
     //using sessionID to group items of the same order
     var sessiondId = req.session.id;
     console.log(product, amount);
-    const prepQuery = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
+
+    const checkCart = "SELECT itemCount FROM orders WHERE sessionId=? AND foodItem=?";
+    const insertCart = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
     openDatabase();
-    db.run(prepQuery, [sessiondId, product, amount], (err) => {
-        if (err) {
-            console.log(err.message);
-        }
+    db.serialize(function() {
+        db.get(checkCart, [sessiondId, product], (err, result) => {
+            if (err) {
+                db.run(insertCart, [sessiondId, product, amount], (err, result) => {
+                    if (err) {
+                        console.log(err.message);
+                    }
+                    if (result) {
+                        console.log("Updated " + product + "amount to: " + 0);
+                    }
+                });
+            }
+            if (result) {
+                var itemCount = db.get(checkCart, [sessiondId, product]);
+                var itemCountUpdated = itemCount + amount;
+                console.log("original amount: " + itemCount + "new amount: " + itemCountUpdated);
+                    if (itemCountUpdated >= 0) {
+                        db.run(insertCart, [sessiondId, product, itemCountUpdated], (err, result) => {
+                            if (err) {
+                                console.log(err.message);
+                            }
+                            if (result) {
+                                console.log("Updated " + product + "amount to: " + itemCountUpdated);
+                            }
+                        });                       
+                    }
+                    else {
+                        db.run(insertCart, [sessiondId, product, 0], (err, result) => {
+                            if (err) {
+                                console.log(err.message);
+                            }
+                            if (result) {
+                                console.log("Updated " + product + "amount to: " + 0);
+                            }
+                        })
+                    }
+            }
+        });
     });
     closeDatabase();
 });
