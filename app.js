@@ -17,11 +17,11 @@ var app = express();
 var passwordRegexp = require('password-regexp')();
 
 //for the menu router
-var menuRouter = require('./routers/menurouter.js')
+var menuRouter = require('./routers/menurouter.js');
+var dishRouter = require('./routers/dishrouter.js');
 
 //The database
 var fs = require('fs');
-const {response} = require("express");
 var file = "database.db";
 var exists = fs.existsSync(file);
 var db;
@@ -45,20 +45,47 @@ function closeDatabase() {
     });
 }
 
-openDatabase();
 db.serialize(function() {
+    openDatabase();
     if (!exists) {
-        db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL UNIQUE, password TEXT NOT NULL)");
-        //session info table, relates session ID's with ueser ID's when logging im, marks user as anonymous by default
-        db.run("CREATE TABLE sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
+        db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, streetAddress TEXT NOT NULL, zipCode TEXT NOT NULL, city TEXT NOT NULL, password TEXT NOT NULL)");
+        insertDefaultUsers();
+        db.run("CREATE TABLE menu (dishID INTEGER PRIMARY KEY, category TEXT NOT NULL, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian TEXT NOT NULL)");
+        //session info table, relates session ID's with user ID's when logging in, marks user as anonymous by default
+        //db.run("CREATE TABLE sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
         //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
-        db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        //db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
         //last table which relates orders to users and logs the date
-        db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
+        //db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
         //db.run("INSERT INTO users (firstName, lastName, email, phone, password) VALUES ('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'test')")
     }
+    closeDatabase();
 });
-closeDatabase();
+
+
+//function to add default users
+function createDefaultUser(firstName, lastName, email, phone, streetAddress, zipCode, city, password) {
+    let insertStatement = "INSERT INTO users (firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], (err) => {
+        if (err) {
+            console.log(err.message);
+        }
+        console.log("A row has been inserted with userID ${this.lastID}");
+    });
+}
+
+//inserting default users in DB
+function insertDefaultUsers(){
+    openDatabase();
+    db.serialize(function() {
+        createDefaultUser('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'Heemstedelaan 18', '3523KE', 'Utrecht', 'Annemijn1234');
+        createDefaultUser('Martijn', 'Hannosset', 'martijnhannosset@gmail.com', '0640889850', 'Van der Haveweg 128', '4411RB', 'Rilland', 'Martijn1234');
+        createDefaultUser('Jeff', 'Tatum', 'jefftatum@gmail.com', '0694201337', 'Steenhouwer 8', '9502ET', 'Stadskanaal', 'Jeff1234');
+        createDefaultUser('Bas', 'Ret', 'basret@gmail.com', '0622394616', 'Zuidzijde 69', '2411RS', 'Bodegraven', 'BasRet123');
+        createDefaultUser('Fleur', 'van Koten', 'fleurvankoten@gmail.com', '0639546506', 'Paxlaan 15', '2613GC', 'Delft', 'Fleur1234');
+    });
+    closeDatabase();
+}
 
 /* 
 Middleware
@@ -126,6 +153,7 @@ app.get('/myprofile', (req, res) => {
 
 //this router handles all menu routing, since special routing is required for the page traversal
 app.use('/menu', menuRouter);
+app.use('/dish', dishRouter);
 
 //Login information handling
 app.post('/authenticate', (req, res) => { //still need to sanitize and validate data

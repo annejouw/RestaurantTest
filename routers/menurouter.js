@@ -7,11 +7,4 @@ router.get('/', (req, res) => {
     res.render('menu', { logStatus: req.session.loggedIn });
 });
 
-//when /menu/page 1 is accessed
-router.get('/page/:pageNumber', (req, res) => {
-    case req.params.pageNumber
-
-
-});
-
 module.exports = router;

@@ -1,66 +1,33 @@
-//mockup code for actual project
+const menuContent = document.getElementById('menu-content')
 
-let currentPage = 1;
-
-function addElementToPage(){
-
-}
-
-//new htp request POST newmenupage/nigiri of newmenupage/sashimi
-//dan een post handler voor newmenupage die daarna doorgaat met sashimi, nigiri of wat dan ook
-
-let menuContent = document.getElementById("menu-content")
-let fruitPic = document.createElement("img");
-fruitPic.setAttribute("src", '/images/fruits.jpg');
-
-//sends request for new menu items json
-menuItemshttpRequest = new XMLHttpRequest();
-menuItemshttpRequest.onreadystatechange = function (){
-    if (menuItemshttpRequest.readyState === 4 && menuItemshttpRequest.status === 200){
-        var response = JSON.parse(menuItemshttpRequest.responseText)
-    }
-}
-menuItemshttpRequest.open('POST', 'Router url', true)
-menuItemshttpRequest.send("new page nigiri")
-
-
-
-//test
-// imagehttpRequest = new XMLHttpRequest();
-// imagehttpRequest.onreadystatechange = function (){
-//     if (imagehttpRequest.readyState === 4 && imagehttpRequest.status === 200){
-//         //image received
-//         menuContent.appendChild(fruitPic);
-//         console.log(imagehttpRequest.responseType);
-//     }
-// }
-//
-// imagehttpRequest.open('GET', "/images/fruits.jpg", true)
-// imagehttpRequest.send();
-let sakeSashimiHTTPRequest = new XMLHttpRequest();
-sakeSashimiHTTPRequest.onreadystatechange = function (){
-    if (sakeSashimiHTTPRequest.readyState === 4 && sakeSashimiHTTPRequest.status === 200){
-        //JSON received
-        let sakeSashimiJSON = JSON.parse(sakeSashimiHTTPRequest.responseText);
-        addMenuItemToPage(sakeSashimiJSON);
+let dishHTTPRequest = new XMLHttpRequest();
+dishHTTPRequest.onreadystatechange = function (){
+    if (dishHTTPRequest.readyState === 4 && dishHTTPRequest.status === 200){
+        //Dish received
+        console.log("dish received")
+        dishJSON = JSON.parse(dishHTTPRequest.responseText)
+        addDishToPage(dishJSON)
     }
 }
 
-function addMenuItemToPage(menuItemJSON){
+function addDishToPage(dishJSON){
     console.log("tried to add item")
-    let newMenuItem = document.createElement("div")
-    let  newMenuItemImageUrl = menuItemJSON.imageurl;
+    let newDish = document.createElement("div")
 
-    let newMenuItemHeading = document.createElement("h1")
-    newMenuItemHeading.innerHTML = menuItemJSON.name;
+    let newDishHeading = document.createElement("h1")
+    newDishHeading.innerHTML = dishJSON.name;
 
-    newMenuItem.appendChild(newMenuItemHeading);
+    let newDishImage = document.createElement('img')
+    newDishImage.setAttribute('src', dishJSON.imageurl)
 
-    menuContent.appendChild(newMenuItem);
+    newDish.appendChild(newDishHeading);
+    newDish.appendChild(newDishImage)
+
+    menuContent.appendChild(newDish);
 }
 
 
-sakeSashimiHTTPRequest.open('GET', '/routers/menurouter.js', true);
-sakeSashimiHTTPRequest.send("sakesurimi");
+dishHTTPRequest.open('POST', '/dish/1', true);
+dishHTTPRequest.send();
 
 
