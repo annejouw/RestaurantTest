@@ -46,14 +46,22 @@ db.serialize(function() {
     if (!exists) {
         db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, streetAddress TEXT NOT NULL, zipCode TEXT NOT NULL, city TEXT NOT NULL, password TEXT NOT NULL)");
         insertDefaultUsers();
-        db.run("CREATE TABLE menu (dishID INTEGER PRIMARY KEY, category TEXT NOT NULL, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian TEXT NOT NULL)");
+        db.run("CREATE TABLE Sashimi (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL)");
+        insertSashimiItems();
+        db.run("CREATE TABLE Nigiri (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian TEXT NOT NULL)");
+        insertNigiriItems();
+        db.run("CREATE TABLE Maki (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian TEXT NOT NULL)");
+        insertMakiItems();
+        db.run("CREATE TABLE Desserts (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, allergens TEXT NOT NULL)");
+        insertDessertItems();
+        db.run("CREATE TABLE Drinks (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, volume TEXT NOT NULL, alcoholFree TEXT NOT NULL)");
+        insertDrinkItems();
         //session info table, relates session ID's with user ID's when logging in, marks user as anonymous by default
         //db.run("CREATE TABLE sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
         //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
         //db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
         //last table which relates orders to users and logs the date
         //db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
-        //db.run("INSERT INTO users (firstName, lastName, email, phone, password) VALUES ('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', 'test')")
     }
     closeDatabase();
 });
@@ -98,7 +106,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//Router
+//Routers
 app.get('/', (req, res) => {
     res.render('index', { logStatus: req.session.loggedIn });
 });
