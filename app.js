@@ -170,6 +170,7 @@ app.post( '/cart', (req, res) => {
     const checkCart = "SELECT itemCount FROM orders WHERE sessionId=? AND foodItem=?";
     const insertCart = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
     const updateCart = "UPDATE orders (itemCount) VALUES (?) WHERE sessionId=? AND foodItem=?";
+    const removeFromCart = "DELETE FROM orders WHERE sessionId=? AND foodItem=?";
     openDatabase();
     db.serialize(function() {
         db.get(checkCart, [sessiondId, product], (err, result) => {
@@ -184,9 +185,10 @@ app.post( '/cart', (req, res) => {
                 });
             }
             if (result) {
-                var itemCount = db.get(checkCart, [sessiondId, product]);
-                var itemCountUpdated = itemCount + amount;
-                console.log("original amount: " + itemCount + "new amount: " + itemCountUpdated);
+                // var itemCount = db.get(checkCart, [sessiondId, product]);
+                // var itemCountUpdated = itemCount + amount;
+                var itemCountUpdated = amount;
+                //console.log("original amount: " + itemCount + "new amount: " + itemCountUpdated);
                     if (itemCountUpdated >= 0) {
                         db.run(updateCart, [itemCountUpdated, sessiondId, product], (err, result) => {
                             if (err) {
@@ -198,19 +200,28 @@ app.post( '/cart', (req, res) => {
                         });                       
                     }
                     else {
-                        db.run(updateCart, [0, sessiondId, product], (err, result) => {
+                        db.run(removeFromCart, [sessiondId, product], (err, result) => {
                             if (err) {
                                 console.log(err.message);
                             }
                             if (result) {
-                                console.log("Updated " + product + "amount to: " + 0);
+                                console.log(err.message);
                             }
                         })
+                        // db.run(updateCart, [0, sessiondId, product], (err, result) => {
+                        //     if (err) {
+                        //         console.log(err.message);
+                        //     }
+                        //     if (result) {
+                        //         console.log("Updated " + product + "amount to: " + 0);
+                        //     }
+                        //})
                     }
-            }
+                }
         });
     });
     closeDatabase();
+    res.send({ 'msg' : 'success'});
 });
 
 

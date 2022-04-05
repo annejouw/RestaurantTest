@@ -442,9 +442,11 @@ function decrease(e) {
     let inputField = e.target.parentElement.children[1];
     if (parseInt(inputField.value) != 0) {
         inputField.value = parseInt(inputField.value) - 1;
-        updateServerCart(inputField.name, inputField.value);
-        //changeProductQuantity(inputField.name, inputField.value);
-    }  
+    }
+    else {
+        inputField.value = 0;
+    }
+    updateServerCart(inputField.name, inputField.value);  
 }
 
 function increase(e) {
@@ -452,7 +454,6 @@ function increase(e) {
     inputField.value = parseInt(inputField.value) + 1;
 
     updateServerCart(inputField.name, inputField.value);
-    //changeProductQuantity(inputField.name, inputField.value);
 }
 
 function inputFieldChange(e) {
@@ -462,7 +463,6 @@ function inputFieldChange(e) {
         e.target.value = 0;
     }
     updateServerCart(name, e.target.value);
-    //changeProductQuantity(name, e.target.value);
 }
 
 function changeProductQuantity(name, value) {
@@ -486,7 +486,9 @@ function updateServerCart (name, value) {
         contentType: 'application/json',
         data: JSON.stringify(data),
         success: function(response){
-            changeProductQuantity(name, value);
+            if (response.msg == 'success'){
+            changeProductQuantity(name, value);    
+            }
         },
         error:function(response){
             console.log("Could not update cart with server");
