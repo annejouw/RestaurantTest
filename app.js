@@ -77,7 +77,7 @@ function createDefaultUser(firstName, lastName, email, phone, password) {
 openDatabase();
 db.serialize(function() {
     createDefaultUser('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', '123456');
-    createDefaultUser('Martijn', 'Hannosset', 'martijnhannosset@gmail.com', '0640889850', '123456');
+    createDefaultUser('Martijn', 'Hannosset', 'martijn.hannosset@gmail.com', '0640889850', 'MyNameJeff44');
     createDefaultUser('Jeff', 'Tatum', 'jefftatum@gmail.com', '0694201337', '123456');
     createDefaultUser('Bas', 'Ret', 'basret@gmail.com', '0622394616', '123456');
     createDefaultUser('Fleur', 'van Koten', 'fleurvankoten@gmail.com', '0639546506', '123456');
