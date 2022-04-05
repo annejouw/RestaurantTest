@@ -169,6 +169,7 @@ app.post( '/cart', (req, res) => {
 
     const checkCart = "SELECT itemCount FROM orders WHERE sessionId=? AND foodItem=?";
     const insertCart = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
+    const updateCart = "UPDATE orders (itemCount) VALUES (?) WHERE sessionId=? AND foodItem=?";
     openDatabase();
     db.serialize(function() {
         db.get(checkCart, [sessiondId, product], (err, result) => {
@@ -178,7 +179,7 @@ app.post( '/cart', (req, res) => {
                         console.log(err.message);
                     }
                     if (result) {
-                        console.log("Updated " + product + "amount to: " + 0);
+                        console.log("Updated " + product + "amount to: " + amount);
                     }
                 });
             }
@@ -187,7 +188,7 @@ app.post( '/cart', (req, res) => {
                 var itemCountUpdated = itemCount + amount;
                 console.log("original amount: " + itemCount + "new amount: " + itemCountUpdated);
                     if (itemCountUpdated >= 0) {
-                        db.run(insertCart, [sessiondId, product, itemCountUpdated], (err, result) => {
+                        db.run(updateCart, [itemCountUpdated, sessiondId, product], (err, result) => {
                             if (err) {
                                 console.log(err.message);
                             }
@@ -197,7 +198,7 @@ app.post( '/cart', (req, res) => {
                         });                       
                     }
                     else {
-                        db.run(insertCart, [sessiondId, product, 0], (err, result) => {
+                        db.run(updateCart, [0, sessiondId, product], (err, result) => {
                             if (err) {
                                 console.log(err.message);
                             }
