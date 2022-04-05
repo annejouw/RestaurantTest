@@ -1,3 +1,5 @@
+
+
 const menuContent = document.getElementById('menu-content')
 
 let dishHTTPRequest = new XMLHttpRequest();

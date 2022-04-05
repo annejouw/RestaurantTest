@@ -1,3 +1,9 @@
+var sqlite3 = require('sqlite3').verbose();
+
+const databasePath = "database.db"
+
+let dishQuery = "SELECT" + + "FROM"
+
 var express = require('express');
 const router = express.Router();
 var jsondish = {
