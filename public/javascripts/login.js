@@ -114,13 +114,7 @@ function checkPassword(e) { //Checks if entered passwords match
 function comparePasswords() { //Returns true if the passwords match
     let passwords = document.getElementsByClassName('register-form__password');
     let password1 = passwords[0].value;
-    console.log(password1);
     let password2 = passwords[1].value;
-    console.log(password2);
-    console.log("checking passwords");
-    if (password1 === password2) {
-        console.log("passwords are the same");
-    }
     return (password1 === password2);
 }
 

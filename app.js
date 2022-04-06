@@ -78,6 +78,16 @@ function insertDefaultUsers(){
     });
 }
 
+function addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password) {
+    const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+    db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], function (err) {
+        if (err) {
+            console.log(err.message);
+        }
+        console.log("A row has been inserted");
+    });
+}
+
 /* 
 Middleware
 - Logger
@@ -215,28 +225,28 @@ app.post('/login/register', (req, res) => {
                 }
                 
                 else {
-                    addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password);
-                    req.session.loggedIn = true;
-                    req.session.userID = result.userID;
-                    console.log(req.session);
-                    res.send({ 'msg' : 'success', 'url' : '/' });
-                    res.end();
+                    //let userID = addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password);
+                    const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+                    db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], function (err) {
+                        if (err) {
+                            console.log(err.message);
+                        }
+                        console.log("A row has been inserted");
+                        console.log(this);
+                        console.log(this.lastID);
+                        let userID = this.lastID;
+                        req.session.loggedIn = true;
+                        req.session.userID = userID;
+                        console.log(req.session);
+                        res.send({ 'msg' : 'success', 'url' : '/' });
+                        res.end();
+                    });
                 }
             }
         });
         closeDatabase();
     });
 });
-
-function addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password) {
-    const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
-    db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], (err) => {
-        if (err) {
-            console.log(err.message);
-        }
-        console.log("A row has been inserted");
-    })
-}
 
 //Retrieve user information for profile page
 app.post('/profile/retrieve', (req, res) => {
@@ -277,6 +287,7 @@ app.post('/profile/editinfo', (req, res) => {
     let streetAddress = req.body.streetAddress;
     let zipCode = req.body.zipCode;
     let city = req.body.city;
+    console.log(city);
     const checkEmail = "SELECT userID FROM users WHERE email=?";
     db.serialize(function() {
         openDatabase();
@@ -287,14 +298,12 @@ app.post('/profile/editinfo', (req, res) => {
             
             if (result && result.userID !== userID) { //When the email exists in the database but is not the email associated with the currently logged in user
                 res.send({ 'msg': 'exists' });
-                res.end();
                 console.log("user already exists");
             }
 
             else {
                 updateDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, userID);
                 res.send({ 'msg':'success' });
-                res.end;
             }
         });
         closeDatabase();
@@ -302,15 +311,60 @@ app.post('/profile/editinfo', (req, res) => {
 });
 
 function updateDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, userID) {
-    const updateUser = "UPDATE users SET firstName=?, lastName=?, email=?, phone=?, streetAddress=?, zipCode=?, city=? WHERE id=?";
+    const updateUser = "UPDATE users SET firstName=?, lastName=?, email=?, phone=?, streetAddress=?, zipCode=?, city=? WHERE userID=?";
     db.serialize(function() {
         openDatabase();
-        db.run(updateUser, [firstName, lastName, email, phone, streetAddress, zipCode, city, userID], (err) => {
+        db.run(updateUser, [firstName, lastName, email, phone, streetAddress, zipCode, city, userID], function (err) {
             if (err) {
                 console.log(err.message);
             }
         });
     });    
+}
+
+app.post('/profile/editpassword', (req, res) => {
+    let userID = req.session.userID;
+    let oldPassword = req.body.oldPassword;
+    let newPassword = req.body.newPassword;
+    
+    if (!(passwordRegexp.test(newPassword))) {
+        res.send({ 'msg': 'regexp' });
+        console.log("password not secure");
+    }
+    else {
+        const checkEmail = "SELECT password FROM users WHERE userID=?";
+        db.serialize(function() {
+            openDatabase();
+            db.get(checkEmail, [userID], (err, result) => {
+                if (err) {
+                    console.log(err.message);
+                }
+            
+                if (result.password === hash(oldPassword)) { //The passwords match
+                    updatePassword(userID, newPassword);
+                    res.send({ 'msg':'success'})
+                }
+
+                else { //Old password does not match password in database
+                    res.send({ 'msg':'noMatch' })
+                }
+            });
+            closeDatabase();
+        });
+    }    
+});
+
+function updatePassword(userID, newPassword) {
+    const updatePassword = "UPDATE users SET password=? WHERE userID=?";
+    db.serialize(function() {
+        openDatabase();
+        db.run(updatePassword, [hash(newPassword), userID], function (err) {
+            if (err) {
+                console.log(err.message);
+            }
+            console.log("Changed password");
+        });
+    });  
 }
 
 //Log out
