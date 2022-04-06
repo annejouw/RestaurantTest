@@ -5,7 +5,8 @@ html(lang='en')
     title Panko Yu Sushi Restaurant Homepage
     link(rel='stylesheet' href='/stylesheets/style.css')
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
-    meta(name='description' content='Main page of the website of Panko Yu Sushi Restaurant.')
+    meta(name='description' content='User profile page for the Panko Yu Restaurant.')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js')
   body
     header.nav-header
       a(href='index')
@@ -26,6 +27,57 @@ html(lang='en')
         h1 Your personal information
         p 
           | Here you can check and edit your personal information.
+        h2.personal-info__ Editing personal information
+        form#personal-info__info-form
+          p#personal-info__success-message
+            | Your information has been updated succesfully.
+          p#personal-info__warning 
+            | This email address is already in use and cannot be used for this account.      
+          label(for='first name') First name: 
+          input#personal-info__first-name(type='text' name='first name' required='')
+          br
+          br
+          label(for='last name') Last name: 
+          input#personal-info__last-name(type='text' name='last name' required='')
+          br
+          br    
+          label(for='email') Email address: 
+          input#personal-info__email(type='email' name='email' required='')
+          br
+          br
+          label(for='phone') Mobile phone number: 06 
+          input#personal-info__phone(type='text' name='phone' pattern='/d{8}' required='')
+          br
+          br
+          label(for='street address') Street address and house number: 
+          input#personal-info__street-address(type='text' name='street address' required='')
+          br
+          br
+          label(for='zip code') Zip code: 
+          input#personal-info__zip-code(type='text' name='zip code' pattern='/d{4}[A-Z]{2}' required='')
+          br
+          br
+          label(for='city') City:  
+          input#personal-info__city-name(type='text' name='city' required='')
+          br
+          br
+          input.personal-info__info-submit(type='submit' value='Save changes')
+          br
+        h2 Changing your password
+        form#personal-info__password-form 
+          label(for='old password') Please enter your old password: 
+          input#personal-info__password--old(type='password' name='old password' required='')
+          br
+          br
+          label(for='new password') Please choose a new password: 
+          input#personal-info__password--new(type='password' name='new password' required='')
+          br
+          br
+          label(for='new password2') Please repeat your new password: 
+          input#personal-info__password--second-new(type='password' name='new password2' required='')
+          br
+          br
+          input.personal-info__password-submit(type='submit' value='Change password')
       article#order-history
         h1 Your order history 
     footer.footer
