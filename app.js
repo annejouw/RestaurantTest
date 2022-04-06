@@ -18,6 +18,7 @@ var passwordRegexp = require('password-regexp')();
 
 //The database
 var fs = require('fs');
+const { resourceLimits } = require('worker_threads');
 var file = "database.db";
 var exists = fs.existsSync(file);
 var db;
@@ -237,7 +238,7 @@ function addUserToDatabase(firstName, lastName, email, phone, streetAddress, zip
     })
 }
 
-//Retrieve info for profile page
+//Retrieve user information for profile page
 app.post('/profile/retrieve', (req, res) => {
     let userID = req.session.userID;
     const infoQuery = "SELECT firstName, lastName, email, phone, streetAddress, zipCode, city FROM users WHERE userID=?";
@@ -264,8 +265,53 @@ app.post('/profile/retrieve', (req, res) => {
         });
         closeDatabase();
     });
-
 });
+
+//Editing user's personal information
+app.post('/profile/editinfo', (req, res) => {
+    let userID = req.session.userID;
+    let firstName = req.body.firstName;
+    let lastName = req.body.lastName;
+    let email = req.body.email;
+    let phone = "06" + req.body.phone;
+    let streetAddress = req.body.streetAddress;
+    let zipCode = req.body.zipCode;
+    let city = req.body.city;
+    const checkEmail = "SELECT userID FROM users WHERE email=?";
+    db.serialize(function() {
+        openDatabase();
+        db.get(checkEmail, [email], (err, result) => {
+            if (err) {
+                console.log(err.message);
+            }
+            
+            if (result && result.userID !== userID) { //When the email exists in the database but is not the email associated with the currently logged in user
+                res.send({ 'msg': 'exists' });
+                res.end();
+                console.log("user already exists");
+            }
+
+            else {
+                updateDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, userID);
+                res.send({ 'msg':'success' });
+                res.end;
+            }
+        });
+        closeDatabase();
+    });    
+});
+
+function updateDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, userID) {
+    const updateUser = "UPDATE users SET firstName=?, lastName=?, email=?, phone=?, streetAddress=?, zipCode=?, city=? WHERE id=?";
+    db.serialize(function() {
+        openDatabase();
+        db.run(updateUser, [firstName, lastName, email, phone, streetAddress, zipCode, city, userID], (err) => {
+            if (err) {
+                console.log(err.message);
+            }
+        });
+    });    
+}
 
 //Log out
 app.get('/logout', (req, res) => {
