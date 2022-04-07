@@ -147,7 +147,6 @@ app.get('/myprofile', (req, res) => {
 });
 
 //cart handling
-//app.route('/cart')
 let orderId = 1;
 app.post( '/cart', (req, res) => {
     //processing req data
@@ -170,7 +169,7 @@ app.post( '/cart', (req, res) => {
                 console.log(err.message);
             }
             else {
-                if (amount >= 0) {
+                if (amount > 0) {
                     updateCart(sessiondId, product, amount);
                 }
                 else {
@@ -193,7 +192,7 @@ function cartInsert(sessiondId, foodItem, itemCount) {
                 console.log(err.message);
             }
             else {
-                console.log("Added " + foodItem + "with amount: " + itemCount);
+                console.log("Added " + foodItem + " with amount: " + itemCount);
             }
         });
     });
@@ -201,7 +200,7 @@ function cartInsert(sessiondId, foodItem, itemCount) {
 }
 
 function updateCart(sessiondId, foodItem, itemCount) {
-    const updateCart = "UPDATE orders (itemCount) VALUES ? WHERE sessionId=? AND foodItem=?";
+    const updateCart = "UPDATE orders SET itemCount = ? WHERE sessionId=? AND foodItem=?";
     var input = [itemCount, sessiondId, foodItem];
     openDatabase();
     db.serialize( function() {
@@ -227,7 +226,7 @@ function removeFromCart (sessiondId, foodItem) {
                 console.log(err.message);
             }
             else {
-                console.log("Removed " + foodItem + "from cart");
+                console.log("Removed " + foodItem + " from cart");
             }
         });
     });

@@ -1,5 +1,7 @@
 //const { post, response } = require("../../app");
 
+//const { strict } = require("jade/lib/doctypes");
+
 //Menu item classes
 class Menu {
     constructor (categories) {
@@ -452,7 +454,6 @@ function decrease(e) {
 function increase(e) {
     let inputField = e.target.parentElement.children[1];
     inputField.value = parseInt(inputField.value) + 1;
-
     updateServerCart(inputField.name, inputField.value);
 }
 
@@ -476,9 +477,10 @@ function changeProductQuantity(name, value) {
 
 function updateServerCart (name, value) {
     //var req = new XMLHttpRequest();
-    var data = { 'name' : name,
-                 'quantity' : value}
-    console.log(name);
+    var str = name.substring(0, name.lastIndexOf(' '));
+    var data = { 'name' : str,
+                 'quantity' : value}    
+    console.log(str);
     $.ajax({
         url:'/cart',
         type: 'post',
