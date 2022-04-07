@@ -478,7 +478,7 @@ function updateServerCart (name, value) {
     //var req = new XMLHttpRequest();
     var data = { 'name' : name,
                  'quantity' : value}
-    console.log(value);
+    console.log(name);
     $.ajax({
         url:'/cart',
         type: 'post',

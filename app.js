@@ -48,19 +48,19 @@ db.serialize(function() {
         db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, streetAddress TEXT NOT NULL, zipCode TEXT NOT NULL, city TEXT NOT NULL, password TEXT NOT NULL)");
         insertDefaultUsers();
         db.run("CREATE TABLE Sashimi (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL)");
-        insertSashimiItems();
+        //insertSashimiItems();
         db.run("CREATE TABLE Nigiri (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian TEXT NOT NULL)");
-        insertNigiriItems();
+        //insertNigiriItems();
         db.run("CREATE TABLE Maki (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian TEXT NOT NULL)");
-        insertMakiItems();
+        //insertMakiItems();
         db.run("CREATE TABLE Desserts (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, allergens TEXT NOT NULL)");
-        insertDessertItems();
+        //insertDessertItems();
         db.run("CREATE TABLE Drinks (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, volume TEXT NOT NULL, alcoholFree TEXT NOT NULL)");
-        insertDrinkItems();
+        //insertDrinkItems();
         //session info table, relates session ID's with user ID's when logging in, marks user as anonymous by default
         //db.run("CREATE TABLE sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
         //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
-        //db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
         //last table which relates orders to users and logs the date
         //db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
     }
@@ -77,30 +77,6 @@ function insertDefaultUsers(){
         addUserToDatabase('Fleur', 'van Koten', 'fleurvankoten@gmail.com', '0639546506', 'Paxlaan 15', '2613GC', 'Delft', 'Fleur1234');
     });
 }
-
-//function to add default users
-let i = 1;
-function createDefaultUser(firstName, lastName, email, phone, password) {
-    let insertStatement = "INSERT INTO users (firstName, lastName, email, phone, password) VALUES (?, ?, ?, ?, ?)";
-    db.run(insertStatement, [firstName, lastName, email, phone, password], (err) => {
-        if (err) {
-            console.log(err.message);
-        }
-        console.log("A row has been inserted with userID: " + i);
-        i++;
-    });
-}
-
-//inserting default users in DB
-openDatabase();
-db.serialize(function() {
-    createDefaultUser('Annemijn', 'van Koten', 'annemijnvankoten@gmail.com', '0639224616', '123456');
-    createDefaultUser('Martijn', 'Hannosset', 'martijn.hannosset@gmail.com', '0640889850', 'MyNameJeff44');
-    createDefaultUser('Jeff', 'Tatum', 'jefftatum@gmail.com', '0694201337', '123456');
-    createDefaultUser('Bas', 'Ret', 'basret@gmail.com', '0622394616', '123456');
-    createDefaultUser('Fleur', 'van Koten', 'fleurvankoten@gmail.com', '0639546506', '123456');
-});
-closeDatabase();
 
 /* 
 Middleware
@@ -174,73 +150,89 @@ app.get('/myprofile', (req, res) => {
 //app.route('/cart')
 let orderId = 1;
 app.post( '/cart', (req, res) => {
-    //processing post req
+    //processing req data
     let product = req.body.name;
     let amount = parseInt(req.body.quantity);
-    // console.log("=========");
-    // console.log(amount);
-    // console.log("=========");
     
     //using sessionID to group items of the same order
     var sessiondId = req.session.id;
     console.log(product, amount);
 
+    //communicating with database
     const checkCart = "SELECT itemCount FROM orders WHERE sessionId=? AND foodItem=?";
-    const insertCart = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
-    const updateCart = "UPDATE orders (itemCount) VALUES (?) WHERE sessionId=? AND foodItem=?";
-    const removeFromCart = "DELETE FROM orders WHERE sessionId=? AND foodItem=?";
     openDatabase();
     db.serialize(function() {
         db.get(checkCart, [sessiondId, product], (err, result) => {
-            if (err) {
-                db.run(insertCart, [sessiondId, product, amount], (err, result) => {
-                    if (err) {
-                        console.log(err.message);
-                    }
-                    if (result) {
-                        console.log("Updated " + product + "amount to: " + amount);
-                    }
-                });
+            if (result == undefined) {
+                cartInsert(sessiondId, product, amount);
             }
-            if (result) {
-                // var itemCount = db.get(checkCart, [sessiondId, product]);
-                // var itemCountUpdated = itemCount + amount;
-                var itemCountUpdated = amount;
-                //console.log("original amount: " + itemCount + "new amount: " + itemCountUpdated);
-                    if (itemCountUpdated >= 0) {
-                        db.run(updateCart, [itemCountUpdated, sessiondId, product], (err, result) => {
-                            if (err) {
-                                console.log(err.message);
-                            }
-                            if (result) {
-                                console.log("Updated " + product + "amount to: " + itemCountUpdated);
-                            }
-                        });                       
-                    }
-                    else {
-                        db.run(removeFromCart, [sessiondId, product], (err, result) => {
-                            if (err) {
-                                console.log(err.message);
-                            }
-                            if (result) {
-                                console.log(err.message);
-                            }
-                        })
-                        // db.run(updateCart, [0, sessiondId, product], (err, result) => {
-                        //     if (err) {
-                        //         console.log(err.message);
-                        //     }
-                        //     if (result) {
-                        //         console.log("Updated " + product + "amount to: " + 0);
-                        //     }
-                        //})
-                    }
+            if (err) {
+                console.log(err.message);
+            }
+            else {
+                if (amount >= 0) {
+                    updateCart(sessiondId, product, amount);
                 }
+                else {
+                    removeFromCart(sessiondId, product);
+                }
+            }
         });
     });
     closeDatabase();
     res.send({ 'msg' : 'success'});
 });
+
+function cartInsert(sessiondId, foodItem, itemCount) {
+    const insertCart = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
+    var input = [sessiondId, foodItem, itemCount];
+    openDatabase();
+    db.serialize( function() {
+        db.run(insertCart, input, (err) => {
+            if (err) {
+                console.log(err.message);
+            }
+            else {
+                console.log("Added " + foodItem + "with amount: " + itemCount);
+            }
+        });
+    });
+    closeDatabase();
+}
+
+function updateCart(sessiondId, foodItem, itemCount) {
+    const updateCart = "UPDATE orders (itemCount) VALUES ? WHERE sessionId=? AND foodItem=?";
+    var input = [itemCount, sessiondId, foodItem];
+    openDatabase();
+    db.serialize( function() {
+        db.run(updateCart, input, (err) => {
+            if (err) {
+                console.log(err.message);
+            }
+            else {
+                console.log("Updated " + foodItem + "count to: " + itemCount);
+            }
+        });
+    });
+    closeDatabase();
+}
+
+function removeFromCart (sessiondId, foodItem) {
+    const removeFromCart = "DELETE FROM orders WHERE sessionId=? AND foodItem=?";
+    var input = [sessiondId, foodItem];
+    openDatabase();
+    db.serialize(function(){
+        db.run(removeFromCart, input, (err) => {
+            if (err) {
+                console.log(err.message);
+            }
+            else {
+                console.log("Removed " + foodItem + "from cart");
+            }
+        });
+    });
+    closeDatabase();
+}
 
 
 //Login information handling
