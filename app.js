@@ -66,9 +66,9 @@ db.serialize(function() {
 });
 
 function createSashimiItems(){
-    insertSashimiItem(1, "Sake sashimi", "8.50","images/sashimi-salmon.jpg", 5, "Salmon");
-    insertSashimiItem(2, "Maguro sashimi", "8.50", "sashimi-tuna.jpg", 5, "Tuna",);
-    insertSashimiItem(3, "Sake and maguro sashimi", "12.50", "salmon-and-tunasashimi.jpg", 8, "Salmon, tuna");
+    insertSashimiItem(101, "Sake sashimi", "8.50","images/sashimi-salmon.jpg", 5, "Salmon");
+    insertSashimiItem(102, "Maguro sashimi", "8.50", "sashimi-tuna.jpg", 5, "Tuna",);
+    insertSashimiItem(103, "Sake and maguro sashimi", "12.50", "salmon-and-tunasashimi.jpg", 8, "Salmon, tuna");
 };
 
 function insertSashimiItem(dishID, dishName, price, imageURL, numberOfItems, ingredients){
@@ -77,12 +77,15 @@ function insertSashimiItem(dishID, dishName, price, imageURL, numberOfItems, ing
         if (err) {
             console.log(err.message);
         }
-        console.log("A row has been inserted into the maki table");
     })
 };
 
 function createNigiriItems(){
-    insertNigiriItem(4, "Sake nigiri", "2.00", "sake.jpg", 2, "Salmon, rice", false);
+    insertNigiriItem(201, "Sake nigiri", "2.00", "sake.jpg", 2, "Salmon, rice", false);
+    insertNigiriItem(202, "Maguro nigiri", "2.00", "maguro.jpg", 2, "Tuna, rice", false);
+    insertNigiriItem(203, "Ebi nigiri", "1.80", "ebi.jpg", 2, "Shrimp, rice", false);
+    insertNigiriItem(204, "Kani nigiri", "1.60", "kani.jpg", 2, "Surimi (crab), rice, seaweed", false);
+    insertNigiriItem(205, "Tamago nigiri", "1.60", "tamago-nigiri.jpg", 2, "Tamago (egg omelet), rice, seaweed", true);
 };
 
 function insertNigiriItem(dishID, dishName, price, imageURL, numberOfItems, ingredients, vegetarian){
@@ -91,12 +94,14 @@ function insertNigiriItem(dishID, dishName, price, imageURL, numberOfItems, ingr
         if (err) {
             console.log(err.message);
         }
-        console.log("A row has been inserted into the maki table");
     })
 };
 
 function createMakiItems(){
-
+    insertMakiItem(301, "Kappa maki", "4.50", "kappa-maki.jpg", 6, "Cucumber, rice, seaweed", true);
+    insertMakiItem(302, "Sake maki", "5.50", "sake-maki.jpg", 6, "Salmon, rice, seaweed", false);
+    insertMakiItem(303, "Tekka maki", "5.50", "tekka-maki.jpg", 6, "Tuna, rice, seaweed", false);
+    insertMakiItem(304, "Avocado maki", "4.50", "avocado-maki.jpg", 6, "Avocado, rice, seaweed", true);
 };
 
 function insertMakiItem(dishID, dishName, price, imageURL, numberOfItems, ingredients, vegetarian){
@@ -105,12 +110,14 @@ function insertMakiItem(dishID, dishName, price, imageURL, numberOfItems, ingred
         if (err) {
             console.log(err.message);
         }
-        console.log("A row has been inserted into the maki table");
     })
 };
 
 function createDessertItems(){
-
+    insertDessertItem(401, "Vanilla icecream", "2.50", "vanilla-icecream.jpg", "Lactose");
+    insertDessertItem(402, "Sesam icecream", "3.00", "sesam-icecream.jpg", "Lactose");
+    insertDessertItem(403, "Green tea icecream", "3.00", "greentea-icecream.jpg", "Lactose");
+    insertDessertItem(404, "Assorted fruits", "2.60", "fruits.jpg", "Fruit");
 };
 
 function insertDessertItem(dishID, dishName, price, imageURL, allergens){
@@ -119,21 +126,23 @@ function insertDessertItem(dishID, dishName, price, imageURL, allergens){
         if (err) {
             console.log(err.message);
         }
-        console.log("A row has been inserted into the maki table");
     })
 };
 
 function createDrinkItems(){
-
+    insertDrinkItem(501, "Pepsi", "1.80", "cola.jpg", "330 ml", true);
+    insertDrinkItem(502, "Sprite", "1.80", "sprite.jpg","330 ml", true);
+    insertDrinkItem(503, "Sake", "5.00","sake-drink.jpg", "330 ml", false);
+    insertDrinkItem(504, "Kirin", "3.50", "kirin.jpg", "330 ml", false);
+    insertDrinkItem(505, "Sapporo", "3.50", "sapporo.jpg","330ml", false);
 };
 
-function insertDessertItem(dishID, dishName, price, imageURL, volume, alcoholFree){
+function insertDrinkItem(dishID, dishName, price, imageURL, volume, alcoholFree){
     const insertStatement = 'INSERT INTO Drinks (dishID, dishName, price, imageURL, volume, alcoholFree) VALUES(?, ?, ?, ?, ?, ?)';
-    db.run(insertStatement, [dishID, dishName, price, imageURL, allergens], (err) => {
+    db.run(insertStatement, [dishID, dishName, price, imageURL, volume, alcoholFree], (err) => {
         if (err) {
             console.log(err.message);
         }
-        console.log("A row has been inserted into the maki table");
     })
 };
 

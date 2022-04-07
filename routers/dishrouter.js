@@ -1,6 +1,12 @@
+var express = require('express');
 var sqlite3 = require('sqlite3').verbose();
 
+const router = express.Router();
 const databasePath = "database.db"
+
+router.all('/', (req, res) => {
+    console.log("dish router accessed")
+});
 
 function openDatabase() {
     db = new sqlite3.Database(databasePath, (err) => {
@@ -23,8 +29,6 @@ function closeDatabase() {
 
 let dishQuery = "SELECT" + + "FROM"
 
-var express = require('express');
-const router = express.Router();
 var jsondish = {
     "id": "1",
     "name": "salmon sashimi",
@@ -37,46 +41,23 @@ var jsondish = {
 
 //when dishes are accessed
 router.post('/:category', (req, res) => {
-    console.log("dish router category accessed");
     var requestedCategory = req.params.category;
+    console.log("dish router category " + requestedCategory + " accessed");
 
     //retrieve JSON representing all dishes in this category, with appropriate values
     openDatabase();
 
-    const requestItemQuery = "SELECT * FROM " + requestedCategory + " WHERE dishID=?"
+    const requestItemQuery = "SELECT * FROM " + requestedCategory
 
-    db.all()
+    db.all(requestItemQuery, (err, dishData) => {
+        if (err) {
+            console.log(err.message);
+        }
+        categoryDishesJSON = JSON.stringify(dishData);
+        res.send(categoryDishesJSON);
+    });
 
-
-    // const infoQuery = "SELECT dishID, dishName, price, imageURL, numberOfItems, ingredients FROM Sashimi WHERE dishID=?";
-    // db.serialize(function() {
-    //     openDatabase();
-    //     db.get(infoQuery, [userID], (err, row) => {
-    //         if (err) {
-    //             console.log(err.message);
-    //         }
-    //         if (row) {
-    //             let data = {
-    //                 'msg':'success',
-    //                 'firstName':row.firstName,
-    //                 'lastName':row.lastName,
-    //                 'email':row.email,
-    //                 'phone':row.phone,
-    //                 'streetAddress':row.streetAddress,
-    //                 'zipCode':row.zipCode,
-    //                 'city':row.city
-    //             };
-    //             res.send(data);
-    //         }
-    //     });
-    //     closeDatabase();
-    // });
-
-    res.send(categoryJSON)
-});
-
-router.get('/', (req, res) => {
-    console.log("dish router accessed")
+    closeDatabase();
 });
 
 module.exports = router;

@@ -6,9 +6,10 @@ let dishHTTPRequest = new XMLHttpRequest();
 dishHTTPRequest.onreadystatechange = function (){
     if (dishHTTPRequest.readyState === 4 && dishHTTPRequest.status === 200){
         //Dish received
-        console.log("dish received")
-        dishJSON = JSON.parse(dishHTTPRequest.responseText)
-        addDishToPage(dishJSON)
+        console.log(dishHTTPRequest.responseText);
+        // console.log("dish received")
+        // dishJSON = JSON.parse(dishHTTPRequest.responseText)
+        // addDishToPage(dishJSON)
     }
 }
 
@@ -29,7 +30,7 @@ function addDishToPage(dishJSON){
 }
 
 
-dishHTTPRequest.open('POST', '/dish/1', true);
+dishHTTPRequest.open('POST', '/dish/Nigiri', true);
 dishHTTPRequest.send();
 
 
