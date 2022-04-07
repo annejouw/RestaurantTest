@@ -47,6 +47,11 @@ db.serialize(function() {
     if (!exists) {
         db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, streetAddress TEXT NOT NULL, zipCode TEXT NOT NULL, city TEXT NOT NULL, password TEXT NOT NULL)");
         insertDefaultUsers();
+        //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
+        db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        //last table which relates orders to users and logs the date
+        db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, sessionId INTEGER NOT NULL UNIQUE, date DATE NOT NULL, PRIMARY KEY(userId, date) )");
+
         db.run("CREATE TABLE Sashimi (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL)");
         //insertSashimiItems();
         db.run("CREATE TABLE Nigiri (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian TEXT NOT NULL)");
@@ -56,13 +61,7 @@ db.serialize(function() {
         db.run("CREATE TABLE Desserts (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, allergens TEXT NOT NULL)");
         //insertDessertItems();
         db.run("CREATE TABLE Drinks (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, volume TEXT NOT NULL, alcoholFree TEXT NOT NULL)");
-        //insertDrinkItems();
-        //session info table, relates session ID's with user ID's when logging in, marks user as anonymous by default
-        //db.run("CREATE TABLE sessionInfo (sessionId INT PRIMARY KEY NOT NULL, userId INTEGER, userType TEXT DEFAULT 'anonymous', date DATE DEFAULT GETDATE() )");
-        //table used when logging orders, uses sessionId as the user type (and ID if logged in) will be defined in the sessionInfo table
-        db.run("CREATE TABLE orders (orderId INTEGER PRIMARY KEY, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
-        //last table which relates orders to users and logs the date
-        //db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL UNIQUE, date DATE DEFAULT GETDATE(), PRIMARY KEY(userId, date) )");
+        //insertDrinkItems();        
     }
     closeDatabase();
 });
@@ -157,7 +156,7 @@ app.post( '/cart', (req, res) => {
     var sessiondId = req.session.id;
     console.log(product, amount);
 
-    //communicating with database
+    //logic for database communication
     const checkCart = "SELECT itemCount FROM orders WHERE sessionId=? AND foodItem=?";
     openDatabase();
     db.serialize(function() {
@@ -182,6 +181,32 @@ app.post( '/cart', (req, res) => {
     res.send({ 'msg' : 'success'});
 });
 
+//order submission handling
+app.get('/cart/submit', (req, res) => {
+    const userId = req.session.userID;
+    var sessionId = req.session.id;
+    var today = new Date();
+    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+' '+today.getHours()+':'+today.getMinutes();
+    console.log(userId);
+
+    const sql = "INSERT INTO orderHistory (userId, sessionId, date) VALUES (?, ?, ?)";
+    var input = [userId, sessionId, date];
+
+    openDatabase();
+    db.serialize(function() {
+        db.run(sql, input, (err) => {
+            if (err) {
+                console.log(err.message);
+            }
+            else {
+                res.send ({'msg' : 'success'});
+                console.log("Order stored in Database");
+            }
+        });
+    });    
+});
+
+//database communication functions
 function cartInsert(sessiondId, foodItem, itemCount) {
     const insertCart = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
     var input = [sessiondId, foodItem, itemCount];
@@ -233,6 +258,21 @@ function removeFromCart (sessiondId, foodItem) {
     closeDatabase();
 }
 
+function inputOrderSubmit (userId, sessiondId) {
+    const sql = "INSERT INTO orderHistory (userId, sessionId) VALUES (?, ?)";
+    var input = [userId, sessiondId];
+    openDatabase();
+    db.serialize(function() {
+        db.run(sql, input, (err) => {
+            if (err) {
+                console.log(err.message);
+            }
+            else {
+                console.log("Order stored in Database");
+            }
+        });
+    });
+}
 
 //Login information handling
 app.post('/login/authenticate', (req, res) => { //still need to sanitize and validate data

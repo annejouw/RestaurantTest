@@ -475,12 +475,11 @@ function changeProductQuantity(name, value) {
     console.log(productObject.name + " : " + productObject.quantity);
 }
 
+//AJAX post request for updating cart in DB
 function updateServerCart (name, value) {
-    //var req = new XMLHttpRequest();
     var str = name.substring(0, name.lastIndexOf(' '));
     var data = { 'name' : str,
                  'quantity' : value}    
-    console.log(str);
     $.ajax({
         url:'/cart',
         type: 'post',
@@ -496,7 +495,6 @@ function updateServerCart (name, value) {
             console.log("Could not update cart with server");
         }
     });
-    //event.preventDefault();
 }
 
 //Creating the actual webpage
@@ -639,7 +637,7 @@ function createSubmit() {
     submitButton.setAttribute("name", "submit-button");
     submitButton.classList.add("menu__submit");
     submitButton.appendChild(submitText);
-    submitButton.addEventListener("click", submitOrder, false);
+    submitButton.addEventListener("click", submitOrderServer, false);
     return submitButton;
 }
 
@@ -655,4 +653,24 @@ function submitOrder(e) {
         }
         alert("Your order has been submitted.")
     }
+}
+
+//AJAX order submit request
+function submitOrderServer(e) {
+    console.log('Attempting to submit order to server');
+    $.ajax({  
+        url:'/cart/submit',  
+        type:'get',  
+        dataType:'json',
+        contentType:'application/json',  
+        success:function(response){  
+            if(response.msg == 'success') {
+                submitOrder(e);
+                console.log("Order has succesfully been submitted")
+            }
+        },  
+        error:function(response){  
+            console.log("A server error has occurred, order not submitted"); 
+        }  
+    });  
 }
