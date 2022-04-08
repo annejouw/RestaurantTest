@@ -11,29 +11,18 @@ dishHTTPRequest.onreadystatechange = function (){
     }
 }
 
-function addDishToPage(dishJSON){
-    console.log("tried to add item")
-    let newDish = document.createElement("div")
-
-    let newDishHeading = document.createElement("h1")
-    newDishHeading.innerHTML = dishJSON.name;
-
-    let newDishImage = document.createElement('img')
-    newDishImage.setAttribute('src', dishJSON.imageurl)
-
-    newDish.appendChild(newDishHeading);
-    newDish.appendChild(newDishImage)
-
-    menuContent.appendChild(newDish);
-}
-
-//creates listeners that trigger appropriate XMLHttpRequest for menu links
+//creates listeners that send appropriate XMLHttpRequest for menu links
 let menuLinkArray = document.querySelectorAll(".menu__link")
 menuLinkArray.forEach(menuLink => addMenuLinkListener(menuLink))
 
 function addMenuLinkListener(menuLink){
-    menuLink.addEventListener("click", menuLinkEventHandler())
+    menuLink.addEventListener("click", menuLinkEventHandler)
 }
+
+/*
+-
+-Uses the value property of the html element to determine the Category to send to the server with an http server
+*/
 
 function menuLinkEventHandler(evt){
     menuLinkElement = evt.target; //this is the button html element
@@ -44,5 +33,7 @@ function menuLinkEventHandler(evt){
     dishHTTPRequest.open('POST', HTTPRequestURL, true);
     dishHTTPRequest.send();
 }
+
+
 
 
