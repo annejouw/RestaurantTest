@@ -1,4 +1,5 @@
-const menuContent = document.getElementById('menu-content')
+const menuContent = document.getElementById('menu-content');
+
 
 let dishHTTPRequest = new XMLHttpRequest();
 dishHTTPRequest.onreadystatechange = function (){
@@ -8,6 +9,8 @@ dishHTTPRequest.onreadystatechange = function (){
         // console.log("dish received")
         // dishJSON = JSON.parse(dishHTTPRequest.responseText)
         // addDishToPage(dishJSON)
+
+
     }
 }
 
@@ -25,14 +28,32 @@ function addMenuLinkListener(menuLink){
 */
 
 function menuLinkEventHandler(evt){
-    menuLinkElement = evt.target; //this is the button html element
-    requestedCategory = menuLinkElement.value; //this is the value string in the button, which should be the same as the table name on server
+    let menuLinkElement = evt.target; //this is the button html element
+    let requestedCategory = menuLinkElement.value; //this is the value string in the button, which should be the same as the table name on server
 
-    HTTPRequestURL = '/dish/' + requestedCategory
+    let HTTPRequestURL = '/dish/' + requestedCategory;
 
-    dishHTTPRequest.open('POST', HTTPRequestURL, true);
-    dishHTTPRequest.send();
+    /*dishHTTPRequest.open('POST', HTTPRequestURL, true);
+    dishHTTPRequest.send();*/
+
+    $.ajax({  
+        url:HTTPRequestURL,  
+        type:'post',  
+        dataType:'json',
+        contentType:'application/json',    
+        success:function(response, status, xhr){  
+            console.log(response);
+            let category = xhr.getResponseHeader('category');
+            console.log(category);
+            replaceMenuItems(category, response);
+        },  
+        error:function(response){  
+            console.log("A server error has occurred"); 
+        }  
+    });
 }
+
+
 
 
 
