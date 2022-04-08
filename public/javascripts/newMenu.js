@@ -1,5 +1,3 @@
-
-
 const menuContent = document.getElementById('menu-content')
 
 let dishHTTPRequest = new XMLHttpRequest();
@@ -29,8 +27,22 @@ function addDishToPage(dishJSON){
     menuContent.appendChild(newDish);
 }
 
+//creates listeners that trigger appropriate XMLHttpRequest for menu links
+let menuLinkArray = document.querySelectorAll(".menu__link")
+menuLinkArray.forEach(menuLink => addMenuLinkListener(menuLink))
 
-dishHTTPRequest.open('POST', '/dish/Nigiri', true);
-dishHTTPRequest.send();
+function addMenuLinkListener(menuLink){
+    menuLink.addEventListener("click", menuLinkEventHandler())
+}
+
+function menuLinkEventHandler(evt){
+    menuLinkElement = evt.target; //this is the button html element
+    requestedCategory = menuLinkElement.value; //this is the value string in the button, which should be the same as the table name on server
+
+    HTTPRequestURL = '/dish/' + requestedCategory
+
+    dishHTTPRequest.open('POST', HTTPRequestURL, true);
+    dishHTTPRequest.send();
+}
 
 

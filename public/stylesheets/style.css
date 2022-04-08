@@ -223,10 +223,10 @@ a.footer__about-info-item{
     font-weight: bold;
 }
 
-a.menu__link {
-    padding: 1em;
+button.menu__link {
+    padding: 0.2em;
+    margin: 0.5em;
     font-size: 1.1em;
-    text-decoration:underline;
 }
 
 section.about-info__contact-info td{
