@@ -469,8 +469,8 @@ function inputFieldChange(e) {
 function changeProductQuantity(name, value) {
     let productObject = dict[name];
     productObject.quantity = parseInt(value);
-    updateCart();
-    drawCart();
+    updateCart(); //wipes cart and retrieves input field values
+    drawCart(); //visually adds to cart
 
     console.log(productObject.name + " : " + productObject.quantity);
 }
@@ -491,7 +491,24 @@ function updateServerCart (name, value) {
             changeProductQuantity(name, value);    
             }
         },
-        error:function(response){
+        error:function(err){
+            console.log("Could not update cart with server");
+        }
+    });
+}
+
+//AJAX get request to retrieve existing cart from db if possible
+function retrieveServerCart() {
+    $.ajax({
+        url:'/cart/retrieve',
+        type: 'get',
+        dataType: 'json',
+        contentType: 'application/json',
+        //data: JSON.stringify(data),
+        success: function(response){
+            
+        },
+        error:function(err){
             console.log("Could not update cart with server");
         }
     });
@@ -552,6 +569,7 @@ let cartItems = document.createElement('div');
 let emptyCart = document.createElement('p');
 let emptyCartText = document.createTextNode('Your cart is empty');
 cartItems.classList.add("menu__cart");
+cartItems.addEventListener("onload", retrieveServerCart, false);
 emptyCart.appendChild(emptyCartText);
 cartItems.appendChild(emptyCart);
 menuPageMain.appendChild(cartItems);
@@ -574,6 +592,7 @@ function drawCart() {
     else { //When cart is not empty
         addItemsToCart(cartItems);
         
+        //total price section
         let cartPrice = document.createElement('p');
         let cartPriceText = document.createElement('strong');
         let cartPriceTextTotal = document.createTextNode('Total price:');
@@ -637,25 +656,29 @@ function createSubmit() {
     submitButton.setAttribute("name", "submit-button");
     submitButton.classList.add("menu__submit");
     submitButton.appendChild(submitText);
-    submitButton.addEventListener("click", submitOrderServer, false);
+    submitButton.addEventListener("click", orderCheck, false);
     return submitButton;
 }
 
-function submitOrder(e) {
-    let inputFields = document.querySelectorAll(".product__quantity");
+function orderCheck(e) {
     if (totalPrice() == 0) {
         alert("Cannot submit order. Your cart is empty.");
     }
     else {
-        for (let inputField of inputFields) {
-            inputField.value = 0;
-            changeProductQuantity(inputField.name, inputField.value);
-        }
-        alert("Your order has been submitted.")
+        submitOrderServer(e);
+    }
+
+}
+
+function submitOrder(e) {
+    let inputFields = document.querySelectorAll(".product__quantity");
+    for (let inputField of inputFields) {
+        inputField.value = 0;
+        changeProductQuantity(inputField.name, inputField.value);
     }
 }
 
-//AJAX order submit request
+//AJAX order submit
 function submitOrderServer(e) {
     console.log('Attempting to submit order to server');
     $.ajax({  

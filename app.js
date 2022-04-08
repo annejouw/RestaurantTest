@@ -181,13 +181,33 @@ app.post( '/cart', (req, res) => {
     res.send({ 'msg' : 'success'});
 });
 
+app.get('/cart/retrieve', (req, res) => {
+    const query = "SELECT orderId WHERE sessionId=?";
+    var sessionId = req.session.id;
+
+    openDatabase();
+    db.serialize(function() {
+        db.get(query, sessionId, (err, result) => {
+            if (err) {
+                console.log(err.message);
+            }
+            if (result = undefined) {
+                console.log('no existing cart');
+            }
+            else {
+                var cart = retrieveCart(sessionId);
+                res.send(cart);
+            }
+        });
+    });
+});
+
 //order submission handling
 app.get('/cart/submit', (req, res) => {
     const userId = req.session.userID;
     var sessionId = req.session.id;
     var today = new Date();
     var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+' '+today.getHours()+':'+today.getMinutes();
-    console.log(userId);
 
     const sql = "INSERT INTO orderHistory (userId, sessionId, date) VALUES (?, ?, ?)";
     var input = [userId, sessionId, date];
@@ -258,20 +278,21 @@ function removeFromCart (sessiondId, foodItem) {
     closeDatabase();
 }
 
-function inputOrderSubmit (userId, sessiondId) {
-    const sql = "INSERT INTO orderHistory (userId, sessionId) VALUES (?, ?)";
-    var input = [userId, sessiondId];
+function retrieveCart(sessionId) {
+    const query = "SELECT foodItem, itemCount FROM orders WHERE sessionId=?";
+    var order;
     openDatabase();
     db.serialize(function() {
-        db.run(sql, input, (err) => {
+        db.all(query, sessionId, (err, result) => {
             if (err) {
                 console.log(err.message);
             }
             else {
-                console.log("Order stored in Database");
+                order = result;
             }
         });
     });
+    return order;
 }
 
 //Login information handling
