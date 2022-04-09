@@ -27,17 +27,7 @@ function closeDatabase() {
     });
 }
 
-let dishQuery = "SELECT" + + "FROM"
-
-var jsondish = {
-    "id": "1",
-    "name": "salmon sashimi",
-    "imageurl": "/images/sashimi-salmon.jpg",
-    "category": "sashimi",
-    "price": "8.50",
-    "ingredients": "salmon",
-    "vegetarian": "false"
-}
+let dishQuery = "SELECT" + + "FROM";
 
 //when dishes are accessed
 router.post('/:category', (req, res) => {
@@ -47,13 +37,14 @@ router.post('/:category', (req, res) => {
     //retrieve JSON representing all dishes in this category, with appropriate values
     openDatabase();
 
-    const requestItemQuery = "SELECT * FROM " + requestedCategory
+    const requestItemQuery = "SELECT * FROM " + requestedCategory;
 
     db.all(requestItemQuery, (err, dishData) => {
         if (err) {
             console.log(err.message);
         }
         categoryDishesJSON = JSON.stringify(dishData);
+        res.append('category', requestedCategory)
         res.send(categoryDishesJSON);
     });
 

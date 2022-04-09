@@ -156,7 +156,6 @@ function createCategory(name, id) {
     categoryHeading.classList.add("menu__category-header");
     categoryHeading.appendChild(categoryText);
     categoryHeading.id = id;
-    
     menuPageMain.appendChild(categoryHeading);
 }
 
@@ -457,7 +456,6 @@ function inputFieldChange(e) {
     if (!(value >= 0) || isNaN(value) || value == -0) {
         e.target.value = 0;
     }
-
     changeProductQuantity(name, e.target.value);
 }
 
