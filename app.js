@@ -53,13 +53,13 @@ db.serialize(function() {
         createDefaultUsers();
         db.run("CREATE TABLE Sashimi (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL)");
         createSashimiItems();
-        db.run("CREATE TABLE Nigiri (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian TEXT NOT NULL)");
+        db.run("CREATE TABLE Nigiri (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian INTEGER)");
         createNigiriItems();
-        db.run("CREATE TABLE Maki (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian TEXT NOT NULL)");
+        db.run("CREATE TABLE Maki (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian INTEGER)");
         createMakiItems();
         db.run("CREATE TABLE Desserts (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, allergens TEXT NOT NULL)");
         createDessertItems();
-        db.run("CREATE TABLE Drinks (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, volume TEXT NOT NULL, alcoholFree TEXT NOT NULL)");
+        db.run("CREATE TABLE Drinks (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, volume TEXT NOT NULL, alcoholFree INTEGER)");
         createDrinkItems();
     }
     closeDatabase();
@@ -81,11 +81,11 @@ function insertSashimiItem(dishID, dishName, price, imageURL, numberOfItems, ing
 };
 
 function createNigiriItems(){
-    insertNigiriItem(201, "Sake nigiri", "2.00", "images/sake.jpg", 2, "Salmon, rice", false);
-    insertNigiriItem(202, "Maguro nigiri", "2.00", "images/maguro.jpg", 2, "Tuna, rice", false);
-    insertNigiriItem(203, "Ebi nigiri", "1.80", "images/ebi.jpg", 2, "Shrimp, rice", false);
-    insertNigiriItem(204, "Kani nigiri", "1.60", "images/kani.jpg", 2, "Surimi (crab), rice, seaweed", false);
-    insertNigiriItem(205, "Tamago nigiri", "1.60", "images/tamago-nigiri.jpg", 2, "Tamago (egg omelet), rice, seaweed", true);
+    insertNigiriItem(201, "Sake nigiri", "2.00", "images/sake.jpg", 2, "Salmon, rice", 0);
+    insertNigiriItem(202, "Maguro nigiri", "2.00", "images/maguro.jpg", 2, "Tuna, rice", 0);
+    insertNigiriItem(203, "Ebi nigiri", "1.80", "images/ebi.jpg", 2, "Shrimp, rice", 0);
+    insertNigiriItem(204, "Kani nigiri", "1.60", "images/kani.jpg", 2, "Surimi (crab), rice, seaweed", 0);
+    insertNigiriItem(205, "Tamago nigiri", "1.60", "images/tamago-nigiri.jpg", 2, "Tamago (egg omelet), rice, seaweed", 1);
 };
 
 function insertNigiriItem(dishID, dishName, price, imageURL, numberOfItems, ingredients, vegetarian){
@@ -98,10 +98,10 @@ function insertNigiriItem(dishID, dishName, price, imageURL, numberOfItems, ingr
 };
 
 function createMakiItems(){
-    insertMakiItem(301, "Kappa maki", "4.50", "images/kappa-maki.jpg", 6, "Cucumber, rice, seaweed", true);
-    insertMakiItem(302, "Sake maki", "5.50", "images/sake-maki.jpg", 6, "Salmon, rice, seaweed", false);
-    insertMakiItem(303, "Tekka maki", "5.50", "images/tekka-maki.jpg", 6, "Tuna, rice, seaweed", false);
-    insertMakiItem(304, "Avocado maki", "4.50", "images/avocado-maki.jpg", 6, "Avocado, rice, seaweed", true);
+    insertMakiItem(301, "Kappa maki", "4.50", "images/kappa-maki.jpg", 6, "Cucumber, rice, seaweed", 1);
+    insertMakiItem(302, "Sake maki", "5.50", "images/sake-maki.jpg", 6, "Salmon, rice, seaweed", 0);
+    insertMakiItem(303, "Tekka maki", "5.50", "images/tekka-maki.jpg", 6, "Tuna, rice, seaweed", 0);
+    insertMakiItem(304, "Avocado maki", "4.50", "images/avocado-maki.jpg", 6, "Avocado, rice, seaweed", 1);
 };
 
 function insertMakiItem(dishID, dishName, price, imageURL, numberOfItems, ingredients, vegetarian){
@@ -130,11 +130,11 @@ function insertDessertItem(dishID, dishName, price, imageURL, allergens){
 };
 
 function createDrinkItems(){
-    insertDrinkItem(501, "Pepsi", "1.80", "images/cola.jpg", "330 ml", true);
-    insertDrinkItem(502, "Sprite", "1.80", "images/sprite.jpg","330 ml", true);
-    insertDrinkItem(503, "Sake", "5.00","images/sake-drink.jpg", "330 ml", false);
-    insertDrinkItem(504, "Kirin", "3.50", "images/kirin.jpg", "330 ml", false);
-    insertDrinkItem(505, "Sapporo", "3.50", "images/sapporo.jpg","330ml", false);
+    insertDrinkItem(501, "Pepsi", "1.80", "images/cola.jpg", "330 ml", 1);
+    insertDrinkItem(502, "Sprite", "1.80", "images/sprite.jpg","330 ml", 1);
+    insertDrinkItem(503, "Sake", "5.00","images/sake-drink.jpg", "330 ml", 0);
+    insertDrinkItem(504, "Kirin", "3.50", "images/kirin.jpg", "330 ml", 0);
+    insertDrinkItem(505, "Sapporo", "3.50", "images/sapporo.jpg","330ml", 0);
 };
 
 function insertDrinkItem(dishID, dishName, price, imageURL, volume, alcoholFree){
