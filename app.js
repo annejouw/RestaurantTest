@@ -6,7 +6,7 @@ var createError = require('http-errors');
 var options = {
     secret: "Session has not been compromised.",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {maxAge: 1000 * 60 * 60 * 24}
                };
 var path = require('path');
@@ -22,6 +22,9 @@ const { resourceLimits } = require('worker_threads');
 var file = "database.db";
 var exists = fs.existsSync(file);
 var db;
+
+//cart router
+var cartRouter = require('./routers/cartrouter.js');
 
 function openDatabase() {
     db = new sqlite3.Database(file, (err) => {
@@ -145,155 +148,8 @@ app.get('/myprofile', (req, res) => {
     else res.redirect('/login');
 });
 
-//cart handling
-let orderId = 1;
-app.post( '/cart', (req, res) => {
-    //processing req data
-    let product = req.body.name;
-    let amount = parseInt(req.body.quantity);
-    
-    //using sessionID to group items of the same order
-    var sessiondId = req.session.id;
-    console.log(product, amount);
-
-    //logic for database communication
-    const checkCart = "SELECT itemCount FROM orders WHERE sessionId=? AND foodItem=?";
-    openDatabase();
-    db.serialize(function() {
-        db.get(checkCart, [sessiondId, product], (err, result) => {
-            if (result == undefined) {
-                cartInsert(sessiondId, product, amount);
-            }
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                if (amount > 0) {
-                    updateCart(sessiondId, product, amount);
-                }
-                else {
-                    removeFromCart(sessiondId, product);
-                }
-            }
-        });
-    });
-    closeDatabase();
-    res.send({ 'msg' : 'success'});
-});
-
-app.get('/cart/retrieve', (req, res) => {
-    const query = "SELECT orderId WHERE sessionId=?";
-    var sessionId = req.session.id;
-
-    openDatabase();
-    db.serialize(function() {
-        db.get(query, sessionId, (err, result) => {
-            if (err) {
-                console.log(err.message);
-            }
-            if (result = undefined) {
-                console.log('no existing cart');
-            }
-            else {
-                var cart = retrieveCart(sessionId);
-                res.send(cart);
-            }
-        });
-    });
-});
-
-//order submission handling
-app.get('/cart/submit', (req, res) => {
-    const userId = req.session.userID;
-    var sessionId = req.session.id;
-    var today = new Date();
-    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+' '+today.getHours()+':'+today.getMinutes();
-
-    const sql = "INSERT INTO orderHistory (userId, sessionId, date) VALUES (?, ?, ?)";
-    var input = [userId, sessionId, date];
-
-    openDatabase();
-    db.serialize(function() {
-        db.run(sql, input, (err) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                res.send ({'msg' : 'success'});
-                console.log("Order stored in Database");
-            }
-        });
-    });    
-});
-
-//database communication functions
-function cartInsert(sessiondId, foodItem, itemCount) {
-    const insertCart = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
-    var input = [sessiondId, foodItem, itemCount];
-    openDatabase();
-    db.serialize( function() {
-        db.run(insertCart, input, (err) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                console.log("Added " + foodItem + " with amount: " + itemCount);
-            }
-        });
-    });
-    closeDatabase();
-}
-
-function updateCart(sessiondId, foodItem, itemCount) {
-    const updateCart = "UPDATE orders SET itemCount = ? WHERE sessionId=? AND foodItem=?";
-    var input = [itemCount, sessiondId, foodItem];
-    openDatabase();
-    db.serialize( function() {
-        db.run(updateCart, input, (err) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                console.log("Updated " + foodItem + "count to: " + itemCount);
-            }
-        });
-    });
-    closeDatabase();
-}
-
-function removeFromCart (sessiondId, foodItem) {
-    const removeFromCart = "DELETE FROM orders WHERE sessionId=? AND foodItem=?";
-    var input = [sessiondId, foodItem];
-    openDatabase();
-    db.serialize(function(){
-        db.run(removeFromCart, input, (err) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                console.log("Removed " + foodItem + " from cart");
-            }
-        });
-    });
-    closeDatabase();
-}
-
-function retrieveCart(sessionId) {
-    const query = "SELECT foodItem, itemCount FROM orders WHERE sessionId=?";
-    var order;
-    openDatabase();
-    db.serialize(function() {
-        db.all(query, sessionId, (err, result) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                order = result;
-            }
-        });
-    });
-    return order;
-}
+//cart router
+app.use('/cart', cartRouter);
 
 //Login information handling
 app.post('/login/authenticate', (req, res) => { //still need to sanitize and validate data

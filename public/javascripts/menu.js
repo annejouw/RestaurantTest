@@ -124,6 +124,8 @@ function createDictionaryEntry (productObject) {
     dict[productObject.name + " quantity"] = productObject;
 }
 
+//-----------------------------------------------------------------
+
 //Creating cart contents
 let cart = new Map();
 updateCart();
@@ -143,6 +145,8 @@ function addToCart(productObject) {
     }
 }
 
+//-----------------------------------------------------------------
+  
 //Functions needed to create the webpage layout
 function createLinkBoxLink(name, link) {
     let linkAnchor = document.createElement('a');
@@ -475,45 +479,6 @@ function changeProductQuantity(name, value) {
     console.log(productObject.name + " : " + productObject.quantity);
 }
 
-//AJAX post request for updating cart in DB
-function updateServerCart (name, value) {
-    var str = name.substring(0, name.lastIndexOf(' '));
-    var data = { 'name' : str,
-                 'quantity' : value}    
-    $.ajax({
-        url:'/cart',
-        type: 'post',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify(data),
-        success: function(response){
-            if (response.msg == 'success'){
-            changeProductQuantity(name, value);    
-            }
-        },
-        error:function(err){
-            console.log("Could not update cart with server");
-        }
-    });
-}
-
-//AJAX get request to retrieve existing cart from db if possible
-function retrieveServerCart() {
-    $.ajax({
-        url:'/cart/retrieve',
-        type: 'get',
-        dataType: 'json',
-        contentType: 'application/json',
-        //data: JSON.stringify(data),
-        success: function(response){
-            
-        },
-        error:function(err){
-            console.log("Could not update cart with server");
-        }
-    });
-}
-
 //Creating the actual webpage
 let menuPageMain = document.createElement('article');
 menuPageMain.classList.add("menu");
@@ -660,22 +625,53 @@ function createSubmit() {
     return submitButton;
 }
 
-function orderCheck(e) {
-    if (totalPrice() == 0) {
-        alert("Cannot submit order. Your cart is empty.");
-    }
-    else {
-        submitOrderServer(e);
-    }
-
+//AJAX post request for updating cart in DB
+function updateServerCart (name, value) {
+    var str = name.substring(0, name.lastIndexOf(' '));
+    var data = { 'name' : str,
+                 'quantity' : value}    
+    $.ajax({
+        url:'/cart/update',
+        type: 'post',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify(data),
+        success: function(response){
+            if (response.msg == 'success') {
+            changeProductQuantity(name, value);    
+            }
+            if (response.msg == 'notLoggedIn') {
+                alert("Cannot add item to cart, user not logged in.");
+                clearCart();
+            }
+        },
+        error:function(){
+            console.log("Could not update cart with server");
+        }
+    });
 }
 
-function submitOrder(e) {
-    let inputFields = document.querySelectorAll(".product__quantity");
-    for (let inputField of inputFields) {
-        inputField.value = 0;
-        changeProductQuantity(inputField.name, inputField.value);
-    }
+//AJAX get request to retrieve existing cart from db if possible
+function retrieveServerCart() {
+    console.log("attempting to retrieve cart from server");
+    $.ajax({
+        url:'/cart/retrieve',
+        type: 'get',
+        dataType: 'json',
+        contentType: 'application/json',
+        //data: JSON.stringify(data),
+        success: function(response){
+            if (response.msg == 'notLogedIn') {
+                console.log('Cannot retrieve cart, user not logged in.');
+            }
+            else {
+                
+            }
+        },
+        error:function(err){
+            console.log("Could not retrieve cart from server");
+        }
+    });
 }
 
 //AJAX order submit
@@ -696,4 +692,31 @@ function submitOrderServer(e) {
             console.log("A server error has occurred, order not submitted"); 
         }  
     });  
+}
+
+function orderCheck(e) {
+    if (totalPrice() == 0) {
+        alert("Cannot submit order. Your cart is empty.");
+    }
+    else {
+        submitOrderServer(e);
+    }
+
+}
+
+function submitOrder(e) {
+    let inputFields = document.querySelectorAll(".product__quantity");
+    for (let inputField of inputFields) {
+        inputField.value = 0;
+        changeProductQuantity(inputField.name, inputField.value);
+    }
+}
+
+function clearCart() {
+    let inputFields = document.querySelectorAll(".product__quantity");
+        for (let inputField of inputFields) {
+            inputField.value = 0;
+            changeProductQuantity(inputField.name, inputField.value);
+        }
+        cart.clear;
 }
