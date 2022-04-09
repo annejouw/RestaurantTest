@@ -4,11 +4,6 @@ const router = express.Router();
 var sqlite3 = require('sqlite3').verbose();
 const databasePath = "database.db"
 
-// router.all('/', (req, res, next) => {
-//     console.log("cart router accessed");
-//     next();
-// });
-
 //DB functions
 function openDatabase() {
     db = new sqlite3.Database(databasePath, (err) => {
@@ -43,14 +38,13 @@ router.post( '/update', (req, res) => {
         console.log(product + ' : ' + amount);
         const checkCart = "SELECT itemCount FROM orders WHERE sessionId=? AND foodItem=?";
         openDatabase();
-        db.serialize(function() {
             db.get(checkCart, [sessiondId, product], (err, result) => {
+                if (err) {
+                    console.log(err.message);
+                }
                 if (result == undefined) {
                     cartInsert(sessiondId, product, amount);
                     res.send({ 'msg' : 'success'});
-                }
-                if (err) {
-                    console.log(err.message);
                 }
                 else {
                     if (amount > 0) {
@@ -63,7 +57,6 @@ router.post( '/update', (req, res) => {
                     }
                 }
             });
-        });
         closeDatabase();
     }
     else {
@@ -71,6 +64,7 @@ router.post( '/update', (req, res) => {
         res.send({ 'msg' : 'notLoggedIn'});
     }
 });
+
 
 router.get('/retrieve', (req, res) => {
     const query = "SELECT * WHERE sessionId=?";
