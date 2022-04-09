@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-// var sqlite3 = require('sqlite3').verbose();
-// var app = express();
-// const databasePath = "database.db"
+var sqlite3 = require('sqlite3').verbose();
+const databasePath = "database.db"
 
 // router.all('/', (req, res, next) => {
 //     console.log("cart router accessed");
@@ -12,7 +11,7 @@ const router = express.Router();
 
 //DB functions
 function openDatabase() {
-    db = new sqlite3.Database(file, (err) => {
+    db = new sqlite3.Database(databasePath, (err) => {
         if (err) {
             return console.error(err.message);
         }
@@ -95,7 +94,7 @@ router.get('/retrieve', (req, res) => {
         });
     }
     else {
-        res.send({'msg' : 'notLogedIn'});
+        res.send({'msg' : 'notLoggedIn'});
     }
 });
 
