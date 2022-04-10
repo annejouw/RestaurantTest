@@ -4,8 +4,10 @@ html(lang='en')
     meta(charset='UTF-8')
     title Panko Yu Sushi Restaurant Menu page
     link(rel='stylesheet' href='/stylesheets/style.css')
+    link(rel='icon' type='image/x-icon' href='/images/favicon.ico')
     meta(name='viewport' content='width=device-width, initial-scale=1.0')
     meta(name='description' content="Panko Yu's sushi menu and ordering page.")
+
   body
     header.nav-header
       a(href='index')
@@ -16,7 +18,7 @@ html(lang='en')
         a(href='booking') Book a table
         a(href='about') Contact
         if logStatus
-          a(href='myprofile') Profile  
+          a(href='myprofile') Profile
         else
           a(href='login') Login
     main#menu-content.content
@@ -26,7 +28,7 @@ html(lang='en')
           a(href='about#contact_information') Contact information
         img.footer__contact-image(src='/images/icons8-location-96.png' alt='location icon')
         p.footer__contact-info-item
-          | Nori Boulevard 808 
+          | Nori Boulevard 808
           br
           |  1337SH, Maki
         img.footer__contact-image(src='/images/icons8-phone-90.png' alt='phone icon')
