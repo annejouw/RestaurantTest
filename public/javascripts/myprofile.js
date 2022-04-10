@@ -77,8 +77,8 @@ function showMessage(message) { //Hide all messages and show correct message
 
 function retrieveInfo(e) {
     $.ajax({  
-        url:'/profile/retrieve',  
-        type:'post',  
+        url:'/myprofile/retrieve',  
+        type:'get',  
         dataType:'json',
         contentType:'application/json',  
         success:function(response){  
@@ -127,7 +127,7 @@ function editInfo(e) {
                  'city':city };
     
     $.ajax({  
-        url:'/profile/editinfo',  
+        url:'/myprofile/editinfo',  
         type:'post',  
         dataType:'json',
         contentType:'application/json',  
@@ -158,7 +158,7 @@ function editPassword(e) {
                      'newPassword':newPassword1 };
         
         $.ajax({  
-            url:'/profile/editpassword',  
+            url:'/myprofile/editpassword',  
             type:'post',  
             dataType:'json',
             contentType:'application/json',  

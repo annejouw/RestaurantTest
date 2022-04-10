@@ -6,7 +6,7 @@ var createError = require('http-errors');
 var options = {
     secret: "Session has not been compromised.",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {maxAge: 1000 * 60 * 60 * 24}
                };
 var path = require('path');
@@ -15,6 +15,12 @@ var sqlite3 = require('sqlite3').verbose();
 var bodyParser = require('body-parser');
 var app = express();
 var passwordRegexp = require('password-regexp')();
+
+//Routers
+/*var menuRouter = require('./routers/menurouter.js');
+var dishRouter = require('./routers/dishrouter.js');*/
+//var loginRouter = require('./routers/loginrouter.js');
+//var profileRouter = require('./routers/profileRouter');
 
 //The database
 var fs = require('fs');
@@ -117,7 +123,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-//Routers
+/*Routers*/
+
+//External routers
+//app.use('/menu', menuRouter);
+//app.use('/dish', dishRouter);
+//app.use('/myprofile', profileRouter);
+//app.use('/login', loginRouter);
+
 app.get('/', (req, res) => {
     res.render('index', { logStatus: req.session.loggedIn });
 });
@@ -249,7 +262,7 @@ app.post('/login/register', (req, res) => {
 });
 
 //Retrieve user information for profile page
-app.post('/profile/retrieve', (req, res) => {
+app.get('/myprofile/retrieve', (req, res) => {
     let userID = req.session.userID;
     const infoQuery = "SELECT firstName, lastName, email, phone, streetAddress, zipCode, city FROM users WHERE userID=?";
     db.serialize(function() {
@@ -278,7 +291,7 @@ app.post('/profile/retrieve', (req, res) => {
 });
 
 //Editing user's personal information
-app.post('/profile/editinfo', (req, res) => {
+app.post('/myprofile/editinfo', (req, res) => {
     let userID = req.session.userID;
     let firstName = req.body.firstName;
     let lastName = req.body.lastName;
@@ -322,7 +335,7 @@ function updateDatabase(firstName, lastName, email, phone, streetAddress, zipCod
     });    
 }
 
-app.post('/profile/editpassword', (req, res) => {
+app.post('/myprofile/editpassword', (req, res) => {
     let userID = req.session.userID;
     let oldPassword = req.body.oldPassword;
     let newPassword = req.body.newPassword;
