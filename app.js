@@ -261,12 +261,10 @@ app.post('/login/authenticate', (req, res) => {
                     req.session.username = result;
                     console.log(req.session);
                     res.send({ 'msg': 'success', 'url': '/' })
-                    res.end();
                 }
                 if (typeof result === 'undefined') {
                     console.log("wrong credentials");
                     res.send({ 'msg': 'invalid' });
-                    res.end();
                 }
             });          
             closeDatabase();
@@ -275,7 +273,6 @@ app.post('/login/authenticate', (req, res) => {
     else {
         console.log("empty credentials");
         res.send({ 'msg': 'empty' });
-        res.end();
     }
 });
 
@@ -299,14 +296,12 @@ app.post('/login/register', (req, res) => {
             
             if (result) {
                 res.send({ 'msg': 'exists' });
-                res.end();
                 console.log("user already exists");
             }
 
             else {
                 if (!(passwordRegexp.test(password))) {
                     res.send({ 'msg': 'regexp' });
-                    res.end();
                     console.log("password not secure");
                 }
                 
@@ -325,7 +320,6 @@ app.post('/login/register', (req, res) => {
                         req.session.userID = userID;
                         console.log(req.session);
                         res.send({ 'msg' : 'success', 'url' : '/' });
-                        res.end();
                     });
                 }
             }
