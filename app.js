@@ -229,13 +229,6 @@ app.get('/login', (req, res) => {
     else res.render('login');
 });
 
-// app.get('/myprofile', (req, res) => {
-//     if (req.session.loggedIn) {
-//         res.render('myprofile');
-//     }
-//     else res.redirect('/login');
-// });
-
 //External routers
 app.use('/menu', menuRouter);
 app.use('/dish', dishRouter);
@@ -328,68 +321,6 @@ app.post('/login/register', (req, res) => {
     });
 });
 
-//Retrieve user information for profile page
-// app.get('/myprofile/retrieve', (req, res) => {
-//     let userID = req.session.userID;
-//     const infoQuery = "SELECT firstName, lastName, email, phone, streetAddress, zipCode, city FROM users WHERE userID=?";
-//     db.serialize(function() {
-//         openDatabase();
-//         db.get(infoQuery, [userID], (err, row) => {
-//             if (err) {
-//                 console.log(err.message);
-//             }
-//
-//             if (row) {
-//                 let data = {
-//                     'msg':'success',
-//                     'firstName':row.firstName,
-//                     'lastName':row.lastName,
-//                     'email':row.email,
-//                     'phone':row.phone,
-//                     'streetAddress':row.streetAddress,
-//                     'zipCode':row.zipCode,
-//                     'city':row.city
-//                 };
-//                 res.send(data);
-//             }
-//         });
-//         closeDatabase();
-//     });
-// });
-
-//Editing user's personal information
-// app.post('/myprofile/editinfo', (req, res) => {
-//     let userID = req.session.userID;
-//     let firstName = req.body.firstName;
-//     let lastName = req.body.lastName;
-//     let email = req.body.email;
-//     let phone = "06" + req.body.phone;
-//     let streetAddress = req.body.streetAddress;
-//     let zipCode = req.body.zipCode;
-//     let city = req.body.city;
-//     console.log(city);
-//     const checkEmail = "SELECT userID FROM users WHERE email=?";
-//     db.serialize(function() {
-//         openDatabase();
-//         db.get(checkEmail, [email], (err, result) => {
-//             if (err) {
-//                 console.log(err.message);
-//             }
-//
-//             if (result && result.userID !== userID) { //When the email exists in the database but is not the email associated with the currently logged in user
-//                 res.send({ 'msg': 'exists' });
-//                 console.log("user already exists");
-//             }
-//
-//             else {
-//                 updateDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, userID);
-//                 res.send({ 'msg':'success' });
-//             }
-//         });
-//         closeDatabase();
-//     });
-// });
-
 function updateDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, userID) {
     const updateUser = "UPDATE users SET firstName=?, lastName=?, email=?, phone=?, streetAddress=?, zipCode=?, city=? WHERE userID=?";
     db.serialize(function() {
@@ -401,38 +332,6 @@ function updateDatabase(firstName, lastName, email, phone, streetAddress, zipCod
         });
     });
 }
-
-// app.post('/myprofile/editpassword', (req, res) => {
-//     let userID = req.session.userID;
-//     let oldPassword = req.body.oldPassword;
-//     let newPassword = req.body.newPassword;
-//
-//     if (!(passwordRegexp.test(newPassword))) {
-//         res.send({ 'msg': 'regexp' });
-//         console.log("password not secure");
-//     }
-//     else {
-//         const checkEmail = "SELECT password FROM users WHERE userID=?";
-//         db.serialize(function() {
-//             openDatabase();
-//             db.get(checkEmail, [userID], (err, result) => {
-//                 if (err) {
-//                     console.log(err.message);
-//                 }
-//
-//                 if (result.password === hash(oldPassword)) { //The passwords match
-//                     updatePassword(userID, newPassword);
-//                     res.send({ 'msg':'success'})
-//                 }
-//
-//                 else { //Old password does not match password in database
-//                     res.send({ 'msg':'noMatch' })
-//                 }
-//             });
-//             closeDatabase();
-//         });
-//     }
-// });
 
 function updatePassword(userID, newPassword) {
     const updatePassword = "UPDATE users SET password=? WHERE userID=?";
