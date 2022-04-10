@@ -6,7 +6,7 @@ var createError = require('http-errors');
 var options = {
     secret: "Session has not been compromised.",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {maxAge: 1000 * 60 * 60 * 24}
                };
 var path = require('path');
