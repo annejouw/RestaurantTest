@@ -162,6 +162,16 @@ function createDefaultUsers(){
     });
 }
 
+function addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password) {
+    const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
+    db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], function (err) {
+        if (err) {
+            console.log(err.message);
+        }
+        console.log("A row has been inserted");
+    });
+}
+
 /* 
 Middleware
 - Logger
