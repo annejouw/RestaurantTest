@@ -48,12 +48,10 @@ router.post('/authenticate', (req, res) => { //still need to sanitize and valida
                     req.session.userID = result.userID;
                     console.log(req.session);
                     res.send({ 'msg': 'success', 'url': '/' })
-                    res.end();
                 }
                 if (typeof result === 'undefined') {
                     console.log("wrong credentials");
                     res.send({ 'msg': 'invalid' });
-                    res.end();
                 }
             });          
             closeDatabase();
@@ -62,7 +60,6 @@ router.post('/authenticate', (req, res) => { //still need to sanitize and valida
     else {
         console.log("empty credentials");
         res.send({ 'msg': 'empty' });
-        res.end();
     }
 });
 
@@ -86,14 +83,12 @@ router.post('/register', (req, res) => {
             
             if (result) {
                 res.send({ 'msg': 'exists' });
-                res.end();
                 console.log("user already exists");
             }
 
             else {
                 if (!(passwordRegexp.test(password))) {
                     res.send({ 'msg': 'regexp' });
-                    res.end();
                     console.log("password not secure");
                 }
                 
@@ -112,7 +107,6 @@ router.post('/register', (req, res) => {
                         req.session.userID = userID;
                         console.log(req.session);
                         res.send({ 'msg' : 'success', 'url' : '/' });
-                        res.end();
                     });
                 }
             }
