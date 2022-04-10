@@ -10,6 +10,9 @@ function addMenuLinkListener(menuLink){
     menuLink.addEventListener("click", menuLinkEventHandler, false);
 }
 
+let firstMenuLink = document.querySelector(".menu__link");
+firstMenuLink.click();
+
 function menuLinkEventHandler(evt){
     let menuLinkElement = evt.target; //this is the button html element, that allows the user to select a category.
     let requestedCategory = menuLinkElement.value; //this represents the category that the user wants to change to.
