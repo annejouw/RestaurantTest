@@ -248,7 +248,7 @@ app.use('/dish', dishRouter);
 app.use('/cart', cartRouter);
 
 //Login information handling
-app.post('/authenticate', (req, res) => { //still need to sanitize and validate data
+app.post('/login/authenticate', (req, res) => { //still need to sanitize and validate data
     let email = req.body.email;
     let password = hash(req.body.password);
     const prepareQuery = "SELECT userID FROM users WHERE email=? AND password=?";
