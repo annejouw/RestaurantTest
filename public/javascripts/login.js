@@ -16,14 +16,14 @@ passwordField1.addEventListener("change", checkPassword, false);
 passwordField2.addEventListener("change", checkPassword, false);
 
 let loginForm = document.getElementById('login-form__content');
-loginForm.addEventListener("submit", addToDatabase, false);
+loginForm.addEventListener("submit", searchDatabase, false);
 
 let registerForm = document.getElementById('register-form__content');
-registerForm.addEventListener("submit", searchDatabase, false);
+registerForm.addEventListener("submit", addToDatabase, false);
 
 /* Event handlers */
 //Logging a user in
-function addToDatabase(e) {
+function searchDatabase(e) {
     let email = document.getElementById('login-form__email').value;
     let password = document.getElementById('login-form__password').value;
     var data = { 'email':email,
@@ -118,7 +118,7 @@ function comparePasswords() { //Returns true if the passwords match
     return (password1 === password2);
 }
 
-function searchDatabase(e) {
+function addToDatabase(e) {
     let email = document.getElementById('register-form__email').value;
     let password = document.getElementsByClassName('register-form__password')[0].value;
     let firstName = document.getElementById('register-form__first-name').value;
