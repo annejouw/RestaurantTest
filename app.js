@@ -19,7 +19,7 @@ var passwordRegexp = require('password-regexp')();
 //routers
 var menuRouter = require('./routers/menurouter.js');
 var dishRouter = require('./routers/dishrouter.js');
-//var loginRouter = require('./routers/loginrouter.js');
+var loginRouter = require('./routers/loginrouter.js');
 var profileRouter = require('./routers/profileRouter');
 var cartRouter = require('./routers/cartrouter.js');
 
@@ -222,11 +222,10 @@ app.get('/story', (req, res) => {
     res.render('story', { logStatus: req.session.loggedIn });
 });
 
-app.get('/login', (req, res) => {
-    if (req.session.loggedIn) {
-        res.redirect('/');
-    }
-    else res.render('login');
+//Log out
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.redirect('/');
 });
 
 //External routers
@@ -234,123 +233,7 @@ app.use('/menu', menuRouter);
 app.use('/dish', dishRouter);
 app.use('/cart', cartRouter);
 app.use('/myprofile', profileRouter);
-//app.use('/login', loginRouter);
-
-//Login information handling
-app.post('/login/authenticate', (req, res) => { 
-    let email = req.body.email;
-    let password = req.body.password;
-    const prepareQuery = "SELECT userID FROM users WHERE email=? AND password=?";
-    if (email && password) {
-        db.serialize(function() {
-            openDatabase();
-            db.get(prepareQuery, [email, hash(password)], (err, result) => {
-                console.log("looked up query");
-                if (err) {
-                    console.log(err.message);
-                }
-                if (result) {
-                    req.session.loggedIn = true;
-                    req.session.userID = result.userID;
-                    console.log(req.session);
-                    res.send({ 'msg': 'success', 'url': '/' })
-                }
-                if (typeof result === 'undefined') {
-                    console.log("wrong credentials");
-                    res.send({ 'msg': 'invalid' });
-                }
-            });          
-            closeDatabase();
-        });
-    }
-    else {
-        console.log("empty credentials");
-        res.send({ 'msg': 'empty' });
-    }
-});
-
-//Registering a new user
-app.post('/login/register', (req, res) => {
-    let firstName = req.body.firstName;
-    let lastName = req.body.lastName;
-    let email = req.body.email;
-    let phone = "06" + req.body.phone;
-    let password = req.body.password;
-    let streetAddress = req.body.streetAddress;
-    let zipCode = req.body.zipCode;
-    let city = req.body.city;
-    const checkEmail = "SELECT userID FROM users WHERE email=?";
-    db.serialize(function() {
-        openDatabase();
-        db.get(checkEmail, [email], (err, result) => {
-            if (err) {
-                console.log(err.message);
-            }
-            
-            if (result) {
-                res.send({ 'msg': 'exists' });
-                console.log("user already exists");
-            }
-
-            else {
-                if (!(passwordRegexp.test(password))) {
-                    res.send({ 'msg': 'regexp' });
-                    console.log("password not secure");
-                }
-                
-                else {
-                    const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
-                    db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], function (err) {
-                        if (err) {
-                            console.log(err.message);
-                        }
-                        console.log(hash(password));
-                        console.log("A row has been inserted");
-                        console.log(this);
-                        console.log(this.lastID);
-                        let userID = this.lastID;
-                        req.session.loggedIn = true;
-                        req.session.userID = userID;
-                        console.log(req.session);
-                        res.send({ 'msg' : 'success', 'url' : '/' });
-                    });
-                }
-            }
-        });
-        closeDatabase();
-    });
-});
-
-function updateDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, userID) {
-    const updateUser = "UPDATE users SET firstName=?, lastName=?, email=?, phone=?, streetAddress=?, zipCode=?, city=? WHERE userID=?";
-    db.serialize(function() {
-        openDatabase();
-        db.run(updateUser, [firstName, lastName, email, phone, streetAddress, zipCode, city, userID], function (err) {
-            if (err) {
-                console.log(err.message);
-            }
-        });
-    });
-}
-
-function updatePassword(userID, newPassword) {
-    const updatePassword = "UPDATE users SET password=? WHERE userID=?";
-    db.serialize(function() {
-        openDatabase();
-        db.run(updatePassword, [hash(newPassword), userID], function (err) {
-            if (err) {
-                console.log(err.message);
-            }
-            console.log("Changed password");
-        });
-    });
-}
-
-//Log out
-app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
-});
+app.use('/login', loginRouter);
 
 //Error handling
 // catch 404 and forward to error handler
@@ -367,7 +250,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
 
 app.listen(8018);
 

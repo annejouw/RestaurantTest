@@ -1,6 +1,8 @@
 var express = require('express');
 const hash = require("object-hash");
 var sqlite3 = require('sqlite3').verbose();
+var passwordRegexp = require('password-regexp')();
+
 
 const router = express.Router();
 const databasePath = "database.db"
@@ -32,13 +34,13 @@ router.get('/', (req, res) => {
 });
 
 //Login information handling
-app.post('/login/authenticate', (req, res) => {
+router.post('/authenticate', (req, res) => {
     let email = req.body.email;
     let password = req.body.password;
     const prepareQuery = "SELECT userID FROM users WHERE email=? AND password=?";
     if (email && password) {
+        openDatabase();
         db.serialize(function() {
-            openDatabase();
             db.get(prepareQuery, [email, hash(password)], (err, result) => {
                 console.log("looked up query");
                 if (err) {
@@ -75,13 +77,13 @@ router.post('/register', (req, res) => {
     let zipCode = req.body.zipCode;
     let city = req.body.city;
     const checkEmail = "SELECT userID FROM users WHERE email=?";
+    openDatabase();
     db.serialize(function() {
-        openDatabase();
         db.get(checkEmail, [email], (err, result) => {
             if (err) {
                 console.log(err.message);
             }
-            
+
             if (result) {
                 res.send({ 'msg': 'exists' });
                 console.log("user already exists");
@@ -92,14 +94,14 @@ router.post('/register', (req, res) => {
                     res.send({ 'msg': 'regexp' });
                     console.log("password not secure");
                 }
-                
+
                 else {
-                    //let userID = addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password);
                     const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
                     db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], function (err) {
                         if (err) {
                             console.log(err.message);
                         }
+                        console.log(hash(password));
                         console.log("A row has been inserted");
                         console.log(this);
                         console.log(this.lastID);
