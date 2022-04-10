@@ -27,6 +27,9 @@ var databasePath = "database.db";
 var exists = fs.existsSync(databasePath);
 var db;
 
+//cart router
+var cartRouter = require('./routers/cartrouter.js');
+
 function openDatabase() {
     db = new sqlite3.Database(databasePath, (err) => {
         if (err) {
@@ -225,6 +228,7 @@ app.get('/myprofile', (req, res) => {
 //this router handles all menu routing, since special routing is required for the page traversal
 app.use('/menu', menuRouter);
 app.use('/dish', dishRouter);
+app.use('/cart', cartRouter);
 
 //Login information handling
 app.post('/login/authenticate', (req, res) => { //still need to sanitize and validate data
