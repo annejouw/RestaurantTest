@@ -1,5 +1,7 @@
 var express = require('express');
 var sqlite3 = require('sqlite3').verbose();
+var passwordRegexp = require('password-regexp')();
+var hash = require('object-hash');
 
 const router = express.Router();
 const databasePath = "database.db"
@@ -34,8 +36,8 @@ router.get('/', (req, res) => {
 router.get('/retrieve', (req, res) => {
     let userID = req.session.userID;
     const infoQuery = "SELECT firstName, lastName, email, phone, streetAddress, zipCode, city FROM users WHERE userID=?";
+    openDatabase();
     db.serialize(function() {
-        openDatabase();
         db.get(infoQuery, [userID], (err, row) => {
             if (err) {
                 console.log(err.message);
@@ -71,8 +73,8 @@ router.post('/editinfo', (req, res) => {
     let city = req.body.city;
     console.log(city);
     const checkEmail = "SELECT userID FROM users WHERE email=?";
+    openDatabase();
     db.serialize(function() {
-        openDatabase();
         db.get(checkEmail, [email], (err, result) => {
             if (err) {
                 console.log(err.message);
@@ -94,13 +96,14 @@ router.post('/editinfo', (req, res) => {
 
 function updateDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, userID) {
     const updateUser = "UPDATE users SET firstName=?, lastName=?, email=?, phone=?, streetAddress=?, zipCode=?, city=? WHERE userID=?";
+    openDatabase();
     db.serialize(function() {
-        openDatabase();
         db.run(updateUser, [firstName, lastName, email, phone, streetAddress, zipCode, city, userID], function (err) {
             if (err) {
                 console.log(err.message);
             }
         });
+        closeDatabase()
     });    
 }
 
@@ -115,8 +118,8 @@ router.post('/editpassword', (req, res) => {
     }
     else {
         const checkEmail = "SELECT password FROM users WHERE userID=?";
+        openDatabase();
         db.serialize(function() {
-            openDatabase();
             db.get(checkEmail, [userID], (err, result) => {
                 if (err) {
                     console.log(err.message);
@@ -138,14 +141,15 @@ router.post('/editpassword', (req, res) => {
 
 function updatePassword(userID, newPassword) {
     const updatePassword = "UPDATE users SET password=? WHERE userID=?";
+    openDatabase();
     db.serialize(function() {
-        openDatabase();
         db.run(updatePassword, [hash(newPassword), userID], function (err) {
             if (err) {
                 console.log(err.message);
             }
             console.log("Changed password");
         });
+        closeDatabase();
     });  
 }
 

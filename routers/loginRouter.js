@@ -1,4 +1,5 @@
 var express = require('express');
+const hash = require("object-hash");
 var sqlite3 = require('sqlite3').verbose();
 
 const router = express.Router();
@@ -31,13 +32,13 @@ router.get('/', (req, res) => {
 });
 
 //Login information handling
-router.post('/authenticate', (req, res) => { //still need to sanitize and validate data
+app.post('/login/authenticate', (req, res) => {
     let email = req.body.email;
     let password = req.body.password;
     const prepareQuery = "SELECT userID FROM users WHERE email=? AND password=?";
     if (email && password) {
         db.serialize(function() {
-            openDatabase();          
+            openDatabase();
             db.get(prepareQuery, [email, hash(password)], (err, result) => {
                 console.log("looked up query");
                 if (err) {
@@ -53,7 +54,7 @@ router.post('/authenticate', (req, res) => { //still need to sanitize and valida
                     console.log("wrong credentials");
                     res.send({ 'msg': 'invalid' });
                 }
-            });          
+            });
             closeDatabase();
         });
     }
