@@ -202,12 +202,6 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 /*Routers*/
-
-//External routers
-//app.use('/menu', menuRouter);
-//app.use('/dish', dishRouter);
-//app.use('/myprofile', profileRouter);
-//app.use('/login', loginRouter);
 app.get('/', (req, res) => {
     res.render('index', { logStatus: req.session.loggedIn });
 });
@@ -242,10 +236,12 @@ app.get('/myprofile', (req, res) => {
     else res.redirect('/login');
 });
 
-//this router handles all menu routing, since special routing is required for the page traversal
+//External routers
 app.use('/menu', menuRouter);
 app.use('/dish', dishRouter);
 app.use('/cart', cartRouter);
+//app.use('/myprofile', profileRouter);
+//app.use('/login', loginRouter);
 
 //Login information handling
 app.post('/login/authenticate', (req, res) => { //still need to sanitize and validate data
@@ -315,7 +311,6 @@ app.post('/login/register', (req, res) => {
                 }
                 
                 else {
-                    //let userID = addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password);
                     const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
                     db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], function (err) {
                         if (err) {
