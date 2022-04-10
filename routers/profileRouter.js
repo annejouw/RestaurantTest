@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
 });
 
 //Retrieve user information for profile page
-router.post('/retrieve', (req, res) => {
+router.get('/retrieve', (req, res) => {
     let userID = req.session.userID;
     const infoQuery = "SELECT firstName, lastName, email, phone, streetAddress, zipCode, city FROM users WHERE userID=?";
     db.serialize(function() {
