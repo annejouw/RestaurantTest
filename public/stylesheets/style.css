@@ -128,18 +128,29 @@ a.footer__about-info-item{
     background-color:white;
 }
 
-#register-form__password-check {
-    font-size: 0.75em;
+#personal-info__success-message, #register-form__password-check, #personal-info__password-success {
+    border-radius:1em;
+    background-color:rgb(212, 253, 199);
+    color:rgba(21, 155, 3, 0.712);
+    padding:1em;
+    display:none;
 }
 
-#login-form__input-check--invalid, #login-form__input-check--empty {
+#register-form__password-check {
+    font-size: 0.8em;
+    margin:10px 0px;
+}
+
+.personal-info__header {
+    font-size:1.25em;
+}
+
+#login-form__input-check--invalid, #login-form__input-check--empty, #register-form__warning, #register-form__input-check--exists, #register-form__input-check--insecure, #personal-info__warning, #personal-info__password-warning, #personal-info__password-insecure, #personal-info__password-nomatch {
     border-radius:1em;
-    color: black;
-    background-color: lightcoral;
-    font-weight: bold;
+    color: rgb(177, 1, 1);
+    background-color: rgb(247, 191, 191);
     display:none;
     padding: 1em;
-    margin: 10px 0px;
 }
 
 .error-page {
@@ -181,7 +192,7 @@ a.footer__about-info-item{
     border-radius: 1em;
 }
 
-.menu__submit {
+.menu__submit{
     margin:10px auto;
     display:block;
     padding:10px;
@@ -191,8 +202,21 @@ a.footer__about-info-item{
     font-size:1em;
 }
 
-.menu__submit:hover {
+.register-form__submit, .login-form__submit, #personal-info__info-submit, #personal-info__password-submit {
+    padding:10px;
+    background-color: white;
+    border-radius: 1em;
+    transition-duration: 0.4s;
+    font-size:1em;
+}
+
+
+.menu__submit:hover, .register-form__submit:hover, .login-form__submit:hover, #personal-info__info-submit:hover, #personal-info__password-submit:hover {
     background-color: lightsteelblue;
+}
+
+#register-form__email, #login-form__email, #personal-info__email {
+    width:250px;
 }
 
 .reservation-form__header {
