@@ -128,7 +128,7 @@ a.footer__about-info-item{
     background-color:white;
 }
 
-#personal-info__success-message, #register-form__password-check, #personal-info__password-success {
+#personal-info__success-message, #personal-info__password-success {
     border-radius:1em;
     background-color:rgb(212, 253, 199);
     color:rgba(21, 155, 3, 0.712);
@@ -137,6 +137,10 @@ a.footer__about-info-item{
 }
 
 #register-form__password-check {
+    border-radius:1em;
+    background-color:rgb(212, 253, 199);
+    color:rgba(21, 155, 3, 0.712);
+    padding:1em;
     font-size: 0.8em;
     margin:10px 0px;
 }

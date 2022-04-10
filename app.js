@@ -244,9 +244,9 @@ app.use('/cart', cartRouter);
 //app.use('/login', loginRouter);
 
 //Login information handling
-app.post('/login/authenticate', (req, res) => { //still need to sanitize and validate data
+app.post('/login/authenticate', (req, res) => { 
     let email = req.body.email;
-    let password = hash(req.body.password);
+    let password = req.body.password;
     const prepareQuery = "SELECT userID FROM users WHERE email=? AND password=?";
     if (email && password) {
         db.serialize(function() {
@@ -316,6 +316,7 @@ app.post('/login/register', (req, res) => {
                         if (err) {
                             console.log(err.message);
                         }
+                        console.log(hash(password));
                         console.log("A row has been inserted");
                         console.log(this);
                         console.log(this.lastID);
