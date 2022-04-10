@@ -258,7 +258,7 @@ app.post('/login/authenticate', (req, res) => {
                 }
                 if (result) {
                     req.session.loggedIn = true;
-                    req.session.username = result;
+                    req.session.userID = result.userID;
                     console.log(req.session);
                     res.send({ 'msg': 'success', 'url': '/' })
                 }

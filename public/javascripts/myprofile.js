@@ -83,6 +83,7 @@ function retrieveInfo(e) {
         contentType:'application/json',  
         success:function(response){  
             if(response.msg == 'success') {
+                console.log(response);
                 displayInfo(response);
             }
         },  
