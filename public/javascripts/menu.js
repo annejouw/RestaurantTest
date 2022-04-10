@@ -661,7 +661,7 @@ function retrieveServerCart() {
         contentType: 'application/json',
         //data: JSON.stringify(data),
         success: function(response){
-            if (response.msg == 'notLogedIn') {
+            if (response.msg == 'notLoggedIn') {
                 console.log('Cannot retrieve cart, user not logged in.');
             }
             else {
