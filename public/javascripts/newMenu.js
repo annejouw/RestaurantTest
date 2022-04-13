@@ -142,41 +142,67 @@ function createProductCard(category, dishInfo){
     productDisplay.appendChild(productDiv);
 
     //Adds button for the user to select requested number of dishes to add to cart.
-    let incrementerDiv = document.createElement('div');
-    incrementerDiv.classList.add("product__incrementer");
+    let quantityChooserDiv = document.createElement('div');
+    quantityChooserDiv.classList.add("product__quantitychooser");
 
     let minusButton = document.createElement('button');
     let minusButtonText = document.createTextNode("-");
     minusButton.setAttribute("type", "button");
-    minusButton.setAttribute("name", dishInfo.dishName + " decrease");
-    minusButton.classList.add("product__incrementer--minus");
+    minusButton.setAttribute("name", dishInfo.dishName);
+    minusButton.setAttribute("value", "decrease");
+    minusButton.classList.add("product__quantitychooser--minus");
     minusButton.appendChild(minusButtonText);
-    minusButton.addEventListener("click", decrease, false);
-
-    let quantityInput = document.createElement('input');
-    quantityInput.setAttribute("type", "number");
-    quantityInput.setAttribute("name", dishInfo.dishName + " quantity");
-    quantityInput.setAttribute("value", "0");
-    quantityInput.setAttribute("min", "0");
-    quantityInput.classList.add("product__quantity");
-    quantityInput.addEventListener("change", inputFieldChange, false);
+    minusButton.addEventListener("click", changeRequestedQuantity, false);
 
     let plusButton = document.createElement('button');
     let plusButtonText = document.createTextNode("+");
     plusButton.setAttribute("type", "button");
-    plusButton.setAttribute("name", dishInfo.dishName + " increase");
-    plusButton.classList.add("product__incrementer--plus");
+    plusButton.setAttribute("name", dishInfo.dishName);
+    plusButton.setAttribute("value", "increase");
+    plusButton.classList.add("product__quantitychooser--plus");
     plusButton.appendChild(plusButtonText);
-    plusButton.addEventListener("click", increase, false);
+    plusButton.addEventListener("click", changeRequestedQuantity, false);
 
-    incrementerDiv.appendChild(minusButton);
-    incrementerDiv.appendChild(quantityInput);
-    incrementerDiv.appendChild(plusButton);
+    quantityChooserDiv.appendChild(minusButton);
+    quantityChooserDiv.appendChild(plusButton);
 
-    productDisplay.appendChild(incrementerDiv);
+    productDisplay.appendChild(quantityChooserDiv);
 
     let categoryGridContainer = document.querySelector(".category-container__category-grid");
     categoryGridContainer.appendChild(productDisplay);
+}
+
+function changeRequestedQuantity(ev){
+    //get ev.target name of dish
+    //send http request to increase by 1
+    clickedButton = ev.target;
+    toChangeDish = clickedButton.name;
+    let quantityChangerHTTPRequest = new XMLHttpRequest();
+
+    switch (clickedButton.value){
+        case 'increase':
+            quantityChangerHTTPRequest.open('POST', '/cart/change/increase');
+            break;
+
+        case 'decrease':
+            quantityChangerHTTPRequest.open('POST', '/cart/change/decrease');
+            break;
+
+        default:
+            console.log('could not change value, ' + clickedButton.value + ' is not increase or decrease')
+            throw new Error('wrong change value in button')
+    }
+
+    quantityChangerHTTPRequest.send(toChangeDish);
+    quantityChangerHTTPRequest.onreadystatechange = function(){
+        if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 200) {
+
+        }
+        if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 400){
+            alert(quantityChangerHTTPRequest.responseText)
+        }
+    }
+
 }
 
 //Creates an empty container that will contain the grid of cards.
@@ -189,41 +215,6 @@ function createGridContainer() {
     flexDiv.appendChild(gridDiv);
 
     menuPageMain.appendChild(flexDiv);
-}
-
-
-//Functions for cart functionality.
-function increase(e) {
-    let inputField = e.target.parentElement.children[1];
-    inputField.value = parseInt(inputField.value) + 1;
-
-    changeProductQuantity(inputField.name, inputField.value);
-}
-
-function decrease(e) {
-    let inputField = e.target.parentElement.children[1];
-    if (parseInt(inputField.value) != 0) {
-        inputField.value = parseInt(inputField.value) - 1;
-        changeProductQuantity(inputField.name, inputField.value);
-    }
-}
-
-function inputFieldChange(e) {
-    let value = parseInt(e.target.value);
-    let name = e.target.name;
-    if (!(value >= 0) || isNaN(value) || value == -0) {
-        e.target.value = 0;
-    }
-    changeProductQuantity(name, e.target.value);
-}
-
-function changeProductQuantity(name, value) {
-    let productObject = dict[name];
-    productObject.quantity = parseInt(value);
-    updateCart();
-    drawCart();
-
-    console.log(productObject.name + " : " + productObject.quantity);
 }
 
 //Added an error for when the category received is not correct.

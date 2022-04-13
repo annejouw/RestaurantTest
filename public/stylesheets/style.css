@@ -333,7 +333,7 @@ img.product__image {
     justify-content:flex-start;
 }
 
-.product__incrementer {
+.product__quantitychooser {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
@@ -350,7 +350,7 @@ img.product__image {
     font-size:150%;
 }
 
-.product__incrementer--minus, .product__incrementer--plus {
+.product__quantitychooser--minus, .product__quantitychooser--plus {
     border-radius: 50%;
     background-color: white;
     border: 1px solid lightsteelblue;
@@ -361,7 +361,7 @@ img.product__image {
     height:40px;
 }
 
-.product__incrementer--minus:hover, .product__incrementer--plus:hover {
+.product__quantitychooser--minus:hover, .product__quantitychooser--plus:hover {
     background-color: lightsteelblue;
 }
 

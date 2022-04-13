@@ -24,6 +24,31 @@ function closeDatabase() {
     });
 }
 
+//check if inputvalue is >0, if not reject change
+router.post('/change/:selectedchange', (req, res) =>{
+    selectedChange = req.params.selectedchange;
+    currentSession = req.sessionId;
+    dishName = req.body;
+    res.send('hoi');
+
+    if (req.session.loggedIn) {
+        if (selectedChange !== 'increase' || selectedChange !== 'decrease') {
+            throw new Error('unexpected change received in cart')
+        }
+
+        openDatabase();
+        db.serialize(function () {
+
+
+        })
+    }
+    //user not logged in
+    else {
+    console.log('user not logged in');
+    res.status(400).send("not logged in");
+}
+});
+
 //cart handling
 router.post( '/update', (req, res) => {
     //processing req data
