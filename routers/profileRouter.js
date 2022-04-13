@@ -153,4 +153,20 @@ function updatePassword(userID, newPassword) {
     });  
 }
 
+router.get('/orderhistory', (req, res) => {
+    let userID = req.session.userID;
+    const retrieveOrderHistory = "SELECT sessionId, foodItem, itemCount FROM orderHistory WHERE userId = ?";
+    openDatabase();
+    db.serialize(function() {
+        db.all(retrieveOrderHistory, [userID], function (err, rows) {
+            if (err) {
+                console.log(err.message);
+            }
+            let orderHistoryJSON = JSON.stringify(rows);
+            res.send(orderHistoryJSON);
+        });
+        closeDatabase();
+    });
+});
+
 module.exports = router;

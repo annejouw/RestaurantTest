@@ -2,6 +2,9 @@
 let tabLinks = document.getElementsByClassName('tab__link');
 for (let i = 0; i < tabLinks.length; i++) {
     tabLinks[i].addEventListener("click", openTab, false);
+    if (i == 1) {
+        tabLinks[i].addEventListener("click", retrieveOrderHistory, false);
+    }
 }
 
 let defaultOpenTab = document.getElementById('tab__link--default');
@@ -83,7 +86,6 @@ function retrieveInfo(e) {
         contentType:'application/json',  
         success:function(response){  
             if(response.msg == 'success') {
-                console.log(response);
                 displayInfo(response);
             }
         },  
@@ -191,4 +193,66 @@ function editPassword(e) {
     document.getElementById('personal-info__password--new').value = "";
     document.getElementById('personal-info__password--second-new').value = "";
     e.preventDefault();
+}
+
+function retrieveOrderHistory(e) {
+    $.ajax({  
+        url:'/myprofile/orderhistory',  
+        type:'get',  
+        dataType:'json',
+        contentType:'application/json',  
+        success:function(response){  
+            console.log(response);
+            displayOrderHistory(response);
+
+        },  
+        error:function(response){  
+            console.log("A server error has occurred"); 
+        }  
+    }); 
+}
+
+function displayOrderHistory(orderHistoryArray) {
+    let orderContainer = document.getElementById("order-history");
+    /* let order = document.createElement('div');
+    order.classList.add("order-history__order");
+    let item = orderHistoryArray[0].itemCount + "x " + orderHistoryArray[0].foodItem;
+    let itemText = document.createTextNode(item);
+    order.appendChild(itemText);
+    order.appendChild(document.createElement('br'));
+    orderContainer.appendChild(order); */
+
+    for (let i = 0; i < orderHistoryArray.length; i++) {
+        if (i == 0) {
+            var order = document.createElement('div');
+            order.classList.add("order-history__order");
+            let item = orderHistoryArray[i].itemCount + "x " + orderHistoryArray[i].foodItem;
+            let itemText = document.createTextNode(item);
+            order.appendChild(itemText);
+            order.appendChild(document.createElement('br'));
+        }
+
+        else {
+            if (orderHistoryArray[i].sessionId == orderHistoryArray[i-1].sessionId) {
+                let item = orderHistoryArray[i].itemCount + "x " + orderHistoryArray[i].foodItem;
+                let itemText = document.createTextNode(item);
+                order.appendChild(itemText);
+                order.appendChild(document.createElement('br'));
+            }
+
+            else {
+                orderContainer.appendChild(order);
+                var order = document.createElement('div');
+                order.classList.add("order-history__order");
+                let item = orderHistoryArray[i].itemCount + "x " + orderHistoryArray[i].foodItem;
+                let itemText = document.createTextNode(item);
+                order.appendChild(itemText);
+                order.appendChild(document.createElement('br'));
+            }
+        }
+
+        if (i == orderHistoryArray.length - 1) {
+            orderContainer.appendChild(order);
+        }
+    }
 }

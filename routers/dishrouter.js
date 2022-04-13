@@ -43,7 +43,7 @@ router.post('/:category', (req, res) => {
             if (err) {
                 console.log(err.message);
             }
-            categoryDishesJSON = JSON.stringify(dishData);
+            let categoryDishesJSON = JSON.stringify(dishData);
             res.append('category', requestedCategory);
             res.send(categoryDishesJSON);
         });

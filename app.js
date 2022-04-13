@@ -14,7 +14,6 @@ var morgan = require('morgan');
 var sqlite3 = require('sqlite3').verbose();
 var bodyParser = require('body-parser');
 var app = express();
-var passwordRegexp = require('password-regexp')();
 
 //routers
 var menuRouter = require('./routers/menurouter.js');
@@ -53,8 +52,16 @@ function closeDatabase() {
 openDatabase();
 db.serialize(function() {
     if (!exists) {
+        //Table containing registered users
         db.run("CREATE TABLE users (userID INTEGER PRIMARY KEY, firstName TEXT NOT NULL, lastName TEXT NOT NULL, email TEXT NOT NULL UNIQUE, phone TEXT NOT NULL, streetAddress TEXT NOT NULL, zipCode TEXT NOT NULL, city TEXT NOT NULL, password TEXT NOT NULL)");
         createDefaultUsers();
+
+        //Tables used for ordering and order history
+        db.run("CREATE TABLE orders (sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        createOrderHistory();
+
+        //Tables containing dishes
         db.run("CREATE TABLE Sashimi (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL)");
         createSashimiItems();
         db.run("CREATE TABLE Nigiri (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL, vegetarian INTEGER)");
@@ -68,6 +75,24 @@ db.serialize(function() {
     }
     closeDatabase();
 });
+
+function createOrderHistory() {
+    insertOrderHistory(1, "aaa", "Salmon sashimi", 3);
+    insertOrderHistory(1, "aaa", "Tuna sashimi", 1);
+    insertOrderHistory(1, "aaa", "Salmon maki", 2);
+    insertOrderHistory(1, "bbb", "Salmon sashimi", 3);
+    insertOrderHistory(1, "bbb", "Salmon maki", 3);
+    insertOrderHistory(1, "ccc", "Tuna sashimi", 2);
+}
+
+function insertOrderHistory(userID, sessionID, dishName, itemCount) {
+    let insert = "INSERT INTO orderHistory (userId, sessionId, foodItem, itemCount) VALUES(?, ?, ?, ?)";
+    db.run(insert, [userID, sessionID, dishName, itemCount], (err) => {
+        if (err) {
+            console.log(err.message);
+        }
+    })
+}
 
 function createSashimiItems(){
     insertSashimiItem(101, "Sake sashimi", "8.50","images/sashimi-salmon.jpg", 5, "Salmon");

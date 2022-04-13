@@ -128,6 +128,13 @@ a.footer__about-info-item{
     background-color:white;
 }
 
+.order-history__order {
+    border: 2px solid black;
+    border-radius: 1em;
+    padding: 1em;
+    margin: 10px 0px;
+}
+
 #personal-info__success-message, #personal-info__password-success {
     border-radius:1em;
     background-color:rgb(212, 253, 199);
