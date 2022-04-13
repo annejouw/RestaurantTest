@@ -2,10 +2,10 @@ var express = require('express');
 var sqlite3 = require('sqlite3').verbose();
 
 const router = express.Router();
-const databasePath = "database.db"
+const databasePath = "database.db";
 
 router.all('/', (req, res) => {
-    console.log("dish router accessed")
+    console.log("dish router accessed");
 });
 
 function openDatabase() {
@@ -27,8 +27,6 @@ function closeDatabase() {
     });
 }
 
-let dishQuery = "SELECT" + + "FROM";
-
 //when dishes are accessed
 router.post('/:category', (req, res) => {
     var requestedCategory = req.params.category;
@@ -46,7 +44,7 @@ router.post('/:category', (req, res) => {
                 console.log(err.message);
             }
             categoryDishesJSON = JSON.stringify(dishData);
-            res.append('category', requestedCategory)
+            res.append('category', requestedCategory);
             res.send(categoryDishesJSON);
         });
 

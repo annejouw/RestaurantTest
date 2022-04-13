@@ -5,7 +5,7 @@ var passwordRegexp = require('password-regexp')();
 
 
 const router = express.Router();
-const databasePath = "database.db"
+const databasePath = "database.db";
 
 function openDatabase() {
     db = new sqlite3.Database(databasePath, (err) => {

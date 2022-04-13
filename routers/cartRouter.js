@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 var sqlite3 = require('sqlite3').verbose();
-const databasePath = "database.db"
+const databasePath = "database.db";
 
 //DB functions
 function openDatabase() {
