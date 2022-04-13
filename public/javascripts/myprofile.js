@@ -214,13 +214,6 @@ function retrieveOrderHistory(e) {
 
 function displayOrderHistory(orderHistoryArray) {
     let orderContainer = document.getElementById("order-history");
-    /* let order = document.createElement('div');
-    order.classList.add("order-history__order");
-    let item = orderHistoryArray[0].itemCount + "x " + orderHistoryArray[0].foodItem;
-    let itemText = document.createTextNode(item);
-    order.appendChild(itemText);
-    order.appendChild(document.createElement('br'));
-    orderContainer.appendChild(order); */
 
     for (let i = 0; i < orderHistoryArray.length; i++) {
         if (i == 0) {
@@ -242,7 +235,7 @@ function displayOrderHistory(orderHistoryArray) {
 
             else {
                 orderContainer.appendChild(order);
-                var order = document.createElement('div');
+                order = document.createElement('div');
                 order.classList.add("order-history__order");
                 let item = orderHistoryArray[i].itemCount + "x " + orderHistoryArray[i].foodItem;
                 let itemText = document.createTextNode(item);

@@ -102,13 +102,10 @@ router.post('/register', (req, res) => {
                             console.log(err.message);
                         }
                         console.log(hash(password));
-                        console.log("A row has been inserted");
-                        console.log(this);
-                        console.log(this.lastID);
+                        console.log("A new user has been inserted");
                         let userID = this.lastID;
                         req.session.loggedIn = true;
                         req.session.userID = userID;
-                        console.log(req.session);
                         res.send({ 'msg' : 'success', 'url' : '/' });
                     });
                 }

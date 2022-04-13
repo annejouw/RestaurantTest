@@ -13,6 +13,9 @@ function addMenuLinkListener(menuLink){
 let firstMenuLink = document.querySelector(".menu__link");
 firstMenuLink.click();
 
+let submitButton = document.getElementById('cart__submit');
+submitButton.addEventListener("submit", submitOrder, false);
+
 function menuLinkEventHandler(evt){
     let menuLinkElement = evt.target; //this is the button html element, that allows the user to select a category.
     let requestedCategory = menuLinkElement.value; //this represents the category that the user wants to change to.
@@ -38,9 +41,9 @@ function menuLinkEventHandler(evt){
 
 //Handles the dynamic menu generation for each category.
 function replaceMenuItems(newCategory, dishesInfoArray){
-    deleteOldGrid()
+    deleteOldGrid();
     createGridContainer();
-    createGrid(newCategory, dishesInfoArray)
+    createGrid(newCategory, dishesInfoArray);
 }
 
 //Deletes the old grid of cards, if it exists.
@@ -224,4 +227,28 @@ function BadCategoryException(category){
     this.toString = function() {
         return this.category + this.message;
     };
+}
+
+//Submitting the order by moving the current order to the order history table
+function submitOrder(e) {
+    $.ajax({
+        url:'/cart/submit',
+        type:'post',
+        dataType:'json',
+        contentType:'application/json',
+        success:function(response, status, xhr){
+            if (response.msg == 'success') {
+                console.log('order succesfully submitted');
+            }
+
+            if (response.msg == 'empty') {
+                console.log('empty cart')
+            }
+        },
+        error:function(response){
+            console.log("A server error has occurred");
+        }
+    });
+
+    e.preventDefault();
 }

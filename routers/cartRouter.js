@@ -117,8 +117,8 @@ router.get('/retrieve', (req, res) => {
     }
 });
 
-//order submission handling
-router.get('/submit', (req, res) => {
+//Order submission handling
+/* router.get('/submit', (req, res) => {
     const userId = req.session.userID;
     var sessionId = req.session.id;
     var today = new Date();
@@ -139,7 +139,51 @@ router.get('/submit', (req, res) => {
             }
         });
     });
+}); */
+
+router.post('/submit', (req, res) => {
+    let userID = req.session.userID;
+    let sessionID = req.session.id;
+
+    let currentOrderStatement = "SELECT foodItem, itemCount FROM orders WHERE sessionId = ?";
+    openDatabase();
+    db.serialize(function() {
+        db.all(currentOrderStatement, [sessionID], (err, rows) => {
+            if (err) {
+                console.log(err.message);
+            }
+
+            if (rows) {
+                console.log(rows);
+                rows.forEach(row => addToOrderHistory(userID, sessionID, row));
+                let deleteStatement = "DELETE FROM orders WHERE sesssionId = ?";
+                db.run(deleteStatement, [sessionID], (err) => {
+                    if (err) {
+                        console.log(err.message);
+                    }
+                });
+                req.session.destroy(); //Destroy previous session
+                req.session.loggedIn = true; //Create new session to get a new session ID
+                req.session.userID = userID; //Link new session to current user
+                res.send({ 'msg':'success'});
+            }
+
+            else {
+                res.send({ 'msg':'empty' });
+            }
+        });
+        closeDatabase();
+    });
 });
+
+function addToOrderHistory (userID, sessionID, row) {
+    let insertStatement = "INSERT INTO orderHistory (userId, sessionId, foodItem, itemCount) VALUES (?, ?, ?, ?)";
+    db.run(insertStatement, [userID, sessionID, row.foodItem, row.itemCount], (err) => {
+        if (err) {
+            console.log(err.message);
+        }
+    });
+}
 
 //database communication functions
 function cartInsert(sessiondId, foodItem, itemCount) {
