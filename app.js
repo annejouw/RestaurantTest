@@ -19,8 +19,8 @@ var app = express();
 var menuRouter = require('./routers/menurouter.js');
 var dishRouter = require('./routers/dishrouter.js');
 var loginRouter = require('./routers/loginrouter.js');
-var profileRouter = require('./routers/profileRouter.js');
-var cartRouter = require('./routers/cartRouter.js');
+var profileRouter = require('./routers/profilerouter.js');
+var cartRouter = require('./routers/cartrouter.js');
 
 //The database
 var fs = require('fs');
