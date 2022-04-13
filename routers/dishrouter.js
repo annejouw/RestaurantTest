@@ -32,23 +32,28 @@ let dishQuery = "SELECT" + + "FROM";
 //when dishes are accessed
 router.post('/:category', (req, res) => {
     var requestedCategory = req.params.category;
-    console.log("dish router category " + requestedCategory + " accessed");
+    //this is to prevent SQL injection. Can't use category=?, since category is a table name, not a column name.
+    if (requestedCategory === 'Sashimi' || requestedCategory === 'Nigiri' || requestedCategory === 'Maki' || requestedCategory === 'Drinks' || requestedCategory === 'Desserts'){
+        console.log("dish router category " + requestedCategory + " accessed");
 
-    //retrieve JSON representing all dishes in this category, with appropriate values
-    openDatabase();
+        //retrieve JSON representing all dishes in this category, with appropriate values
+        openDatabase();
 
-    const requestItemQuery = "SELECT * FROM " + requestedCategory;
+        const requestItemQuery = "SELECT * FROM " + requestedCategory;
 
-    db.all(requestItemQuery, (err, dishData) => {
-        if (err) {
-            console.log(err.message);
-        }
-        categoryDishesJSON = JSON.stringify(dishData);
-        res.append('category', requestedCategory)
-        res.send(categoryDishesJSON);
-    });
+        db.all(requestItemQuery, (err, dishData) => {
+            if (err) {
+                console.log(err.message);
+            }
+            categoryDishesJSON = JSON.stringify(dishData);
+            res.append('category', requestedCategory)
+            res.send(categoryDishesJSON);
+        });
 
-    closeDatabase();
+        closeDatabase();
+    } else{
+        throw new Error('Wrong category received from menu');
+    }
 });
 
 module.exports = router;
