@@ -178,8 +178,8 @@ function createProductCard(category, dishInfo){
 function changeRequestedQuantity(ev){
     //get ev.target name of dish
     //send http request to increase by 1
-    clickedButton = ev.target;
-    toChangeDish = clickedButton.name;
+    let clickedButton = ev.target;
+    let toChangeDish = clickedButton.name;
 
     let quantityChangerHTTPRequest = new XMLHttpRequest();
     quantityChangerHTTPRequest.open('POST', '/cart/change');
@@ -229,8 +229,8 @@ function retrieveServerCart(){
     retrieveCartHTTPRequest.onreadystatechange = function(){
         if (retrieveCartHTTPRequest.readyState == 4 && retrieveCartHTTPRequest.status == 200) {
             //cart retrieved, now draw it
-            console.log(retrieveCartHTTPRequest.response)
-            drawCart(retrieveCartHTTPRequest.response);
+            let retrievedCart = retrieveCartHTTPRequest.response
+            drawCart(retrievedCart);
         }
         if (retrieveCartHTTPRequest.readyState == 4 && retrieveCartHTTPRequest.status == 400){
             //item did not update, give user some help provided by server
@@ -239,13 +239,29 @@ function retrieveServerCart(){
     }
 }
 
-function drawCart(currentCartArray){
-    currentCartArray.each(item => drawItem(item))
+function drawCart(retrievedCart){
+    deleteOldCart()
+    let currentCartArray = JSON.parse(retrievedCart)
+    currentCartArray.forEach(item => drawItem(item))
+}
+
+function deleteOldCart(){
+    let cartContent = document.querySelector(".cart__content")
+    while (cartContent.firstChild){
+        cartContent.removeChild(cartContent.firstChild)
+    }
 }
 
 function drawItem(item){
-    itemCount = item.foodItem;
-    itemName = item.itemCount;
+    let itemCount = item.itemCount;
+    let itemName = item.foodItem;
+
+    let cartContent = document.querySelector(".cart__content")
+
+    let dishElement = document.createElement('p');
+    dishElement.innerHTML = itemCount + 'x ' + itemName
+
+    cartContent.appendChild(dishElement)
 }
 
 
