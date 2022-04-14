@@ -180,15 +180,26 @@ function changeRequestedQuantity(ev){
     //send http request to increase by 1
     clickedButton = ev.target;
     toChangeDish = clickedButton.name;
+
     let quantityChangerHTTPRequest = new XMLHttpRequest();
+    quantityChangerHTTPRequest.open('POST', '/cart/change');
+    quantityChangerHTTPRequest.setRequestHeader("Content-Type", "application/json")
+
 
     switch (clickedButton.value){
         case 'increase':
-            quantityChangerHTTPRequest.open('POST', '/cart/change/increase');
+            quantityChangerHTTPRequest.send(JSON.stringify({
+                "dishname":toChangeDish,
+                "change":'increase'
+            }));
+
             break;
 
         case 'decrease':
-            quantityChangerHTTPRequest.open('POST', '/cart/change/decrease');
+            quantityChangerHTTPRequest.send(JSON.stringify({
+                "dishname":toChangeDish,
+                "change":"decrease"
+            }));
             break;
 
         default:
@@ -196,12 +207,13 @@ function changeRequestedQuantity(ev){
             throw new Error('wrong change value in button')
     }
 
-    quantityChangerHTTPRequest.send(toChangeDish);
+    console.log(toChangeDish)
     quantityChangerHTTPRequest.onreadystatechange = function(){
         if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 200) {
 
         }
         if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 400){
+            //item did not update, give user some help provided by server
             alert(quantityChangerHTTPRequest.responseText)
         }
     }

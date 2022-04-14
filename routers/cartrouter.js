@@ -25,10 +25,13 @@ function closeDatabase() {
 }
 
 //check if inputvalue is >0, if not reject change
-router.post('/change/:selectedchange', (req, res) =>{
-    selectedChange = req.params.selectedchange;
-    currentSession = req.sessionId;
-    dishName = req.body;
+router.post('/change', (req, res) =>{
+    let selectedChange = req.body.change;
+    let currentSession = req.session.id;
+    let dishName = req.body.dishname;
+
+    console.log('item: ' + dishName + ' sessionid: ' + currentSession)
+
 
     if (req.session.loggedIn) {
         switch (selectedChange){
@@ -44,8 +47,7 @@ router.post('/change/:selectedchange', (req, res) =>{
     }
     //user not logged in
     else {
-    console.log('user not logged in');
-    res.status(400).send("Can't submit an order, you are not logged in");
+    res.status(400).send("Can't order items, you are not logged in");
 }
 });
 
@@ -58,9 +60,40 @@ function increaseItemAmount(currentSession, dishName){
         3 if the item does exist, check (amount with this sessionID)
         4 calculate (amount with this sessionID) + 1 and update the amount to this number. then done.
         */
-        let currrentAmount =
-            db.run();
-
+        const checkCartQuery = "SELECT itemCount FROM orders WHERE sessionId=$toCheckId AND foodItem=$toCheckItem";
+            db.get(checkCartQuery, {
+                $toCheckItem : dishName,
+                $toCheckId : currentSession
+            }, (err, result) => {
+                if (err) {
+                    console.log(err.message);
+                }
+                if (!result) {
+                    //dish does not exist yet
+                    addDishToOrder(currentSession, dishName);
+                }
+                else {
+                    //dish exists
+                    oldAmount = result.itemCount
+                    let newAmount = oldAmount + 1;
+                    const ItemCountQuery = "UPDATE orders SET itemCount = $newamount WHERE sessionid = $sessionid AND foodItem = $fooditem"
+                    openDatabase();
+                    db.serialize( function() {
+                        db.run(ItemCountQuery, {
+                            $sessionid:currentSession,
+                            $fooditem:dishName,
+                            $newamount:newAmount
+                        }, (err) => {
+                            if (err) {
+                                console.log(err.message);
+                            }
+                            else {
+                                console.log("increased " + dishName + " by one");
+                            }
+                        });
+                    });
+                }
+        });
         closeDatabase()
     })
 }
@@ -76,56 +109,73 @@ function decreaseItemAmount(currentSession, dishName){
         6 decrease (amount with this sessionID) by 1 if it is. then done.
         7 set (amount with this sessionID) to 0 if it is not. then done.
         */
-        let currrentAmount =
-            db.run();
-
+        const checkCartQuery = "SELECT itemCount FROM orders WHERE sessionId=$toCheckId AND foodItem=$toCheckItem";
+        db.get(checkCartQuery, {
+            $toCheckItem : dishName,
+            $toCheckId : currentSession
+        }, (err, result) => {
+            if (err) {
+                console.log(err.message);
+            }
+            if (!result) {
+                //dish does not exist yet, do nothing since
+            }
+            else {
+                //dish exists
+                oldAmount = result.itemCount;
+                if (oldAmount => 1){
+                    let newAmount = oldAmount - 1;
+                    const ItemCountQuery = "UPDATE orders SET itemCount = $newamount WHERE sessionid = $sessionid AND foodItem = $fooditem"
+                    openDatabase();
+                    db.serialize(function() {
+                        db.run(ItemCountQuery, {
+                            $sessionid:currentSession,
+                            $fooditem:dishName,
+                            $newamount:newAmount
+                        }, (err) => {
+                            if (err) {
+                                console.log(err.message);
+                            }
+                            else {
+                                console.log("increased " + dishName + " by one");
+                            }
+                        });
+                    });
+                }
+                //itemCount is 1 or less, so remove the item
+                const deleteQuery = "DELETE FROM orders where sessionId = $sessionid AND foodItem = $fooditem";
+                openDatabase()
+                db.serialize(function() {
+                    db.run(deleteQuery, {
+                        $sessionid:currentSession,
+                        $fooditem:dishName,
+                    })
+                });
+            }
+        });
         closeDatabase()
     })
 }
 
-
-
-//cart handling
-router.post( '/update', (req, res) => {
-    //processing req data
-    let product = req.body.name;
-    let amount = parseInt(req.body.quantity);
-
-    //using sessionID to group items of the same order
-    var sessiondId = req.session.id;
-
-    //logic for database communication
-    if (req.session.loggedIn) {
-        console.log(product + ' : ' + amount);
-        const checkCart = "SELECT itemCount FROM orders WHERE sessionId=? AND foodItem=?";
-        openDatabase();
-        db.get(checkCart, [sessiondId, product], (err, result) => {
+function addDishToOrder(currentSession, dishName){
+    const insertDishQuery = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES ($sessionid, $fooditem, $itemcount)";
+    openDatabase();
+    db.serialize( function() {
+        db.run(insertDishQuery, {
+            $sessionid:currentSession,
+            $fooditem:dishName,
+            $itemcount:1
+        }, (err) => {
             if (err) {
                 console.log(err.message);
             }
-            if (result == undefined) {
-                cartInsert(sessiondId, product, amount);
-                res.send({ 'msg' : 'success'});
-            }
             else {
-                if (amount > 0) {
-                    updateCart(sessiondId, product, amount);
-                    res.send({ 'msg' : 'success'});
-                }
-                else {
-                    removeFromCart(sessiondId, product);
-                    res.send({ 'msg' : 'success'});
-                }
+                console.log("Added " + dishName + " to order");
             }
         });
-        closeDatabase();
-    }
-    else {
-        console.log('user not logged in');
-        res.send({ 'msg' : 'notLoggedIn'});
-    }
-});
-
+    });
+    closeDatabase();
+}
 
 router.get('/retrieve', (req, res) => {
     const query = "SELECT * WHERE sessionId=?";
@@ -192,7 +242,7 @@ router.post('/submit', (req, res) => {
             if (rows) {
                 console.log(rows);
                 rows.forEach(row => addToOrderHistory(userID, sessionID, row));
-                let deleteStatement = "DELETE FROM orders WHERE sesssionId = ?";
+                let deleteStatement = "DELETE FROM orders WHERE sessionId = ?";
                 db.run(deleteStatement, [sessionID], (err) => {
                     if (err) {
                         console.log(err.message);
