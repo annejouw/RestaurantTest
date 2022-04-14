@@ -138,7 +138,7 @@ function createProductCard(category, dishInfo){
             }
             break;
         default:
-            throw new BadCategoryException(category)
+            throw new Error(category + 'is not a valid category to request')
     }
 
     productDiv.appendChild(productDesc);
@@ -185,14 +185,12 @@ function changeRequestedQuantity(ev){
     quantityChangerHTTPRequest.open('POST', '/cart/change');
     quantityChangerHTTPRequest.setRequestHeader("Content-Type", "application/json")
 
-
     switch (clickedButton.value){
         case 'increase':
             quantityChangerHTTPRequest.send(JSON.stringify({
                 "dishname":toChangeDish,
                 "change":'increase'
             }));
-
             break;
 
         case 'decrease':
@@ -207,10 +205,10 @@ function changeRequestedQuantity(ev){
             throw new Error('wrong change value in button')
     }
 
-    console.log(toChangeDish)
     quantityChangerHTTPRequest.onreadystatechange = function(){
         if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 200) {
-
+            //change accepted, now retrieve cart, and draw the cart when it is retrieved
+            retrieveServerCart()
         }
         if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 400){
             //item did not update, give user some help provided by server
@@ -219,6 +217,37 @@ function changeRequestedQuantity(ev){
     }
 
 }
+
+function retrieveServerCart(){
+    console.log("attempting to retrieve cart from server");
+
+    let retrieveCartHTTPRequest = new XMLHttpRequest();
+    retrieveCartHTTPRequest.open('GET', '/cart/retrieve');
+    retrieveCartHTTPRequest.setRequestHeader("Content-Type", "application/json");
+    retrieveCartHTTPRequest.send();
+
+    retrieveCartHTTPRequest.onreadystatechange = function(){
+        if (retrieveCartHTTPRequest.readyState == 4 && retrieveCartHTTPRequest.status == 200) {
+            //cart retrieved, now draw it
+            console.log(retrieveCartHTTPRequest.response)
+            drawCart(retrieveCartHTTPRequest.response);
+        }
+        if (retrieveCartHTTPRequest.readyState == 4 && retrieveCartHTTPRequest.status == 400){
+            //item did not update, give user some help provided by server
+            alert(retrieveCartHTTPRequest.responseText)
+        }
+    }
+}
+
+function drawCart(currentCartArray){
+    currentCartArray.each(item => drawItem(item))
+}
+
+function drawItem(item){
+    itemCount = item.foodItem;
+    itemName = item.itemCount;
+}
+
 
 //Creates an empty container that will contain the grid of cards.
 function createGridContainer() {
@@ -230,15 +259,6 @@ function createGridContainer() {
     flexDiv.appendChild(gridDiv);
 
     menuPageMain.appendChild(flexDiv);
-}
-
-//Added an error for when the category received is not correct.
-function BadCategoryException(category){
-    this.category = category;
-    this.message = 'is not a valid category received from server';
-    this.toString = function() {
-        return this.category + this.message;
-    };
 }
 
 //Submitting the order by moving the current order to the order history table

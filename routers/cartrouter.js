@@ -14,7 +14,6 @@ function openDatabase() {
         console.log("Connected to the in-memory SQLite database");
     });
 }
-
 function closeDatabase() {
     db.close((err) => {
         if (err) {
@@ -24,7 +23,7 @@ function closeDatabase() {
     });
 }
 
-//check if inputvalue is >0, if not reject change
+
 router.post('/change', (req, res) =>{
     let selectedChange = req.body.change;
     let currentSession = req.session.id;
@@ -32,49 +31,52 @@ router.post('/change', (req, res) =>{
 
     console.log('item: ' + dishName + ' sessionid: ' + currentSession)
 
-
     if (req.session.loggedIn) {
-        switch (selectedChange){
-            case 'increase':
-                increaseItemAmount(currentSession, dishName);
-                break;
-            case 'decrease':
-                decreaseItemAmount(currentSession, dishName);
-                break;
-            default:
-                throw new Error('unexpected change received in cart');
+        if (selectedChange === 'increase' || selectedChange === 'decrease'){
+            changeItemAmount(currentSession, dishName, selectedChange)
+            res.status(200).send('success');
         }
-    }
+
+        throw new Error('unexpected change received in cart');
+        }
+
     //user not logged in
     else {
     res.status(400).send("Can't order items, you are not logged in");
-}
+    }
 });
+/*
+first, check if dish exists in the order for this sessionID.
+If the dish doesn't exist and user wants to increase, create it.
 
-function increaseItemAmount(currentSession, dishName){
+If the dish does exist, check if user wants to increase or decrease
+
+for increase, increase itemCount by 1 for this item
+
+for decrease, check if itemCount is one or less.
+If itemcount<=1, delete it
+If itemcount>1, decrease itemCount by one
+*/
+function changeItemAmount(currentSession, dishName, selectedChange){
     openDatabase();
     db.serialize(function (){
-        /*
-        1 check if item exists for this sessionID
-        2 if it does not, create new row with this sessionID and item, set amount to 1 if increase. then done.
-        3 if the item does exist, check (amount with this sessionID)
-        4 calculate (amount with this sessionID) + 1 and update the amount to this number. then done.
-        */
         const checkCartQuery = "SELECT itemCount FROM orders WHERE sessionId=$toCheckId AND foodItem=$toCheckItem";
-            db.get(checkCartQuery, {
-                $toCheckItem : dishName,
-                $toCheckId : currentSession
-            }, (err, result) => {
-                if (err) {
-                    console.log(err.message);
+        db.get(checkCartQuery, {
+            $toCheckItem : dishName,
+            $toCheckId : currentSession
+        }, (err, result) => {
+            if (err) {
+                console.log(err.message);
+            }
+            if (!result) {
+                if (selectedChange === 'increase'){
+                    addDishToOrder(currentSession, dishName)
                 }
-                if (!result) {
-                    //dish does not exist yet
-                    addDishToOrder(currentSession, dishName);
-                }
-                else {
-                    //dish exists
-                    oldAmount = result.itemCount
+                //if the item doesn't exist, but user wants to decrease, do nothing
+            }
+            else {
+                oldAmount = result.itemCount;
+                if (selectedChange === 'increase') {
                     let newAmount = oldAmount + 1;
                     const ItemCountQuery = "UPDATE orders SET itemCount = $newamount WHERE sessionid = $sessionid AND foodItem = $fooditem"
                     openDatabase();
@@ -92,71 +94,45 @@ function increaseItemAmount(currentSession, dishName){
                             }
                         });
                     });
-                }
-        });
-        closeDatabase()
-    })
-}
-
-function decreaseItemAmount(currentSession, dishName){
-    openDatabase();
-    db.serialize(function (){
-        /*
-        1 check if item exists for this sessionID
-        2 if it does not, create new row with this sessionID and set the item amount to 0. then done.
-        3 if the item does exist, check (mount with this sessionID)
-        5 Check if (amount with this sessionID) is equal to or larger than 1,
-        6 decrease (amount with this sessionID) by 1 if it is. then done.
-        7 set (amount with this sessionID) to 0 if it is not. then done.
-        */
-        const checkCartQuery = "SELECT itemCount FROM orders WHERE sessionId=$toCheckId AND foodItem=$toCheckItem";
-        db.get(checkCartQuery, {
-            $toCheckItem : dishName,
-            $toCheckId : currentSession
-        }, (err, result) => {
-            if (err) {
-                console.log(err.message);
-            }
-            if (!result) {
-                //dish does not exist yet, do nothing since
-            }
-            else {
-                //dish exists
-                oldAmount = result.itemCount;
-                if (oldAmount => 1){
-                    let newAmount = oldAmount - 1;
-                    const ItemCountQuery = "UPDATE orders SET itemCount = $newamount WHERE sessionid = $sessionid AND foodItem = $fooditem"
-                    openDatabase();
-                    db.serialize(function() {
-                        db.run(ItemCountQuery, {
-                            $sessionid:currentSession,
-                            $fooditem:dishName,
-                            $newamount:newAmount
-                        }, (err) => {
-                            if (err) {
-                                console.log(err.message);
-                            }
-                            else {
-                                console.log("increased " + dishName + " by one");
-                            }
+                } else {
+                    //selectedchange is 'decrease'
+                    if (oldAmount > 1){
+                        let newAmount = oldAmount - 1;
+                        const ItemCountQuery = "UPDATE orders SET itemCount = $newamount WHERE sessionid = $sessionid AND foodItem = $fooditem"
+                        openDatabase();
+                        db.serialize(function() {
+                            db.run(ItemCountQuery, {
+                                $sessionid:currentSession,
+                                $fooditem:dishName,
+                                $newamount:newAmount
+                            }, (err) => {
+                                if (err) {
+                                    console.log(err.message);
+                                }
+                                else {
+                                    console.log("decreased " + dishName + " by one");
+                                }
+                            });
                         });
-                    });
+                    } else {
+                        //delete item entry
+                        const deleteQuery = "DELETE FROM orders where sessionId = $sessionid AND foodItem = $fooditem";
+                        openDatabase()
+                        db.serialize(function() {
+                            db.run(deleteQuery, {
+                                $sessionid:currentSession,
+                                $fooditem:dishName,
+                            })
+                        });
+                    }
                 }
-                //itemCount is 1 or less, so remove the item
-                const deleteQuery = "DELETE FROM orders where sessionId = $sessionid AND foodItem = $fooditem";
-                openDatabase()
-                db.serialize(function() {
-                    db.run(deleteQuery, {
-                        $sessionid:currentSession,
-                        $fooditem:dishName,
-                    })
-                });
             }
         });
         closeDatabase()
     })
 }
 
+//adds a dish to an order if it doesn't exist yet
 function addDishToOrder(currentSession, dishName){
     const insertDishQuery = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES ($sessionid, $fooditem, $itemcount)";
     openDatabase();
@@ -178,30 +154,21 @@ function addDishToOrder(currentSession, dishName){
 }
 
 router.get('/retrieve', (req, res) => {
-    const query = "SELECT * WHERE sessionId=?";
-    var sessionId = req.session.id;
-
-    if (req.session.loggedIn) {
-        openDatabase();
-        db.serialize(function() {
-            db.get(query, sessionId, (err, result) => {
-                if (err) {
-                    console.log(err.message);
-                }
-                if (result = undefined) {
-                    console.log('no existing cart');
-                }
-                else {
-                    var cart = retrieveCart(sessionId);
-                    res.send(cart);
-                }
-            });
+    let currentSession = req.session.id;
+    const retrieveOrderQuery = "SELECT foodItem, itemCount FROM orders WHERE sessionId=$sessionid";
+    let order;
+    openDatabase();
+    db.serialize(function() {
+        db.all(retrieveOrderQuery, {$sessionid:currentSession}, (err, result) => {
+            if (err) {
+                throw new err('could not retrieve cart');
+            }
+            else {
+                res.send(result);
+            }
         });
-    }
-    else {
-        res.send({'msg' : 'notLoggedIn'});
-    }
-});
+    });
+})
 
 //Order submission handling
 /* router.get('/submit', (req, res) => {
@@ -269,75 +236,6 @@ function addToOrderHistory (userID, sessionID, row) {
             console.log(err.message);
         }
     });
-}
-
-//database communication functions
-function cartInsert(sessiondId, foodItem, itemCount) {
-    const insertCart = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES (?, ?, ?)";
-    var input = [sessiondId, foodItem, itemCount];
-    openDatabase();
-    db.serialize( function() {
-        db.run(insertCart, input, (err) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                console.log("Added " + foodItem + " with amount: " + itemCount);
-            }
-        });
-    });
-    closeDatabase();
-}
-
-function updateCart(sessiondId, foodItem, itemCount) {
-    const updateCart = "UPDATE orders SET itemCount = ? WHERE sessionId=? AND foodItem=?";
-    var input = [itemCount, sessiondId, foodItem];
-    openDatabase();
-    db.serialize( function() {
-        db.run(updateCart, input, (err) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                console.log("Updated " + foodItem + "count to: " + itemCount);
-            }
-        });
-    });
-    closeDatabase();
-}
-
-function removeFromCart (sessiondId, foodItem) {
-    const removeFromCart = "DELETE FROM orders WHERE sessionId=? AND foodItem=?";
-    var input = [sessiondId, foodItem];
-    openDatabase();
-    db.serialize(function(){
-        db.run(removeFromCart, input, (err) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                console.log("Removed " + foodItem + " from cart");
-            }
-        });
-    });
-    closeDatabase();
-}
-
-function retrieveCart(sessionId) {
-    const query = "SELECT foodItem, itemCount FROM orders WHERE sessionId=?";
-    var order;
-    openDatabase();
-    db.serialize(function() {
-        db.all(query, sessionId, (err, result) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                order = result;
-            }
-        });
-    });
-    return order;
 }
 
 module.exports = router;
