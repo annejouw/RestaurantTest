@@ -6,7 +6,7 @@ var createError = require('http-errors');
 var options = {
     secret: "Session has not been compromised.",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {maxAge: 1000 * 60 * 60 * 24}
                };
 var path = require('path');
@@ -19,8 +19,8 @@ var app = express();
 var menuRouter = require('./routers/menurouter.js');
 var dishRouter = require('./routers/dishrouter.js');
 var loginRouter = require('./routers/loginrouter.js');
-var profileRouter = require('./routers/profileRouter.js');
-var cartRouter = require('./routers/cartRouter.js');
+var profileRouter = require('./routers/profilerouter.js');
+var cartRouter = require('./routers/cartrouter.js');
 
 //The database
 var fs = require('fs');

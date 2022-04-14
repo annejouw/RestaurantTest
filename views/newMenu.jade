@@ -30,6 +30,11 @@ html(lang='en')
                     button.menu__link(name='category' value='Maki') Maki
                     button.menu__link(name='category' value='Desserts') Desserts
                     button.menu__link(name='category' value='Drinks') Drinks
+            if logStatus
+                article.cart 
+                    h1.cart__header Your cart 
+                    div.cart__content
+                    button#cart__submit(name='submit-button' type='submit') Submit your order
         footer.footer
             article.footer__contact-info
                 h4
