@@ -29,25 +29,61 @@ router.post('/change/:selectedchange', (req, res) =>{
     selectedChange = req.params.selectedchange;
     currentSession = req.sessionId;
     dishName = req.body;
-    res.send('hoi');
 
     if (req.session.loggedIn) {
-        if (selectedChange !== 'increase' || selectedChange !== 'decrease') {
-            throw new Error('unexpected change received in cart')
+        switch (selectedChange){
+            case 'increase':
+                increaseItemAmount(currentSession, dishName);
+                break;
+            case 'decrease':
+                decreaseItemAmount(currentSession, dishName);
+                break;
+            default:
+                throw new Error('unexpected change received in cart');
         }
-
-        openDatabase();
-        db.serialize(function () {
-
-
-        })
     }
     //user not logged in
     else {
     console.log('user not logged in');
-    res.status(400).send("not logged in");
+    res.status(400).send("Can't submit an order, you are not logged in");
 }
 });
+
+function increaseItemAmount(currentSession, dishName){
+    openDatabase();
+    db.serialize(function (){
+        /*
+        1 check if item exists for this sessionID
+        2 if it does not, create new row with this sessionID and item, set amount to 1 if increase. then done.
+        3 if the item does exist, check (amount with this sessionID)
+        4 calculate (amount with this sessionID) + 1 and update the amount to this number. then done.
+        */
+        let currrentAmount =
+            db.run();
+
+        closeDatabase()
+    })
+}
+
+function decreaseItemAmount(currentSession, dishName){
+    openDatabase();
+    db.serialize(function (){
+        /*
+        1 check if item exists for this sessionID
+        2 if it does not, create new row with this sessionID and set the item amount to 0. then done.
+        3 if the item does exist, check (mount with this sessionID)
+        5 Check if (amount with this sessionID) is equal to or larger than 1,
+        6 decrease (amount with this sessionID) by 1 if it is. then done.
+        7 set (amount with this sessionID) to 0 if it is not. then done.
+        */
+        let currrentAmount =
+            db.run();
+
+        closeDatabase()
+    })
+}
+
+
 
 //cart handling
 router.post( '/update', (req, res) => {
