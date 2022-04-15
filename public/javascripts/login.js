@@ -1,3 +1,5 @@
+var root = ''; //Local or server root
+
 //Adding event listeners to the page
 let tabLinks = document.getElementsByClassName('tab__link');
 for (let i = 0; i < tabLinks.length; i++) {
@@ -30,7 +32,7 @@ function searchDatabase(e) {
                  'password':password }
     
     $.ajax({  
-        url:'/login/authenticate',  
+        url:root + '/login/authenticate',  
         type:'post',  
         dataType:'json',
         contentType:'application/json',  
@@ -138,7 +140,7 @@ function addToDatabase (e) {
     if (comparePasswords()) {
         console.log("passwords are the same");
         $.ajax({  
-            url:'/login/register',  
+            url:root + '/login/register',  
             type:'post',  
             dataType:'json',
             contentType:'application/json',  

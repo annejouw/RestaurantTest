@@ -76,26 +76,6 @@ db.serialize(function() {
     closeDatabase();
 });
 
-function createOrderHistory() {
-    insertOrderHistory(1, "aaa", "Salmon sashimi", 5.00, 3);
-    insertOrderHistory(1, "aaa", "Tuna sashimi", 3.00, 1);
-    insertOrderHistory(1, "aaa", "Salmon maki", 2.75, 2);
-    insertOrderHistory(1, "bbb", "Salmon sashimi", 3.00, 3);
-    insertOrderHistory(1, "bbb", "Salmon maki", 4.00, 3);
-    insertOrderHistory(1, "ccc", "Tuna sashimi", 4.50, 2);
-}
-
-function insertOrderHistory(userID, orderID, dishName, price, itemCount) {
-    let insert = "INSERT INTO orderHistory (userId, orderId, foodItem, price, itemCount) VALUES(?, ?, ?, ?, ?)";
-    db.run(insert, [userID, orderID, dishName, price, itemCount], (err) => {
-        if (err) {
-            console.log(err.message);
-        }
-    })
-}
-
-
-
 function createSashimiItems(){
     insertSashimiItem(101, "Sake sashimi", "8.50","images/sashimi-salmon.jpg", 5, "Salmon");
     insertSashimiItem(102, "Maguro sashimi", "8.50", "images/sashimi-tuna.jpg", 5, "Tuna",);

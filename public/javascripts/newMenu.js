@@ -1,4 +1,4 @@
-const menuContent = document.getElementById('menu-content');
+var root = ''; //Local or server root
 
 let menuPageMain = document.querySelector(".menu")
 
@@ -24,7 +24,7 @@ function menuLinkEventHandler(evt){
     let menuLinkElement = evt.target; //this is the button html element, that allows the user to select a category.
     let requestedCategory = menuLinkElement.value; //this represents the category that the user wants to change to.
 
-    let HTTPRequestURL = '/dish/' + requestedCategory;
+    let HTTPRequestURL = root + '/dish/' + requestedCategory;
 
     $.ajax({
         url:HTTPRequestURL,
@@ -193,7 +193,7 @@ function changeRequestedQuantity(ev){
     let itemPrice = 0;
 
     let quantityChangerHTTPRequest = new XMLHttpRequest();
-    quantityChangerHTTPRequest.open('POST', '/cart/change');
+    quantityChangerHTTPRequest.open('POST', root + '/cart/change');
     quantityChangerHTTPRequest.setRequestHeader("Content-Type", "application/json")
 
     switch (clickedButton.value){
@@ -234,7 +234,7 @@ function retrieveServerCart(){
     console.log("attempting to retrieve cart from server");
 
     let retrieveCartHTTPRequest = new XMLHttpRequest();
-    retrieveCartHTTPRequest.open('GET', '/cart/retrieve');
+    retrieveCartHTTPRequest.open('GET', root + '/cart/retrieve');
     retrieveCartHTTPRequest.setRequestHeader("Content-Type", "application/json");
     retrieveCartHTTPRequest.send();
 
@@ -314,7 +314,7 @@ function createGridContainer() {
 function submitOrder(e) {
     console.log("trying to submit order");
     $.ajax({
-        url:'/cart/submit',
+        url:root + '/cart/submit',
         type:'post',
         dataType:'json',
         contentType:'application/json',

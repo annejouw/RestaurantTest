@@ -3,7 +3,7 @@ const hash = require("object-hash");
 var sqlite3 = require('sqlite3').verbose();
 var passwordRegexp = require('password-regexp')();
 const uuid = require('uuid');
-
+var htmlEncode = require('htmlencode').htmlEncode;
 
 const router = express.Router();
 const databasePath = "database.db";
@@ -70,14 +70,14 @@ router.post('/authenticate', (req, res) => {
 
 //Registering a new user
 router.post('/register', (req, res) => {
-    let firstName = req.body.firstName;
-    let lastName = req.body.lastName;
-    let email = req.body.email;
-    let phone = "06" + req.body.phone;
+    let firstName = htmlEncode(req.body.firstName);
+    let lastName = htmlEncode(req.body.lastName);
+    let email = htmlEncode(req.body.email); 
+    let phone = "06" + req.body.phone; //The html form specifies this must be a sequence of 8 number -> No need to encode
     let password = req.body.password;
-    let streetAddress = req.body.streetAddress;
-    let zipCode = req.body.zipCode;
-    let city = req.body.city;
+    let streetAddress = htmlEncode(req.body.streetAddress);
+    let zipCode = htmlEncode(req.body.zipCode);
+    let city = htmlEncode(req.body.city);
     const checkEmail = "SELECT userID FROM users WHERE email=?";
     openDatabase();
     db.serialize(function() {

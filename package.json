@@ -25,6 +25,7 @@
     "cookie-parser": "^1.4.6",
     "express": "^4.17.3",
     "express-session": "^1.17.2",
+    "htmlencode": "^0.0.4",
     "jade": "^1.11.0",
     "morgan": "^1.10.0",
     "object-hash": "^3.0.0",

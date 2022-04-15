@@ -1,3 +1,5 @@
+var root = ''; //Local or server root
+
 //Adding event listeners to the page
 let tabLinks = document.getElementsByClassName('tab__link');
 for (let i = 0; i < tabLinks.length; i++) {
@@ -80,7 +82,7 @@ function showMessage(message) { //Hide all messages and show correct message
 
 function retrieveInfo(e) {
     $.ajax({  
-        url:'/myprofile/retrieve',  
+        url:root + '/myprofile/retrieve',  
         type:'get',  
         dataType:'json',
         contentType:'application/json',  
@@ -130,7 +132,7 @@ function editInfo(e) {
                  'city':city };
     
     $.ajax({  
-        url:'/myprofile/editinfo',  
+        url:root + '/myprofile/editinfo',  
         type:'post',  
         dataType:'json',
         contentType:'application/json',  
@@ -161,7 +163,7 @@ function editPassword(e) {
                      'newPassword':newPassword1 };
         
         $.ajax({  
-            url:'/myprofile/editpassword',  
+            url:root + '/myprofile/editpassword',  
             type:'post',  
             dataType:'json',
             contentType:'application/json',  
@@ -197,7 +199,7 @@ function editPassword(e) {
 
 function retrieveOrderHistory(e) {
     $.ajax({  
-        url:'/myprofile/orderhistory',  
+        url:root + '/myprofile/orderhistory',  
         type:'get',  
         dataType:'json',
         contentType:'application/json',  
