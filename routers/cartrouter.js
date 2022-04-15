@@ -1,12 +1,14 @@
+/* This file contains the router for all things concerning the ordering system and the '/cart' path */
+
 const express = require('express');
 const router = express.Router();
 const uuid = require('uuid');
 
 var sqlite3 = require('sqlite3').verbose();
-const databasePath = "database.db";
+const databasePath = "database.db"; //Path to the database
 
 //DB functions
-function openDatabase() {
+function openDatabase() { //Opens the connection to the database
     db = new sqlite3.Database(databasePath, (err) => {
         if (err) {
             return console.error(err.message);
@@ -15,7 +17,7 @@ function openDatabase() {
         console.log("Connected to the in-memory SQLite database");
     });
 }
-function closeDatabase() {
+function closeDatabase() { //Closes the connection to the database
     db.close((err) => {
         if (err) {
             console.error(err.message);
@@ -24,27 +26,26 @@ function closeDatabase() {
     });
 }
 
-
+//Changing the current order by adding or removing items
 router.post('/change', (req, res) =>{
     let selectedChange = req.body.change;
     let currentOrder = req.session.orderID;
     let dishName = req.body.dishname;
-
-    console.log('item: ' + dishName + ' orderid: ' + currentOrder)
 
     if (req.session.loggedIn) {
         if (selectedChange === 'increase' || selectedChange === 'decrease'){
             changeItemAmount(currentOrder, dishName, selectedChange);
             res.sendStatus(200);
         }
+        
         else throw new Error('unexpected change received in cart');
-        } else {
-        res.status(400).send("Can't order items, you are not logged in");
+    } 
+        
+    else {
+        res.status(400).send("Can't order items, you are not logged in"); //user not logged in
     }
-
-    //user not logged in
-
 });
+
 /*
 first, check if dish exists in the order for this orderID.
 If the dish doesn't exist and user wants to increase, create it.
@@ -67,6 +68,7 @@ async function changeItemAmount(currentOrder, dishName, selectedChange){
         }, (err, result) => {
             if (err) {
                 console.log(err.message);
+                throw new Error('Something went wrong with the database');
             }
             if (!result) {
                 if (selectedChange === 'increase'){
@@ -88,9 +90,7 @@ async function changeItemAmount(currentOrder, dishName, selectedChange){
                         }, (err) => {
                             if (err) {
                                 console.log(err.message);
-                            }
-                            else {
-                                console.log("increased " + dishName + " by one");
+                                throw new Error('Something went wrong with updating the database');
                             }
                         });
                     });
@@ -108,9 +108,6 @@ async function changeItemAmount(currentOrder, dishName, selectedChange){
                             }, (err) => {
                                 if (err) {
                                     console.log(err.message);
-                                }
-                                else {
-                                    console.log("decreased " + dishName + " by one");
                                 }
                             });
                         });
@@ -145,15 +142,14 @@ function addDishToOrder(currentOrder, dishName){
         }, (err) => {
             if (err) {
                 console.log(err.message);
-            }
-            else {
-                console.log("Added " + dishName + " to order");
+                throw new Error('Something went wrong with the database');
             }
         });
     });
     closeDatabase();
 }
 
+//Retrieves the current order in progress from the database
 router.get('/retrieve', (req, res) => {
     let currentOrder = req.session.orderID;
     const retrieveOrderQuery = "SELECT foodItem, price, itemCount FROM orders WHERE orderId=$orderid";
@@ -161,7 +157,7 @@ router.get('/retrieve', (req, res) => {
     db.serialize(function() {
         db.all(retrieveOrderQuery, {$orderid:currentOrder}, (err, result) => {
             if (err) {
-                throw new err('could not retrieve cart');
+                throw new Error('could not retrieve cart');
             }
             else {
                 res.send(result);
@@ -170,6 +166,7 @@ router.get('/retrieve', (req, res) => {
     });
 })
 
+//Submits the order from the order in progress database to the order history database
 router.post('/submit', (req, res) => {
     let userID = req.session.userID;
     let orderID = req.session.orderID;
@@ -180,10 +177,10 @@ router.post('/submit', (req, res) => {
         db.all(currentOrderStatement, [orderID], (err, rows) => {
             if (err) {
                 console.log(err.message);
+                throw new Error('Something went wrong with submitting the order to the database');
             }
 
             if (rows) {
-                console.log(rows);
                 rows.forEach(row => addToOrderHistory(userID, orderID, row));
                 let deleteStatement = "DELETE FROM orders WHERE orderId = ?";
                 db.run(deleteStatement, [orderID], (err) => {
@@ -191,9 +188,7 @@ router.post('/submit', (req, res) => {
                         console.log(err.message);
                     }
                 });
-                console.log(req.session.orderID);
                 req.session.orderID = uuid.v4();
-                console.log(req.session.orderID);
                 res.send({ 'msg':'success'});
             }
 
@@ -205,16 +200,18 @@ router.post('/submit', (req, res) => {
     });
 });
 
-function addToOrderHistory (userID, orderID, row) {
+function addToOrderHistory (userID, orderID, row) { //Adds the item to the order history table
     let insertStatement = "INSERT INTO orderHistory (userId, orderId, foodItem, price, itemCount) VALUES (?, ?, ?, ?, ?)";
     db.run(insertStatement, [userID, orderID, row.foodItem, row.price, row.itemCount], (err) => {
         if (err) {
             console.log(err.message);
+            throw new Error('Something went wrong with the database');
         }
     });
 }
 
-let dict = {
+//Small dictionary used to store the prices of all the items in one place, as the items are stored in 5 separate databases
+var dict = {
     "Sake sashimi":8.50,
     "Maguro sashimi":8.50,
     "Sake and maguro sashimi":12.50,

@@ -1,7 +1,7 @@
 var express = require('express');
-var session = require('express-session');
+var session = require('express-session'); //Session middleware
 var cookieParser = require('cookie-parser');
-var hash = require('object-hash');
+var hash = require('object-hash'); //Used to store passwords as hashes
 var createError = require('http-errors');
 var options = {
     secret: "Session has not been compromised.",
@@ -10,12 +10,12 @@ var options = {
     cookie: {maxAge: 1000 * 60 * 60 * 24}
                };
 var path = require('path');
-var morgan = require('morgan');
-var sqlite3 = require('sqlite3').verbose();
+var morgan = require('morgan'); //Used for logging
+var sqlite3 = require('sqlite3').verbose(); //Database 
 var bodyParser = require('body-parser');
 var app = express();
 
-//routers
+//External routers
 var menuRouter = require('./routers/menurouter.js');
 var dishRouter = require('./routers/dishrouter.js');
 var loginRouter = require('./routers/loginrouter.js');
@@ -24,7 +24,6 @@ var cartRouter = require('./routers/cartrouter.js');
 
 //The database
 var fs = require('fs');
-const { resourceLimits } = require('worker_threads');
 var databasePath = "database.db";
 var exists = fs.existsSync(databasePath);
 var db;
@@ -59,7 +58,6 @@ db.serialize(function() {
         //Tables used for ordering and order history
         db.run("CREATE TABLE orders (orderId INTEGER NOT NULL, foodItem TEXT NOT NULL, price TEXT NOT NULL, itemCount INTEGER NOT NULL)");
         db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL, foodItem TEXT NOT NULL, price REAL NOT NULL, itemCount INTEGER NOT NULL)");
-        createOrderHistory();
 
         //Tables containing dishes
         db.run("CREATE TABLE Sashimi (dishID INTEGER PRIMARY KEY, dishName TEXT NOT NULL, price TEXT NOT NULL, imageURL TEXT NOT NULL, numberOfItems TEXT NOT NULL, ingredients TEXT NOT NULL)");
@@ -76,6 +74,7 @@ db.serialize(function() {
     closeDatabase();
 });
 
+/* Adding the standard things to the database such as the default users and the menu items */
 function createSashimiItems(){
     insertSashimiItem(101, "Sake sashimi", "8.50","images/sashimi-salmon.jpg", 5, "Salmon");
     insertSashimiItem(102, "Maguro sashimi", "8.50", "images/sashimi-tuna.jpg", 5, "Tuna",);
@@ -169,7 +168,7 @@ function createDefaultUsers(){
     });
 }
 
-function addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password) {
+function addUserToDatabase(firstName, lastName, email, phone, streetAddress, zipCode, city, password) { //Adds user to database
     const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
     db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], function (err) {
         if (err) {
@@ -244,19 +243,20 @@ app.use('/myprofile', profileRouter);
 app.use('/login', loginRouter);
 
 //Error handling
-// catch 404 and forward to error handler
+//When no routers match, create a 404 not found error
 app.use(function(req, res, next) {
-  next(createError(404));
+    next(createError(404));
 });
 
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+    console.error(err.stack); //Log error stack to console
+    next(err);
+});
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+app.use(function(err, req, res, next) {
+    //Render error page so user does not see error stack
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 app.listen(8018);

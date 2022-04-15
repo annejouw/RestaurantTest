@@ -1,26 +1,28 @@
+/* This file contains the client side functions for displaying the menu, handling changes to the cart and showing the cart */
+
 var root = ''; //Local or server root
 
-let menuPageMain = document.querySelector(".menu")
+let menuPageMain = document.querySelector(".menu");
 
 //creates listeners that send appropriate ajax request for menu links
 let menuLinkArray = document.querySelectorAll(".menu__link");
 menuLinkArray.forEach(menuLink => addMenuLinkListener(menuLink));
 
 function addMenuLinkListener(menuLink){
-    menuLink.addEventListener("click", menuLinkEventHandler, false);
+    menuLink.addEventListener("click", menuLinkEventHandler, false); //Adds the pagination effect
 }
 
-let firstMenuLink = document.querySelector(".menu__link");
+let firstMenuLink = document.querySelector(".menu__link"); //Opens the first link upon page opening
 firstMenuLink.click();
 
 let submitButton = document.getElementById('cart__submit');
 if (submitButton) { //Submit button only present when user is logged in
-    submitButton.addEventListener("click", submitOrder, false);
+    submitButton.addEventListener("click", submitOrder, false); //Submit order functionality
 }
 
-window.addEventListener("load", retrieveServerCart, false);
+window.addEventListener("load", retrieveServerCart, false); //Retrieve the cart contents from the server upon window load
 
-function menuLinkEventHandler(evt){
+function menuLinkEventHandler(evt){ //Retrieve the correct menu items from the server when category is selected
     let menuLinkElement = evt.target; //this is the button html element, that allows the user to select a category.
     let requestedCategory = menuLinkElement.value; //this represents the category that the user wants to change to.
 
@@ -32,15 +34,15 @@ function menuLinkEventHandler(evt){
         dataType:'json',
         contentType:'application/json',
         success:function(response, status, xhr){
-            console.log(response);
             let category = xhr.getResponseHeader('category');
-            console.log(category);
             replaceMenuItems(category, response);
         },
         error:function(response){
             console.log("A server error has occurred");
         }
     });
+
+    retrieveServerCart();
 }
 
 //Handles the dynamic menu generation for each category.
@@ -57,6 +59,18 @@ function deleteOldGrid(){
         oldCategoryContainer.remove();
     }
 };
+
+//Creates an empty container that will contain the grid of cards.
+function createGridContainer() {
+    let flexDiv = document.createElement('div');
+    flexDiv.classList.add("category-container");
+
+    let gridDiv = document.createElement('div');
+    gridDiv.classList.add("category-container__category-grid");
+    flexDiv.appendChild(gridDiv);
+
+    menuPageMain.appendChild(flexDiv);
+}
 
 //Creates the grid of cards containing dishes, using information from the server.
 function createGrid(category, dishesInfoArray){
@@ -154,7 +168,7 @@ function createProductCard(category, dishInfo){
 
     let quantityShower = document.createElement('p');
     quantityShower.classList.add('product__quantitychooser--quantityshower');
-    quantityShower.setAttribute('id', 'quantityshower_' + dishInfo.dishName);
+    quantityShower.setAttribute('id', 'quantityshower_' + dishInfo.dishName.replace(/\s+/g, ''));
     quantityShower.innerHTML = "0";
 
     let minusButton = document.createElement('button');
@@ -185,7 +199,7 @@ function createProductCard(category, dishInfo){
     categoryGridContainer.appendChild(productDisplay);
 }
 
-function changeRequestedQuantity(ev){
+function changeRequestedQuantity(ev){ //Changes the quantity of an item in the database when the user adds or removes items from cart
     //get ev.target name of dish
     //send http request to increase by 1
     let clickedButton = ev.target;
@@ -219,7 +233,6 @@ function changeRequestedQuantity(ev){
     quantityChangerHTTPRequest.onreadystatechange = function(){
         if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 200) {
             //change accepted, now retrieve cart, and draw the cart when it is retrieved
-            console.log('attempting to retrieve cart')
             setTimeout(retrieveServerCart(), 2)
         }
         if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 400){
@@ -230,9 +243,7 @@ function changeRequestedQuantity(ev){
 
 }
 
-function retrieveServerCart(){
-    console.log("attempting to retrieve cart from server");
-
+function retrieveServerCart(){ //Retrieves the current cart contents from the server for the order in progress
     let retrieveCartHTTPRequest = new XMLHttpRequest();
     retrieveCartHTTPRequest.open('GET', root + '/cart/retrieve');
     retrieveCartHTTPRequest.setRequestHeader("Content-Type", "application/json");
@@ -241,7 +252,6 @@ function retrieveServerCart(){
     retrieveCartHTTPRequest.onreadystatechange = function(){
         if (retrieveCartHTTPRequest.readyState == 4 && retrieveCartHTTPRequest.status == 200) {
             //cart retrieved, now draw it
-            console.log('attempting to draw cart')
             let retrievedCart = retrieveCartHTTPRequest.response
             setTimeout(drawCart(retrievedCart), 2);
         }
@@ -252,10 +262,10 @@ function retrieveServerCart(){
     }
 }
 
-function drawCart(retrievedCart){
+function drawCart(retrievedCart){ //Drawing the cart
     deleteOldCart();
     let currentCartArray = JSON.parse(retrievedCart);
-    currentCartArray.forEach(item => drawItem(item));
+    currentCartArray.forEach(item => drawItem(item)); //Adds all items to the cart 
     if (currentCartArray.length > 0) { //Calculates the price and puts its at the bottom of the order
         let cartContent = document.querySelector(".cart__content");
         let totalPrice = document.createElement('p');
@@ -264,7 +274,7 @@ function drawCart(retrievedCart){
     }
 }
 
-function deleteOldCart(){
+function deleteOldCart(){ //Remove all items from the cart
     let cartContent = document.querySelector(".cart__content");
     while (cartContent && cartContent.firstChild){
         cartContent.removeChild(cartContent.firstChild);
@@ -273,9 +283,8 @@ function deleteOldCart(){
     quantityShowers.forEach(quantityShower => quantityShower.innerHTML = "0");
 }
 
-function drawItem(item){
+function drawItem(item){ //Layout for on item in the cart
     let itemCount = item.itemCount;
-    console.log(itemCount);
     let itemName = item.foodItem;
 
     let cartContent = document.querySelector(".cart__content");
@@ -285,34 +294,20 @@ function drawItem(item){
 
     cartContent.appendChild(dishElement);
 
-    quantityShower = document.getElementById('quantityshower_' + itemName);
+    quantityShower = document.getElementById('quantityshower_' + itemName.replace(/\s+/g, ''));
     if (quantityShower) { //Only show quantity of an item when that item is actually on the page right now
         quantityShower.innerHTML = itemCount;
     }
 }
 
-function calculatePrice(currentCartArray) {
+function calculatePrice(currentCartArray) { //Calculates the current total price for the order
     let price = 0;
     currentCartArray.forEach(item => price += (item.price * item.itemCount));
     return price;
 }
 
-
-//Creates an empty container that will contain the grid of cards.
-function createGridContainer() {
-    let flexDiv = document.createElement('div');
-    flexDiv.classList.add("category-container");
-
-    let gridDiv = document.createElement('div');
-    gridDiv.classList.add("category-container__category-grid");
-    flexDiv.appendChild(gridDiv);
-
-    menuPageMain.appendChild(flexDiv);
-}
-
 //Submitting the order by moving the current order to the order history table
 function submitOrder(e) {
-    console.log("trying to submit order");
     $.ajax({
         url:root + '/cart/submit',
         type:'post',
@@ -320,10 +315,10 @@ function submitOrder(e) {
         contentType:'application/json',
         success:function(response, status, xhr){
             if (response.msg == 'success') {
-                console.log('order succesfully submitted');
                 let submitSuccess = document.getElementById('menu__message--success');
                 submitSuccess.style.display = 'block';
                 $('html,body').scrollTop(0);
+                firstMenuLink.click();
                 retrieveServerCart();
             }
 

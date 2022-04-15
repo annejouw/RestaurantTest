@@ -1,14 +1,16 @@
+/* This file contains the router for all things concerning the login and registering system and the '/login' path */
+
 var express = require('express');
 const hash = require("object-hash");
 var sqlite3 = require('sqlite3').verbose();
-var passwordRegexp = require('password-regexp')();
-const uuid = require('uuid');
-var htmlEncode = require('htmlencode').htmlEncode;
+var passwordRegexp = require('password-regexp')(); //Used for password security
+const uuid = require('uuid'); //Generates a unique identifier for the order id
+var htmlEncode = require('htmlencode').htmlEncode; //Used to prevent XSS 
 
 const router = express.Router();
-const databasePath = "database.db";
+const databasePath = "database.db"; //Path to the database
 
-function openDatabase() {
+function openDatabase() { //Opens the connection to the database
     db = new sqlite3.Database(databasePath, (err) => {
         if (err) {
             return console.error(err.message);
@@ -18,7 +20,7 @@ function openDatabase() {
     });
 }
 
-function closeDatabase() {
+function closeDatabase() { //Closes the connection to the database
     db.close((err) => {
         if (err) {
             console.error(err.message);
@@ -46,6 +48,7 @@ router.post('/authenticate', (req, res) => {
                 console.log("looked up query");
                 if (err) {
                     console.log(err.message);
+                    throw new Error('Something went wrong with the database');
                 }
                 if (result) {
                     req.session.loggedIn = true;
@@ -81,6 +84,7 @@ router.post('/register', (req, res) => {
         db.get(checkEmail, [email], (err, result) => {
             if (err) {
                 console.log(err.message);
+                throw new Error('Something went wrong with the database');
             }
 
             if (result) {
