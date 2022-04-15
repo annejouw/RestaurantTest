@@ -1,6 +1,10 @@
+/* This file contains the client side functions for handling login and register requests */
+
+var root = ''; //Local or server root
+
 //Adding event listeners to the page
 let tabLinks = document.getElementsByClassName('tab__link');
-for (let i = 0; i < tabLinks.length; i++) {
+for (let i = 0; i < tabLinks.length; i++) { //Creating tab functionality
     tabLinks[i].addEventListener("click", openTab, false);
 }
 
@@ -8,7 +12,7 @@ let defaultOpenTab = document.getElementById('tab__link--default');
 defaultOpenTab.click();
 
 let passwordInput = document.getElementById('login-form__checkbox');
-passwordInput.addEventListener("click", showPassword, false);
+passwordInput.addEventListener("click", showPassword, false); //Show password function
 
 let passwordField1 = document.getElementsByClassName('register-form__password')[0];
 let passwordField2 = document.getElementsByClassName('register-form__password')[1];
@@ -16,21 +20,21 @@ passwordField1.addEventListener("change", checkPassword, false);
 passwordField2.addEventListener("change", checkPassword, false);
 
 let loginForm = document.getElementById('login-form__content');
-loginForm.addEventListener("submit", addToDatabase, false);
+loginForm.addEventListener("submit", searchDatabase, false); //Login user
 
 let registerForm = document.getElementById('register-form__content');
-registerForm.addEventListener("submit", searchDatabase, false);
+registerForm.addEventListener("submit", addToDatabase, false); //Register user
 
 /* Event handlers */
 //Logging a user in
-function addToDatabase(e) {
+function searchDatabase(e) { //Search database for user
     let email = document.getElementById('login-form__email').value;
     let password = document.getElementById('login-form__password').value;
     var data = { 'email':email,
                  'password':password }
     
     $.ajax({  
-        url:'/login/authenticate',  
+        url:root + '/login/authenticate',  
         type:'post',  
         dataType:'json',
         contentType:'application/json',  
@@ -118,7 +122,8 @@ function comparePasswords() { //Returns true if the passwords match
     return (password1 === password2);
 }
 
-function searchDatabase(e) {
+//Registering a user
+function addToDatabase (e) { //Adds user to database
     let email = document.getElementById('register-form__email').value;
     let password = document.getElementsByClassName('register-form__password')[0].value;
     let firstName = document.getElementById('register-form__first-name').value;
@@ -136,9 +141,8 @@ function searchDatabase(e) {
                  'zipCode':zipCode,
                  'city':city };
     if (comparePasswords()) {
-        console.log("passwords are the same");
         $.ajax({  
-            url:'/login/register',  
+            url:root + '/login/register',  
             type:'post',  
             dataType:'json',
             contentType:'application/json',  
@@ -164,14 +168,14 @@ function searchDatabase(e) {
     e.preventDefault();
 }
 
-function showUserExists() {
+function showUserExists() { //Shown if the email address is already in use
     let userExistsResponse = document.getElementById('register-form__input-check--exists');
     userExistsResponse.style.display = "block";
     let insecureResponse = document.getElementById('register-form__input-check--insecure');
     insecureResponse.style.display = "none";
 }
 
-function showPasswordInsecure() {
+function showPasswordInsecure() { //Shown if the password given by the user is not secure enough
     let insecureResponse = document.getElementById('register-form__input-check--insecure');
     insecureResponse.style.display = "block";
 }

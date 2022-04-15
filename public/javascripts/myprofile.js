@@ -1,18 +1,25 @@
+/* This file contains the client side functions for showing the profile page and order history to the user, and handling changes to their personal information */
+
+var root = ''; //Local or server root
+
 //Adding event listeners to the page
 let tabLinks = document.getElementsByClassName('tab__link');
-for (let i = 0; i < tabLinks.length; i++) {
+for (let i = 0; i < tabLinks.length; i++) { //Create tab functionality
     tabLinks[i].addEventListener("click", openTab, false);
+    if (i == 1) {
+        tabLinks[i].addEventListener("click", retrieveOrderHistory, false);
+    }
 }
 
 let defaultOpenTab = document.getElementById('tab__link--default');
-defaultOpenTab.addEventListener("click", retrieveInfo, false);
+defaultOpenTab.addEventListener("click", retrieveInfo, false); //Retrieving profile info
 defaultOpenTab.click();
 
 let editForm = document.getElementById('personal-info__info-form');
-editForm.addEventListener("submit", editInfo, false);
+editForm.addEventListener("submit", editInfo, false); //Submitting a change to personal info
 
 let passwordForm = document.getElementById('personal-info__password-form');
-passwordForm.addEventListener("submit", editPassword, false);
+passwordForm.addEventListener("submit", editPassword, false); //Submitting a password change
 
 function openTab(e) { //Tab functionality
     let infoTab, orderTab;
@@ -75,15 +82,15 @@ function showMessage(message) { //Hide all messages and show correct message
     }
 }
 
-function retrieveInfo(e) {
+//Getting and displaying personal information
+function retrieveInfo(e) { //Retrieve user's personal information when page is opened
     $.ajax({  
-        url:'/myprofile/retrieve',  
+        url:root + '/myprofile/retrieve',  
         type:'get',  
         dataType:'json',
         contentType:'application/json',  
         success:function(response){  
             if(response.msg == 'success') {
-                console.log(response);
                 displayInfo(response);
             }
         },  
@@ -93,7 +100,7 @@ function retrieveInfo(e) {
     });  
 }
 
-function displayInfo(res) {
+function displayInfo(res) { //Display the user's personal information in the dedicated form
     let firstName = document.getElementById('personal-info__first-name');
     let lastName = document.getElementById('personal-info__last-name');
     let email = document.getElementById('personal-info__email');
@@ -111,7 +118,8 @@ function displayInfo(res) {
     city.value = res.city;
 }
 
-function editInfo(e) {
+//Editing personal information
+function editInfo(e) { //Handle the change in user's personal information
     let email = document.getElementById('personal-info__email').value;
     let firstName = document.getElementById('personal-info__first-name').value;
     let lastName = document.getElementById('personal-info__last-name').value;
@@ -128,7 +136,7 @@ function editInfo(e) {
                  'city':city };
     
     $.ajax({  
-        url:'/myprofile/editinfo',  
+        url:root + '/myprofile/editinfo',  
         type:'post',  
         dataType:'json',
         contentType:'application/json',  
@@ -149,7 +157,7 @@ function editInfo(e) {
     e.preventDefault();
 }
 
-function editPassword(e) {
+function editPassword(e) { //Handle the change in the user's password
     let oldPassword = document.getElementById('personal-info__password--old').value;
     let newPassword1 = document.getElementById('personal-info__password--new').value;
     let newPassword2 = document.getElementById('personal-info__password--second-new').value;
@@ -159,7 +167,7 @@ function editPassword(e) {
                      'newPassword':newPassword1 };
         
         $.ajax({  
-            url:'/myprofile/editpassword',  
+            url:root + '/myprofile/editpassword',  
             type:'post',  
             dataType:'json',
             contentType:'application/json',  
@@ -191,4 +199,71 @@ function editPassword(e) {
     document.getElementById('personal-info__password--new').value = "";
     document.getElementById('personal-info__password--second-new').value = "";
     e.preventDefault();
+}
+
+//Order history
+function retrieveOrderHistory(e) { //Retrieve the order history of the user from the server database
+    $.ajax({  
+        url:root + '/myprofile/orderhistory',  
+        type:'get',  
+        dataType:'json',
+        contentType:'application/json',  
+        success:function(response){  
+            displayOrderHistory(response);
+
+        },  
+        error:function(response){  
+            console.log("A server error has occurred"); 
+        }  
+    }); 
+}
+
+function displayOrderHistory(orderHistoryArray) { //Display the order history on the user's page
+    let orderContainer = document.getElementById("order-history");
+    let totalPrice = 0;
+
+    for (let i = 0; i < orderHistoryArray.length; i++) {
+        if (i == 0) {
+            var order = document.createElement('div');
+            order.classList.add("order-history__order");
+            let item = createItem(orderHistoryArray[i]);
+            order.appendChild(item);
+            order.appendChild(document.createElement('br'));
+            totalPrice += orderHistoryArray[i].price * orderHistoryArray[i].itemCount;
+        }
+
+        else {
+            if (orderHistoryArray[i].orderId == orderHistoryArray[i-1].orderId) {
+                let item = createItem(orderHistoryArray[i]);
+                order.appendChild(item);
+                order.appendChild(document.createElement('br'));
+                totalPrice += orderHistoryArray[i].price * orderHistoryArray[i].itemCount;
+            }
+
+            else {
+                let totalPriceText = document.createTextNode("Total order price: €" + totalPrice.toFixed(2));
+                order.appendChild(totalPriceText);
+                orderContainer.appendChild(order);     
+
+                order = document.createElement('div');
+                order.classList.add("order-history__order");
+                let item = createItem(orderHistoryArray[i]);
+                order.appendChild(item);
+                order.appendChild(document.createElement('br'));
+                totalPrice = orderHistoryArray[i].price * orderHistoryArray[i].itemCount;
+            }
+        }
+
+        if (i == orderHistoryArray.length - 1) {
+            let totalPriceText = document.createTextNode("Total order price: €" + totalPrice.toFixed(2));
+            order.appendChild(totalPriceText);
+            orderContainer.appendChild(order);
+        }
+    }
+}
+
+function createItem(orderItem) { //Create an item in an order
+    let itemText = orderItem.itemCount + "x " + orderItem.foodItem + " €" + orderItem.price;
+    let item = document.createTextNode(itemText);
+    return item;
 }
