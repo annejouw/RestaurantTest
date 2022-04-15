@@ -1,5 +1,7 @@
 /* This file contains the router for all things concerning the profile page and order history page and the '/myprofile' path */
 
+var root = ''; //Local or server root
+
 var express = require('express');
 var sqlite3 = require('sqlite3').verbose();
 var passwordRegexp = require('password-regexp')(); //Used for password security
@@ -32,7 +34,7 @@ router.get('/', (req, res) => { //Check if user is logged in to determine what p
     if (req.session.loggedIn) {
         res.render('myprofile');
     }
-    else res.redirect('/login');
+    else res.redirect(root+'/login');
 });
 
 //Retrieve user information for profile page

@@ -1,3 +1,7 @@
+/* Main application logic file */
+
+var root = ''; //Local or server root
+
 var express = require('express');
 var session = require('express-session'); //Session middleware
 var cookieParser = require('cookie-parser');
@@ -231,7 +235,7 @@ app.get('/story', (req, res) => {
 //Log out
 app.get('/logout', (req, res) => {
     req.session.destroy((err) => {
-        res.redirect('/');
+        res.redirect(root+'/');
     });  
 });
 

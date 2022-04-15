@@ -1,5 +1,7 @@
 /* This file contains the router for all things concerning the login and registering system and the '/login' path */
 
+var root = ''; //Local or server root
+
 var express = require('express');
 const hash = require("object-hash");
 var sqlite3 = require('sqlite3').verbose();
@@ -31,7 +33,7 @@ function closeDatabase() { //Closes the connection to the database
 
 router.get('/', (req, res) => {
     if (req.session.loggedIn) {
-        res.redirect('/index');
+        res.redirect(root+'/index');
     }
     else res.render('login');
 });
@@ -54,7 +56,7 @@ router.post('/authenticate', (req, res) => {
                     req.session.loggedIn = true;
                     req.session.userID = result.userID;
                     req.session.orderID = uuid.v4();
-                    res.send({ 'msg': 'success', 'url': '/' })
+                    res.send({ 'msg': 'success', 'url': root+'/' })
                 }
                 if (typeof result === 'undefined') {
                     res.send({ 'msg': 'invalid' });
@@ -107,7 +109,7 @@ router.post('/register', (req, res) => {
                         req.session.loggedIn = true;
                         req.session.userID = userID;
                         req.session.orderID = uuid.v4();
-                        res.send({ 'msg' : 'success', 'url' : '/' });
+                        res.send({ 'msg' : 'success', 'url' : root+'/' });
                     });
                 }
             }
