@@ -209,7 +209,6 @@ function retrieveOrderHistory(e) { //Retrieve the order history of the user from
         dataType:'json',
         contentType:'application/json',  
         success:function(response){  
-            console.log(response);
             displayOrderHistory(response);
 
         },  

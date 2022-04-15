@@ -35,7 +35,7 @@ function menuLinkEventHandler(evt){ //Retrieve the correct menu items from the s
         contentType:'application/json',
         success:function(response, status, xhr){
             let category = xhr.getResponseHeader('category');
-            replaceMenuItems(category, response);
+            replaceMenuItems(category, response); //As the information from the database is sent as JSON object, we decided not to use ES6 classes for this, as this would be an extra unneeded step
         },
         error:function(response){
             console.log("A server error has occurred");

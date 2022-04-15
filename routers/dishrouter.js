@@ -43,7 +43,7 @@ router.post('/:category', (req, res) => {
             }
             let categoryDishesJSON = JSON.stringify(dishData);
             res.append('category', requestedCategory);
-            res.send(categoryDishesJSON);
+            res.send(categoryDishesJSON); //As the information from the database is sent as JSON object, we decided not to use ES6 classes for this, as this would be an extra unneeded step
         });
 
         closeDatabase();
