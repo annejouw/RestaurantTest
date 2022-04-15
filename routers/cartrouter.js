@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const uuid = require('uuid');
 
 var sqlite3 = require('sqlite3').verbose();
 const databasePath = "database.db";
@@ -26,14 +27,14 @@ function closeDatabase() {
 
 router.post('/change', (req, res) =>{
     let selectedChange = req.body.change;
-    let currentSession = req.session.id;
+    let currentOrder = req.session.orderID;
     let dishName = req.body.dishname;
 
-    console.log('item: ' + dishName + ' sessionid: ' + currentSession)
+    console.log('item: ' + dishName + ' orderid: ' + currentOrder)
 
     if (req.session.loggedIn) {
         if (selectedChange === 'increase' || selectedChange === 'decrease'){
-            changeItemAmount(currentSession, dishName, selectedChange);
+            changeItemAmount(currentOrder, dishName, selectedChange);
             res.sendStatus(200);
         }
         else throw new Error('unexpected change received in cart');
@@ -45,7 +46,7 @@ router.post('/change', (req, res) =>{
 
 });
 /*
-first, check if dish exists in the order for this sessionID.
+first, check if dish exists in the order for this orderID.
 If the dish doesn't exist and user wants to increase, create it.
 
 If the dish does exist, check if user wants to increase or decrease
@@ -56,20 +57,20 @@ for decrease, check if itemCount is one or less.
 If itemcount<=1, delete it
 If itemcount>1, decrease itemCount by one
 */
-async function changeItemAmount(currentSession, dishName, selectedChange){
+async function changeItemAmount(currentOrder, dishName, selectedChange){
     openDatabase();
     db.serialize(function (){
-        const checkCartQuery = "SELECT itemCount FROM orders WHERE sessionId=$toCheckId AND foodItem=$toCheckItem";
+        const checkCartQuery = "SELECT itemCount FROM orders WHERE orderId=$toCheckId AND foodItem=$toCheckItem";
         db.get(checkCartQuery, {
             $toCheckItem : dishName,
-            $toCheckId : currentSession
+            $toCheckId : currentOrder
         }, (err, result) => {
             if (err) {
                 console.log(err.message);
             }
             if (!result) {
                 if (selectedChange === 'increase'){
-                    addDishToOrder(currentSession, dishName)
+                    addDishToOrder(currentOrder, dishName)
                 }
                 //if the item doesn't exist, but user wants to decrease, do nothing
             }
@@ -77,11 +78,11 @@ async function changeItemAmount(currentSession, dishName, selectedChange){
                 oldAmount = result.itemCount;
                 if (selectedChange === 'increase') {
                     let newAmount = oldAmount + 1;
-                    const ItemCountQuery = "UPDATE orders SET itemCount = $newamount WHERE sessionid = $sessionid AND foodItem = $fooditem"
+                    const ItemCountQuery = "UPDATE orders SET itemCount = $newamount WHERE orderId = $orderid AND foodItem = $fooditem"
                     openDatabase();
                     db.serialize( function() {
                         db.run(ItemCountQuery, {
-                            $sessionid:currentSession,
+                            $orderid:currentOrder,
                             $fooditem:dishName,
                             $newamount:newAmount
                         }, (err) => {
@@ -97,13 +98,13 @@ async function changeItemAmount(currentSession, dishName, selectedChange){
                     //selectedchange is 'decrease'
                     if (oldAmount > 1){
                         let newAmount = oldAmount - 1;
-                        const ItemCountQuery = "UPDATE orders SET itemCount = $newamount WHERE sessionid = $sessionid AND foodItem = $fooditem"
+                        const ItemCountQuery = "UPDATE orders SET itemCount = $newamount WHERE orderId = $orderid AND foodItem = $fooditem"
                         openDatabase();
                         db.serialize(function() {
                             db.run(ItemCountQuery, {
-                                $sessionid:currentSession,
+                                $orderid:currentOrder,
                                 $fooditem:dishName,
-                                $newamount:newAmount
+                                $newamount:newAmount,
                             }, (err) => {
                                 if (err) {
                                     console.log(err.message);
@@ -115,11 +116,11 @@ async function changeItemAmount(currentSession, dishName, selectedChange){
                         });
                     } else {
                         //delete item entry
-                        const deleteQuery = "DELETE FROM orders where sessionId = $sessionid AND foodItem = $fooditem";
+                        const deleteQuery = "DELETE FROM orders where orderId = $orderid AND foodItem = $fooditem";
                         openDatabase()
                         db.serialize(function() {
                             db.run(deleteQuery, {
-                                $sessionid:currentSession,
+                                $orderid:currentOrder,
                                 $fooditem:dishName,
                             })
                         });
@@ -128,18 +129,19 @@ async function changeItemAmount(currentSession, dishName, selectedChange){
             }
         });
         closeDatabase();
-    })
+    });
 }
 
 //adds a dish to an order if it doesn't exist yet
-function addDishToOrder(currentSession, dishName){
-    const insertDishQuery = "INSERT INTO orders (sessionId, foodItem, itemCount) VALUES ($sessionid, $fooditem, $itemcount)";
+function addDishToOrder(currentOrder, dishName){
+    const insertDishQuery = "INSERT INTO orders (orderId, foodItem, price, itemCount) VALUES ($orderid, $fooditem, $price, $itemcount)";
     openDatabase();
     db.serialize( function() {
         db.run(insertDishQuery, {
-            $sessionid:currentSession,
+            $orderid:currentOrder,
             $fooditem:dishName,
-            $itemcount:1
+            $itemcount:1,
+            $price:dict[dishName]
         }, (err) => {
             if (err) {
                 console.log(err.message);
@@ -153,12 +155,11 @@ function addDishToOrder(currentSession, dishName){
 }
 
 router.get('/retrieve', (req, res) => {
-    let currentSession = req.session.id;
-    const retrieveOrderQuery = "SELECT foodItem, itemCount FROM orders WHERE sessionId=$sessionid";
-    let order;
+    let currentOrder = req.session.orderID;
+    const retrieveOrderQuery = "SELECT foodItem, price, itemCount FROM orders WHERE orderId=$orderid";
     openDatabase();
     db.serialize(function() {
-        db.all(retrieveOrderQuery, {$sessionid:currentSession}, (err, result) => {
+        db.all(retrieveOrderQuery, {$orderid:currentOrder}, (err, result) => {
             if (err) {
                 throw new err('could not retrieve cart');
             }
@@ -171,30 +172,28 @@ router.get('/retrieve', (req, res) => {
 
 router.post('/submit', (req, res) => {
     let userID = req.session.userID;
-    let sessionID = req.session.id;
+    let orderID = req.session.orderID;
 
-    let currentOrderStatement = "SELECT foodItem, itemCount FROM orders WHERE sessionId = ?";
+    let currentOrderStatement = "SELECT foodItem, itemCount, price FROM orders WHERE orderId = ?";
     openDatabase();
     db.serialize(function() {
-        db.all(currentOrderStatement, [sessionID], (err, rows) => {
+        db.all(currentOrderStatement, [orderID], (err, rows) => {
             if (err) {
                 console.log(err.message);
             }
 
             if (rows) {
                 console.log(rows);
-                rows.forEach(row => addToOrderHistory(userID, sessionID, row));
-                let deleteStatement = "DELETE FROM orders WHERE sessionId = ?";
-                db.run(deleteStatement, [sessionID], (err) => {
+                rows.forEach(row => addToOrderHistory(userID, orderID, row));
+                let deleteStatement = "DELETE FROM orders WHERE orderId = ?";
+                db.run(deleteStatement, [orderID], (err) => {
                     if (err) {
                         console.log(err.message);
                     }
                 });
-                console.log(req.session.id);
-                req.session.destroy(); //Destroy previous session
-                req.session.loggedIn = true; //Create new session to get a new session ID
-                req.session.userID = userID; //Link new session to current user
-                console.log(req.session.id);
+                console.log(req.session.orderID);
+                req.session.orderID = uuid.v4();
+                console.log(req.session.orderID);
                 res.send({ 'msg':'success'});
             }
 
@@ -202,17 +201,41 @@ router.post('/submit', (req, res) => {
                 res.send({ 'msg':'empty' });
             }
         });
-        closeDatabase();
+        //closeDatabase();
     });
 });
 
-function addToOrderHistory (userID, sessionID, row) {
-    let insertStatement = "INSERT INTO orderHistory (userId, sessionId, foodItem, itemCount) VALUES (?, ?, ?, ?)";
-    db.run(insertStatement, [userID, sessionID, row.foodItem, row.itemCount], (err) => {
+function addToOrderHistory (userID, orderID, row) {
+    let insertStatement = "INSERT INTO orderHistory (userId, orderId, foodItem, price, itemCount) VALUES (?, ?, ?, ?, ?)";
+    db.run(insertStatement, [userID, orderID, row.foodItem, row.price, row.itemCount], (err) => {
         if (err) {
             console.log(err.message);
         }
     });
+}
+
+let dict = {
+    "Sake sashimi":8.50,
+    "Maguro sashimi":8.50,
+    "Sake and maguro sashimi":12.50,
+    "Sake nigiri":2.00,
+    "Maguro nigiri":2.00,
+    "Ebi nigiri":1.80,
+    "Kani nigiri":1.60,
+    "Tamago nigiri":1.60,
+    "Kappa maki":4.50,
+    "Sake maki":5.50,
+    "Tekka maki":5.50,
+    "Avocado maki":4.50,
+    "Vanilla icecream":2.50,
+    "Sesam icecream":3.00,
+    "Green tea icecream":3.00,
+    "Assorted fruits":2.60,
+    "Pepsi":1.80,
+    "Sprite":1.80,
+    "Sake":5.00,
+    "Kirin":3.50,
+    "Sapporo":3.50
 }
 
 module.exports = router;

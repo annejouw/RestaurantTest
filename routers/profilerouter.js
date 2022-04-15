@@ -155,7 +155,7 @@ function updatePassword(userID, newPassword) {
 
 router.get('/orderhistory', (req, res) => {
     let userID = req.session.userID;
-    const retrieveOrderHistory = "SELECT sessionId, foodItem, itemCount FROM orderHistory WHERE userId = ?";
+    const retrieveOrderHistory = "SELECT orderId, foodItem, price, itemCount FROM orderHistory WHERE userId = ?";
     openDatabase();
     db.serialize(function() {
         db.all(retrieveOrderHistory, [userID], function (err, rows) {

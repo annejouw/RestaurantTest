@@ -214,38 +214,50 @@ function retrieveOrderHistory(e) {
 
 function displayOrderHistory(orderHistoryArray) {
     let orderContainer = document.getElementById("order-history");
+    let totalPrice = 0;
 
     for (let i = 0; i < orderHistoryArray.length; i++) {
         if (i == 0) {
             var order = document.createElement('div');
             order.classList.add("order-history__order");
-            let item = orderHistoryArray[i].itemCount + "x " + orderHistoryArray[i].foodItem;
-            let itemText = document.createTextNode(item);
-            order.appendChild(itemText);
+            let item = createItem(orderHistoryArray[i]);
+            order.appendChild(item);
             order.appendChild(document.createElement('br'));
+            totalPrice += orderHistoryArray[i].price * orderHistoryArray[i].itemCount;
         }
 
         else {
-            if (orderHistoryArray[i].sessionId == orderHistoryArray[i-1].sessionId) {
-                let item = orderHistoryArray[i].itemCount + "x " + orderHistoryArray[i].foodItem;
-                let itemText = document.createTextNode(item);
-                order.appendChild(itemText);
+            if (orderHistoryArray[i].orderId == orderHistoryArray[i-1].orderId) {
+                let item = createItem(orderHistoryArray[i]);
+                order.appendChild(item);
                 order.appendChild(document.createElement('br'));
+                totalPrice += orderHistoryArray[i].price * orderHistoryArray[i].itemCount;
             }
 
             else {
-                orderContainer.appendChild(order);
+                let totalPriceText = document.createTextNode("Total order price: €" + totalPrice.toFixed(2));
+                order.appendChild(totalPriceText);
+                orderContainer.appendChild(order);     
+
                 order = document.createElement('div');
                 order.classList.add("order-history__order");
-                let item = orderHistoryArray[i].itemCount + "x " + orderHistoryArray[i].foodItem;
-                let itemText = document.createTextNode(item);
-                order.appendChild(itemText);
+                let item = createItem(orderHistoryArray[i]);
+                order.appendChild(item);
                 order.appendChild(document.createElement('br'));
+                totalPrice = orderHistoryArray[i].price * orderHistoryArray[i].itemCount;
             }
         }
 
         if (i == orderHistoryArray.length - 1) {
+            let totalPriceText = document.createTextNode("Total order price: €" + totalPrice.toFixed(2));
+            order.appendChild(totalPriceText);
             orderContainer.appendChild(order);
         }
     }
+}
+
+function createItem(orderItem) {
+    let itemText = orderItem.itemCount + "x " + orderItem.foodItem + " €" + orderItem.price;
+    let item = document.createTextNode(itemText);
+    return item;
 }

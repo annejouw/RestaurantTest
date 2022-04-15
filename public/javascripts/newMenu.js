@@ -14,9 +14,11 @@ let firstMenuLink = document.querySelector(".menu__link");
 firstMenuLink.click();
 
 let submitButton = document.getElementById('cart__submit');
-submitButton.addEventListener("click", submitOrder, false);
+if (submitButton) { //Submit button only present when user is logged in
+    submitButton.addEventListener("click", submitOrder, false);
+}
 
-//window.addEventListener("load", retrieveServerCart, false);
+window.addEventListener("load", retrieveServerCart, false);
 
 function menuLinkEventHandler(evt){
     let menuLinkElement = evt.target; //this is the button html element, that allows the user to select a category.
@@ -150,9 +152,9 @@ function createProductCard(category, dishInfo){
     let quantityChooserDiv = document.createElement('div');
     quantityChooserDiv.classList.add("product__quantitychooser");
 
-    let quantityShower = document.createElement('p')
-    quantityShower.classList.add('product__quanititychooser--quantityshower')
-    quantityShower.setAttribute('id', 'quantityshower_' + dishInfo.dishName)
+    let quantityShower = document.createElement('p');
+    quantityShower.classList.add('product__quantitychooser--quantityshower');
+    quantityShower.setAttribute('id', 'quantityshower_' + dishInfo.dishName);
     quantityShower.innerHTML = "0";
 
     let minusButton = document.createElement('button');
@@ -188,6 +190,7 @@ function changeRequestedQuantity(ev){
     //send http request to increase by 1
     let clickedButton = ev.target;
     let toChangeDish = clickedButton.name;
+    let itemPrice = 0;
 
     let quantityChangerHTTPRequest = new XMLHttpRequest();
     quantityChangerHTTPRequest.open('POST', '/cart/change');
@@ -244,37 +247,54 @@ function retrieveServerCart(){
         }
         if (retrieveCartHTTPRequest.readyState == 4 && retrieveCartHTTPRequest.status == 400){
             //item did not update, give user some help provided by server
-            alert(retrieveCartHTTPRequest.responseText)
+            alert(retrieveCartHTTPRequest.responseText);
         }
     }
 }
 
 function drawCart(retrievedCart){
-    deleteOldCart()
-    let currentCartArray = JSON.parse(retrievedCart)
-    currentCartArray.forEach(item => drawItem(item))
+    deleteOldCart();
+    let currentCartArray = JSON.parse(retrievedCart);
+    currentCartArray.forEach(item => drawItem(item));
+    if (currentCartArray.length > 0) { //Calculates the price and puts its at the bottom of the order
+        let cartContent = document.querySelector(".cart__content");
+        let totalPrice = document.createElement('p');
+        totalPrice.innerHTML = 'Total price: €' + calculatePrice(currentCartArray).toFixed(2);
+        cartContent.appendChild(totalPrice);
+    }
 }
 
 function deleteOldCart(){
-    let cartContent = document.querySelector(".cart__content")
-    while (cartContent.firstChild){
-        cartContent.removeChild(cartContent.firstChild)
+    let cartContent = document.querySelector(".cart__content");
+    while (cartContent && cartContent.firstChild){
+        cartContent.removeChild(cartContent.firstChild);
     }
+    let quantityShowers = document.querySelectorAll(".product__quantitychooser--quantityshower");
+    quantityShowers.forEach(quantityShower => quantityShower.innerHTML = "0");
 }
 
 function drawItem(item){
     let itemCount = item.itemCount;
+    console.log(itemCount);
     let itemName = item.foodItem;
 
-    let cartContent = document.querySelector(".cart__content")
+    let cartContent = document.querySelector(".cart__content");
 
     let dishElement = document.createElement('p');
-    dishElement.innerHTML = itemCount + 'x ' + itemName
+    dishElement.innerHTML = itemCount + 'x ' + itemName;
 
-    cartContent.appendChild(dishElement)
+    cartContent.appendChild(dishElement);
 
-    quantityShower = document.getElementById('quantityshower_' + itemName)
-    quantityShower.innerHTML = itemCount;
+    quantityShower = document.getElementById('quantityshower_' + itemName);
+    if (quantityShower) { //Only show quantity of an item when that item is actually on the page right now
+        quantityShower.innerHTML = itemCount;
+    }
+}
+
+function calculatePrice(currentCartArray) {
+    let price = 0;
+    currentCartArray.forEach(item => price += (item.price * item.itemCount));
+    return price;
 }
 
 
@@ -303,6 +323,8 @@ function submitOrder(e) {
                 console.log('order succesfully submitted');
                 let submitSuccess = document.getElementById('menu__message--success');
                 submitSuccess.style.display = 'block';
+                $('html,body').scrollTop(0);
+                retrieveServerCart();
             }
 
             if (response.msg == 'empty') {

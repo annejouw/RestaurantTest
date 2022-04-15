@@ -2,6 +2,7 @@ var express = require('express');
 const hash = require("object-hash");
 var sqlite3 = require('sqlite3').verbose();
 var passwordRegexp = require('password-regexp')();
+const uuid = require('uuid');
 
 
 const router = express.Router();
@@ -49,6 +50,7 @@ router.post('/authenticate', (req, res) => {
                 if (result) {
                     req.session.loggedIn = true;
                     req.session.userID = result.userID;
+                    req.session.orderID = uuid.v4();
                     console.log(req.session);
                     res.send({ 'msg': 'success', 'url': '/' })
                 }
@@ -107,6 +109,7 @@ router.post('/register', (req, res) => {
                         let userID = this.lastID;
                         req.session.loggedIn = true;
                         req.session.userID = userID;
+                        req.session.orderID = uuid.v4();
                         res.send({ 'msg' : 'success', 'url' : '/' });
                     });
                 }

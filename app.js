@@ -57,8 +57,8 @@ db.serialize(function() {
         createDefaultUsers();
 
         //Tables used for ordering and order history
-        db.run("CREATE TABLE orders (sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
-        db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, sessionId INTEGER NOT NULL, foodItem TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        db.run("CREATE TABLE orders (orderId INTEGER NOT NULL, foodItem TEXT NOT NULL, price TEXT NOT NULL, itemCount INTEGER NOT NULL)");
+        db.run("CREATE TABLE orderHistory (userId INTEGER NOT NULL, orderId INTEGER NOT NULL, foodItem TEXT NOT NULL, price REAL NOT NULL, itemCount INTEGER NOT NULL)");
         createOrderHistory();
 
         //Tables containing dishes
@@ -77,17 +77,17 @@ db.serialize(function() {
 });
 
 function createOrderHistory() {
-    insertOrderHistory(1, "aaa", "Salmon sashimi", 3);
-    insertOrderHistory(1, "aaa", "Tuna sashimi", 1);
-    insertOrderHistory(1, "aaa", "Salmon maki", 2);
-    insertOrderHistory(1, "bbb", "Salmon sashimi", 3);
-    insertOrderHistory(1, "bbb", "Salmon maki", 3);
-    insertOrderHistory(1, "ccc", "Tuna sashimi", 2);
+    insertOrderHistory(1, "aaa", "Salmon sashimi", 5.00, 3);
+    insertOrderHistory(1, "aaa", "Tuna sashimi", 3.00, 1);
+    insertOrderHistory(1, "aaa", "Salmon maki", 2.75, 2);
+    insertOrderHistory(1, "bbb", "Salmon sashimi", 3.00, 3);
+    insertOrderHistory(1, "bbb", "Salmon maki", 4.00, 3);
+    insertOrderHistory(1, "ccc", "Tuna sashimi", 4.50, 2);
 }
 
-function insertOrderHistory(userID, sessionID, dishName, itemCount) {
-    let insert = "INSERT INTO orderHistory (userId, sessionId, foodItem, itemCount) VALUES(?, ?, ?, ?)";
-    db.run(insert, [userID, sessionID, dishName, itemCount], (err) => {
+function insertOrderHistory(userID, orderID, dishName, price, itemCount) {
+    let insert = "INSERT INTO orderHistory (userId, orderId, foodItem, price, itemCount) VALUES(?, ?, ?, ?, ?)";
+    db.run(insert, [userID, orderID, dishName, price, itemCount], (err) => {
         if (err) {
             console.log(err.message);
         }
@@ -251,8 +251,9 @@ app.get('/story', (req, res) => {
 
 //Log out
 app.get('/logout', (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+    req.session.destroy((err) => {
+        res.redirect('/');
+    });  
 });
 
 //External routers
