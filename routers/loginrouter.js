@@ -51,11 +51,9 @@ router.post('/authenticate', (req, res) => {
                     req.session.loggedIn = true;
                     req.session.userID = result.userID;
                     req.session.orderID = uuid.v4();
-                    console.log(req.session);
                     res.send({ 'msg': 'success', 'url': '/' })
                 }
                 if (typeof result === 'undefined') {
-                    console.log("wrong credentials");
                     res.send({ 'msg': 'invalid' });
                 }
             });
@@ -63,7 +61,6 @@ router.post('/authenticate', (req, res) => {
         });
     }
     else {
-        console.log("empty credentials");
         res.send({ 'msg': 'empty' });
     }
 });
@@ -88,13 +85,11 @@ router.post('/register', (req, res) => {
 
             if (result) {
                 res.send({ 'msg': 'exists' });
-                console.log("user already exists");
             }
 
             else {
                 if (!(passwordRegexp.test(password))) {
                     res.send({ 'msg': 'regexp' });
-                    console.log("password not secure");
                 }
 
                 else {
@@ -104,8 +99,6 @@ router.post('/register', (req, res) => {
                         if (err) {
                             console.log(err.message);
                         }
-                        console.log(hash(password));
-                        console.log("A new user has been inserted");
                         let userID = this.lastID;
                         req.session.loggedIn = true;
                         req.session.userID = userID;
