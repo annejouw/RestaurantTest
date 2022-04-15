@@ -5,7 +5,6 @@ Group ID:
 Authors:
   Annemijn van Koten, 6525687
   Bas Reterink, 7244118
-  (Martijn Hannosset, 6486371)
 Direct link to the website:
   http://webtech.science.uu.nl/group18/
 Brief explanation of the website:
