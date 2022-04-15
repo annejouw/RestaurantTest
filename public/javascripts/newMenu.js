@@ -150,6 +150,11 @@ function createProductCard(category, dishInfo){
     let quantityChooserDiv = document.createElement('div');
     quantityChooserDiv.classList.add("product__quantitychooser");
 
+    let quantityShower = document.createElement('p')
+    quantityShower.classList.add('product__quanititychooser--quantityshower')
+    quantityShower.setAttribute('id', 'quantityshower_' + dishInfo.dishName)
+    quantityShower.innerHTML = "0";
+
     let minusButton = document.createElement('button');
     let minusButtonText = document.createTextNode("-");
     minusButton.setAttribute("type", "button");
@@ -169,6 +174,7 @@ function createProductCard(category, dishInfo){
     plusButton.addEventListener("click", changeRequestedQuantity, false);
 
     quantityChooserDiv.appendChild(minusButton);
+    quantityChooserDiv.appendChild(quantityShower)
     quantityChooserDiv.appendChild(plusButton);
 
     productDisplay.appendChild(quantityChooserDiv);
@@ -210,7 +216,8 @@ function changeRequestedQuantity(ev){
     quantityChangerHTTPRequest.onreadystatechange = function(){
         if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 200) {
             //change accepted, now retrieve cart, and draw the cart when it is retrieved
-            retrieveServerCart()
+            console.log('attempting to retrieve cart')
+            setTimeout(retrieveServerCart(), 2)
         }
         if (quantityChangerHTTPRequest.readyState == 4 && quantityChangerHTTPRequest.status == 400){
             //item did not update, give user some help provided by server
@@ -231,8 +238,9 @@ function retrieveServerCart(){
     retrieveCartHTTPRequest.onreadystatechange = function(){
         if (retrieveCartHTTPRequest.readyState == 4 && retrieveCartHTTPRequest.status == 200) {
             //cart retrieved, now draw it
+            console.log('attempting to draw cart')
             let retrievedCart = retrieveCartHTTPRequest.response
-            drawCart(retrievedCart);
+            setTimeout(drawCart(retrievedCart), 2);
         }
         if (retrieveCartHTTPRequest.readyState == 4 && retrieveCartHTTPRequest.status == 400){
             //item did not update, give user some help provided by server
@@ -264,6 +272,9 @@ function drawItem(item){
     dishElement.innerHTML = itemCount + 'x ' + itemName
 
     cartContent.appendChild(dishElement)
+
+    quantityShower = document.getElementById('quantityshower_' + itemName)
+    quantityShower.innerHTML = itemCount;
 }
 
 
