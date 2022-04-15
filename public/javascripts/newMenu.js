@@ -14,7 +14,9 @@ let firstMenuLink = document.querySelector(".menu__link");
 firstMenuLink.click();
 
 let submitButton = document.getElementById('cart__submit');
-submitButton.addEventListener("submit", submitOrder, false);
+submitButton.addEventListener("click", submitOrder, false);
+
+//window.addEventListener("load", retrieveServerCart, false);
 
 function menuLinkEventHandler(evt){
     let menuLinkElement = evt.target; //this is the button html element, that allows the user to select a category.
@@ -279,6 +281,7 @@ function createGridContainer() {
 
 //Submitting the order by moving the current order to the order history table
 function submitOrder(e) {
+    console.log("trying to submit order");
     $.ajax({
         url:'/cart/submit',
         type:'post',
@@ -287,10 +290,12 @@ function submitOrder(e) {
         success:function(response, status, xhr){
             if (response.msg == 'success') {
                 console.log('order succesfully submitted');
+                let submitSuccess = document.getElementById('menu__message--success');
+                submitSuccess.style.display = 'block';
             }
 
             if (response.msg == 'empty') {
-                console.log('empty cart')
+                alert("You cannot submit an order, because your cart is empty. Please add items to your cart before submitting your order.");
             }
         },
         error:function(response){

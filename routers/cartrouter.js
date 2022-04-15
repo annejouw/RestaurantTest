@@ -37,7 +37,7 @@ router.post('/change', (req, res) =>{
             res.status(200).send('success');
         }
 
-        throw new Error('unexpected change received in cart');
+        else throw new Error('unexpected change received in cart');
         }
 
     //user not logged in
@@ -170,30 +170,6 @@ router.get('/retrieve', (req, res) => {
     });
 })
 
-//Order submission handling
-/* router.get('/submit', (req, res) => {
-    const userId = req.session.userID;
-    var sessionId = req.session.id;
-    var today = new Date();
-    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate()+' '+today.getHours()+':'+today.getMinutes();
-
-    const sql = "INSERT INTO orderHistory (userId, sessionId, date) VALUES (?, ?, ?)";
-    var input = [userId, sessionId, date];
-
-    openDatabase();
-    db.serialize(function() {
-        db.run(sql, input, (err) => {
-            if (err) {
-                console.log(err.message);
-            }
-            else {
-                res.send ({'msg' : 'success'});
-                console.log("Order stored in Database");
-            }
-        });
-    });
-}); */
-
 router.post('/submit', (req, res) => {
     let userID = req.session.userID;
     let sessionID = req.session.id;
@@ -215,9 +191,11 @@ router.post('/submit', (req, res) => {
                         console.log(err.message);
                     }
                 });
+                console.log(req.session.id);
                 req.session.destroy(); //Destroy previous session
                 req.session.loggedIn = true; //Create new session to get a new session ID
                 req.session.userID = userID; //Link new session to current user
+                console.log(req.session.id);
                 res.send({ 'msg':'success'});
             }
 

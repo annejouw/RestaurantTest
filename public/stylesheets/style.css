@@ -246,6 +246,13 @@ a.footer__about-info-item{
     flex-wrap:wrap;
 }
 
+#menu__message--success {
+    background-color:rgb(212, 253, 199);
+    color:rgba(21, 155, 3, 0.712);
+    padding:1em;
+    display:none;
+}
+
 #contact-info-container{
     display: flex;
         justify-content: space-evenly;
@@ -386,5 +393,17 @@ img.product__image {
         margin-top:1.5%;
         margin-bottom:1.5%;
         border-radius:1em;
+    }
+
+    #menu__message--success {
+        border-radius:1em;
+        background-color:rgb(212, 253, 199);
+        color:rgba(21, 155, 3, 0.712);
+        padding:1em;
+        display:none;
+        width:75%;
+        margin:auto;
+        margin-top: 1.5%;
+        margin-bottom:1.5%;
     }
 }

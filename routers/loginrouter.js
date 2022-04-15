@@ -96,6 +96,7 @@ router.post('/register', (req, res) => {
                 }
 
                 else {
+                    openDatabase();
                     const insertStatement = 'INSERT INTO users(firstName, lastName, email, phone, streetAddress, zipCode, city, password) VALUES(?, ?, ?, ?, ?, ?, ?, ?)';
                     db.run(insertStatement, [firstName, lastName, email, phone, streetAddress, zipCode, city, hash(password)], function (err) {
                         if (err) {
