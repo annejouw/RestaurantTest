@@ -33,17 +33,16 @@ router.post('/change', (req, res) =>{
 
     if (req.session.loggedIn) {
         if (selectedChange === 'increase' || selectedChange === 'decrease'){
-            changeItemAmount(currentSession, dishName, selectedChange)
-            res.status(200).send('success');
+            changeItemAmount(currentSession, dishName, selectedChange);
+            res.sendStatus(200);
         }
-
         throw new Error('unexpected change received in cart');
-        }
+        } else {
+        res.status(400).send("Can't order items, you are not logged in");
+    }
 
     //user not logged in
-    else {
-    res.status(400).send("Can't order items, you are not logged in");
-    }
+
 });
 /*
 first, check if dish exists in the order for this sessionID.
@@ -57,7 +56,7 @@ for decrease, check if itemCount is one or less.
 If itemcount<=1, delete it
 If itemcount>1, decrease itemCount by one
 */
-function changeItemAmount(currentSession, dishName, selectedChange){
+async function changeItemAmount(currentSession, dishName, selectedChange){
     openDatabase();
     db.serialize(function (){
         const checkCartQuery = "SELECT itemCount FROM orders WHERE sessionId=$toCheckId AND foodItem=$toCheckItem";
@@ -128,7 +127,7 @@ function changeItemAmount(currentSession, dishName, selectedChange){
                 }
             }
         });
-        closeDatabase()
+        closeDatabase();
     })
 }
 
